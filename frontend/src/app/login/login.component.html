@@ -1,11 +1,16 @@
-<div>
-    <h2>Login</h2>
-    <form (ngSubmit)="login()">
-      <label for="username">Username:</label>
-      <input type="text" [(ngModel)]="username" name="username" required />
-      <label for="password">Password:</label>
-      <input type="password" [(ngModel)]="password" name="password" required />
-      <button type="submit">Login</button>
-    </form>
-  </div>
-  
+<!-- login.component.html -->
+<div class="login-page">
+  <h2>Login Page</h2>
+  <form>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username">
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password">
+
+    <button type="submit">Login</button>
+  </form>
+
+ <!-- register button --> 
+  <button routerLink="/register">Register</button>
+</div>

@@ -7,6 +7,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings/settings.component';
 import { FormsModule } from '@angular/forms';  // Import FormsModule for ngModel
 import { HttpClientModule } from '@angular/common/http';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { HttpClientModule } from '@angular/common/http';
     LoginComponent,
     ProfileComponent,
     SettingsComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
