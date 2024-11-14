@@ -1,0 +1,93 @@
+/* login.component.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  body {
+    background-color: #f9fafb;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  /* Centering the login page */
+  .login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .login-container {
+    background-color: #fff;
+    padding: 3rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .login-title {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+  
+  label {
+    display: block;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+  
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  input[type="text"]:focus, input[type="password"]:focus {
+    outline-color: #007bff;
+  }
+  
+  button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .cta-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .cta-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .register-button {
+    background-color: #f1f5f9;
+    color: #007bff;
+    border: 1px solid #ddd;
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  .register-button:hover {
+    background-color: #e1e7f0;
+  }
+  

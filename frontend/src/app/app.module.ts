@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';  // Import FormsModule for ngModel
 import { HttpClientModule } from '@angular/common/http';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
+import { UploadComponent } from './upload/upload.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { HomeComponent } from './home/home.component';
     SettingsComponent,
     RegisterComponent,
     HomeComponent,
+    UploadComponent,
   ],
   imports: [
     BrowserModule,

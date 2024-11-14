@@ -5,7 +5,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';  
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings/settings.component';
-
+import { UploadComponent } from './upload/upload.component';
 import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
@@ -15,6 +15,7 @@ const routes: Routes = [
   { path: 'profile', component: ProfileComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'upload', component: UploadComponent},
   // { path: '', redirectTo: '/login', pathMatch: 'full' },  // Redirect to login by default
 ];
 
