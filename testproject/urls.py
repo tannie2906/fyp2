@@ -10,4 +10,7 @@ urlpatterns = [
     path('api/', include('myapp.urls')),  # API paths
     # Serve Angular's index.html directly
    re_path(r'^$', serve, {'path': 'index.html', 'document_root': settings.BASE_DIR / 'frontend/dist/frontend'}),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -132,6 +132,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",  # Your Angular app's URL
 ]
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -147,7 +149,8 @@ STATICFILES_DIRS = [
 # This is where Django will collect all static files (e.g., during production with 'collectstatic')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Django will collect static files here
 
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type

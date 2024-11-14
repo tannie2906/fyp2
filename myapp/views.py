@@ -10,12 +10,16 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
 from rest_framework import status
 from .models import File
 from .serializers import FileSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
+from rest_framework.decorators import parser_classes
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import permissions
+import os
+
 
 class TestModelViewSet(viewsets.ModelViewSet):
     queryset = TestModel.objects.all()
@@ -24,14 +28,36 @@ class TestModelViewSet(viewsets.ModelViewSet):
     # This should ensure your API returns JSON, not HTML.
 
 @api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])  # Add the parser classes here
 def file_upload(request):
-    parser_classes = (MultiPartParser, FormParser)
     if request.method == 'POST':
         serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FileUploadView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure this line is present
+    # Specify the parsers to handle multipart/form-data
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, *args, **kwargs):
+        # Retrieve the file from the request
+        file_obj = request.FILES.get('file')  # 'file' is the key for file in FormData
+        
+        if not file_obj:
+            return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Create a new File instance using the file uploaded
+            new_file = File(file=file_obj)
+            new_file.save()  # This will save the file into MEDIA_ROOT
+
+            return Response({'message': 'File uploaded successfully'}, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CustomAuthToken(APIView):
     authentication_classes = [TokenAuthentication]

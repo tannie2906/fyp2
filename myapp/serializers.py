@@ -22,6 +22,6 @@ class LoginSerializer(serializers.Serializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ['id', 'name', 'file']  # Include the fields you want to serialize
+        fields = ['id', 'name', 'file', 'upload_at']  # Include the fields you want to serialize
 
 

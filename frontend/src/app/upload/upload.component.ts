@@ -1,6 +1,7 @@
 // src/app/upload/upload.component.ts
 import { Component } from '@angular/core';
 import { FileService } from '../services/file.service'; // Ensure this service handles file upload
+import axios from 'axios';
 
 @Component({
   selector: 'app-upload',
@@ -17,7 +18,7 @@ export class UploadComponent {
   onFileSelected(event: any): void {
     this.selectedFiles = Array.from(event.target.files);
   }
-
+  
   // Handle file drop
   onDrop(event: DragEvent): void {
     event.preventDefault();
@@ -32,28 +33,25 @@ export class UploadComponent {
   }
 
   // Upload files
-  uploadFiles(): void {
-    if (this.fileName.trim() === '') {
-      alert('Please provide a file name.');
-      return;
-    }
-
+  uploadFiles() {
     if (this.selectedFiles.length === 0) {
-      alert('Please select a file to upload.');
+      alert('No files selected.');
       return;
     }
 
-    this.selectedFiles.forEach(file => {
-      this.fileService.uploadFile(file, this.fileName).subscribe(
-        (response) => {
-          alert('File uploaded successfully!');
-          this.fileName = '';
-          this.selectedFiles = [];
-        },
-        (error) => {
-          alert('Error uploading file: ' + error.message);
-        }
-      );
+    const formData = new FormData();
+    formData.append('file', this.selectedFiles[0]);  // Assumes single file upload
+
+    axios.post('http://127.0.0.1:8000/api/upload/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then(response => {
+      console.log('File uploaded successfully:', response.data);
+    })
+    .catch(error => {
+      console.error('Error uploading file:', error.response ? error.response.data : error);
     });
   }
 }
