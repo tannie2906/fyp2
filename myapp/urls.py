@@ -14,7 +14,7 @@ router.register(r'testmodel', TestModelViewSet)
 urlpatterns = [
     path('', index, name='home'),
     path('api/', include(router.urls)),
-    path('api/login/', CustomAuthToken.as_view(), name='login'),
-    path('api/profile/', ProfileView.as_view(), name='profile'),
-    path('api/settings/', SettingsView.as_view(), name='settings'),
+    path('login/', CustomAuthToken.as_view(), name='login'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('settings/', SettingsView.as_view(), name='settings'),
 ]

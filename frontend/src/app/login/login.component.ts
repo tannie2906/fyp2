@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-
 export class LoginComponent {
   username: string = '';
   password: string = '';
@@ -18,10 +17,10 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe(
       (response) => {
         localStorage.setItem('token', response.token);
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/profile']); // Redirect to profile on success
       },
       (error) => {
-        alert('Login failed');
+        alert('Login failed'); // Display an error message on failure
       }
     );
   }

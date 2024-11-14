@@ -8,7 +8,7 @@ import { tap } from 'rxjs/operators';  // Add this import
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = 'http://127.0.0.1:8000/api'; //make sure this api url correct
   private isLoggedIn = false; // set to true if user is logged in
 
   constructor(private http: HttpClient) {}
@@ -35,7 +35,7 @@ export class AuthService {
   getProfile(token: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
     return this.http.get<any>(`${this.apiUrl}/profile/`, { headers });
-  }
+  }  
 
   updateProfile(token: string, data: any): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
