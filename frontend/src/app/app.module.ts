@@ -8,6 +8,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { FormsModule } from '@angular/forms';  // Import FormsModule for ngModel
 import { HttpClientModule } from '@angular/common/http';
 import { RegisterComponent } from './register/register.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { RegisterComponent } from './register/register.component';
     ProfileComponent,
     SettingsComponent,
     RegisterComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
