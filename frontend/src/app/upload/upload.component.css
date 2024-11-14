@@ -1,0 +1,70 @@
+/* src/app/upload/upload.component.css */
+.upload-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .drop-area {
+    border: 2px dashed #007bff;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  .drop-area:hover {
+    background-color: #f0f8ff;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  .file-name-input {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  
+  .upload-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .upload-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .selected-files-list {
+    margin-top: 1rem;
+  }
+  
+  .selected-files-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .selected-files-list li {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+  }
+  

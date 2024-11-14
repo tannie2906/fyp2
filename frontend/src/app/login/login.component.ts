@@ -1,3 +1,4 @@
+// src/app/components/login/login.component.ts
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
@@ -16,11 +17,13 @@ export class LoginComponent {
   login() {
     this.authService.login(this.username, this.password).subscribe(
       (response) => {
+        // Save the token in local storage
         localStorage.setItem('token', response.token);
-        this.router.navigate(['/profile']); // Redirect to profile on success
+        // Redirect to the home page on successful login
+        this.router.navigate(['/home']);
       },
       (error) => {
-        alert('Login failed'); // Display an error message on failure
+        alert('Login failed'); // Show an error message if login fails
       }
     );
   }

@@ -1,9 +1,16 @@
-<!-- app.component.html -->
 <div class="home-page">
   <h1>SecureShare</h1>
   <nav class="navbar">
     <a routerLink="/home" class="home-button">Home</a>
-    <a routerLink="/profile" class="profile-button">Profile</a>
+
+    <!-- Profile button with dropdown menu -->
+    <div class="profile-dropdown">
+      <a routerLink="/profile" class="profile-button">Profile</a>
+      <div class="dropdown-content">
+        <a routerLink="/settings" class="settings-button">Settings</a>
+        <a href="#" class="logout-button" (click)="onLogout()">Logout</a>
+      </div>
+    </div>
   </nav>
   <router-outlet></router-outlet> <!-- Routed components appear here -->
 </div>

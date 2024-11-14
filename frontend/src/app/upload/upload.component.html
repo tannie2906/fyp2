@@ -1,1 +1,35 @@
-<p>upload works!</p>
+<!-- src/app/upload/upload.component.html -->
+<div class="upload-container">
+    <h2>Upload Your Files</h2>
+  
+    <div
+      class="drop-area"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event)"
+    >
+      <p>Drag and drop your files here or click to select</p>
+      <input
+        type="file"
+        multiple
+        (change)="onFileSelected($event)"
+        class="file-input"
+      />
+    </div>
+  
+    <input
+      type="text"
+      class="file-name-input"
+      placeholder="Enter a name for your file"
+      [(ngModel)]="fileName"
+    />
+  
+    <button class="upload-button" (click)="uploadFiles()">Upload Files</button>
+  
+    <div *ngIf="selectedFiles.length > 0" class="selected-files-list">
+      <h3>Selected Files:</h3>
+      <ul>
+        <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
+      </ul>
+    </div>
+  </div>
+  

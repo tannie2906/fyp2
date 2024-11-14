@@ -18,6 +18,13 @@ export class AppComponent implements OnInit  {
     this.router.navigate(['/login']);  // Navigate to the login page
   }
 
+  onLogout() {
+    // Clear the authentication token from localStorage
+    localStorage.removeItem('auth_token');
+    // Navigate the user to the home or login page
+    this.router.navigate(['/home']);
+  }
+
   ngOnInit() {
     this.testModelService.getTestModels().subscribe((data) => {
       this.testModels = data;

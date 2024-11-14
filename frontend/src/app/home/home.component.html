@@ -10,6 +10,7 @@
   <body>
 
     <!-- home.component.html -->
+<!-- src/app/components/home/home.component.html -->
 <main class="main-content">
   <section class="hero">
     <h1 class="hero-title">Secure & Effortless File Sharing</h1>
@@ -21,21 +22,29 @@
     </button>
   </section>
 
-  <section class="features">
+  <!-- User's Uploaded Files List -->
+  <section class="user-files" *ngIf="userFiles.length > 0">
+    <h2>Your Uploaded Files</h2>
+    <ul class="file-list">
+      <li *ngFor="let file of userFiles" class="file-item">
+        <span>{{ file.name }}</span>
+        <span>{{ file.size }} KB</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Display Features If There Are No Uploaded Files -->
+  <section class="features" *ngIf="userFiles.length === 0">
+    <p class="no-files-message">You have no files uploaded yet. Start uploading to see them here!</p>
     <div class="feature-card">
       <img src="assets/secure-icon.png" alt="Secure" class="feature-icon" />
       <h2 class="feature-title">Top-Level Security</h2>
       <p class="feature-description">
-        Your files are protected with advanced encryption, ensuring
-        confidentiality.
+        Your files are protected with advanced encryption, ensuring confidentiality.
       </p>
     </div>
     <div class="feature-card">
-      <img
-        src="assets/easy-access-icon.png"
-        alt="Easy Access"
-        class="feature-icon"
-      />
+      <img src="assets/easy-access-icon.png" alt="Easy Access" class="feature-icon" />
       <h2 class="feature-title">Easy Access</h2>
       <p class="feature-description">
         Access your files from anywhere, anytime, across all your devices.
@@ -45,8 +54,7 @@
       <img src="assets/sharing-icon.png" alt="Sharing" class="feature-icon" />
       <h2 class="feature-title">Effortless Sharing</h2>
       <p class="feature-description">
-        Share your documents securely and seamlessly with colleagues or
-        friends.
+        Share your documents securely and seamlessly with colleagues or friends.
       </p>
     </div>
   </section>

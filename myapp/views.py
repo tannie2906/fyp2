@@ -12,12 +12,26 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
+from .models import File
+from .serializers import FileSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view
 
 class TestModelViewSet(viewsets.ModelViewSet):
     queryset = TestModel.objects.all()
     serializer_class = TestModelSerializer
     permission_classes = [IsAuthenticated]
     # This should ensure your API returns JSON, not HTML.
+
+@api_view(['POST'])
+def file_upload(request):
+    parser_classes = (MultiPartParser, FormParser)
+    if request.method == 'POST':
+        serializer = FileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomAuthToken(APIView):
     authentication_classes = [TokenAuthentication]

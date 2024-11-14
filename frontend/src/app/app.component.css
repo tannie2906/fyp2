@@ -1,60 +1,108 @@
-/* app.component.css */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  body {
-    background-color: #f9fafb;
-    color: #333;
-    line-height: 1.6;
-  }
-  
-  /* Ensuring the navbar is positioned on the left side */
-  .navbar {
-    display: flex;
-    flex-direction: column; /* Arrange links vertically */
-    align-items: flex-start; /* Align the links to the left */
-    padding: 1rem;
-    position: fixed; /* Make the navbar stick to the left side */
-    top: 0;
-    left: 0;
-    height: 100vh; /* Ensure it takes full height */
-    background-color: #007bff; /* Background color for navbar */
-    width: 200px; /* Set width of navbar */
-  }
-  
-  .navbar a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.2rem;
-    margin-bottom: 1rem; /* Space out the links */
-    padding: 0.75rem 1.5rem;
-    width: 100%; /* Full width of the navbar */
-    text-align: left; /* Left align text */
-    border-radius: 5px;
-  }
-  
-  .navbar a:hover {
-    background-color: #0056b3; /* Change color on hover */
-  }
-  
-  .home-page {
-    display: flex;
-    flex-direction: column;
-    margin-left: 200px; /* Offset content from the navbar */
-    padding: 2rem;
-    width: calc(100% - 200px); /* Ensure the content takes the remaining width */
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    color: #007bff;
-  }
-  
-  router-outlet {
-    flex-grow: 1; /* Allow routed components to expand and take remaining space */
-  }
-  
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Navbar styling */
+.navbar {
+  display: flex;
+  flex-direction: column; /* Arrange links vertically */
+  align-items: flex-start; /* Align the links to the left */
+  padding: 1rem;
+  position: fixed; /* Make the navbar stick to the left side */
+  top: 0;
+  left: 0;
+  height: 100vh; /* Ensure it takes full height */
+  background-color: #007bff; /* Background color for navbar */
+  width: 200px; /* Set width of navbar */
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  margin-bottom: 1rem; /* Space out the links */
+  padding: 0.75rem 1.5rem;
+  width: 100%; /* Full width of the navbar */
+  text-align: left; /* Left align text */
+  border-radius: 5px;
+}
+
+.navbar a:hover {
+  background-color: #0056b3; /* Change color on hover */
+}
+
+/* Dropdown menu styling */
+.profile-dropdown {
+  position: relative; /* Position relative to allow absolute positioning of dropdown content */
+}
+
+.profile-button {
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  text-align: left;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+}
+
+.profile-button:hover {
+  background-color: #0056b3; /* Same hover color as links */
+}
+
+.dropdown-content {
+  display: none; /* Hidden by default */
+  position: absolute; /* Position it below the profile button */
+  left: 100%; /* Align it to the right of the profile button */
+  background-color: #f9f9f9; /* Background color for dropdown */
+  min-width: 160px; /* Set a minimum width */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Add some shadow */
+  z-index: 1; /* Ensure it is above other elements */
+  border-radius: 5px;
+}
+
+.dropdown-content a {
+  color: #333; /* Text color for dropdown items */
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block; /* Block display to take full width */
+  border-bottom: 1px solid #ddd; /* Divider between items */
+}
+
+.dropdown-content a:hover {
+  background-color: #eee; /* Light background on hover */
+}
+
+/* Show the dropdown on hover */
+.profile-dropdown:hover .dropdown-content {
+  display: block; /* Show dropdown on hover */
+}
+
+/* Main content styling */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  margin-left: 200px; /* Offset content from the navbar */
+  padding: 2rem;
+  width: calc(100% - 200px); /* Ensure the content takes the remaining width */
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #007bff;
+}
+
+router-outlet {
+  flex-grow: 1; /* Allow routed components to expand and take remaining space */
+}
