@@ -24,48 +24,62 @@ import os
 from django.core.files.storage import default_storage
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from .models import UploadedFile  # Your file model
+from .serializers import FileSerializer 
+from django.core.files.storage import default_storage
+from django.shortcuts import render
+
+# file upload API
+@api_view(['POST'])
+def file_upload(request):
+    parser_classes = (MultiPartParser, FormParser)
+    file_obj = request.FILES.get('file')
+    
+    if not file_obj:
+        return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Save the file using default storage
+    file_path = default_storage.save(file_obj.name, file_obj)
+    file_url = settings.MEDIA_URL + file_obj.name
+    return Response({'file_path': file_path, 'file_url': file_url}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def file_upload(request):
     parser_classes = (MultiPartParser, FormParser)
+    file_obj = request.FILES.get('file')
     
-    if request.method == 'POST':
-        file_obj = request.FILES.get('file')
-
-        if not file_obj:
-            return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Save the file using default storage
-        file_path = default_storage.save(file_obj.name, file_obj)
-        file_url = settings.MEDIA_URL + file_obj.name
-
-        return Response({'file_path': file_path, 'file_url': file_url}, status=status.HTTP_201_CREATED)
+    if not file_obj:
+        return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Save the file using default storage
+    file_path = default_storage.save(file_obj.name, file_obj)
+    file_url = settings.MEDIA_URL + file_obj.name
+    return Response({'file_path': file_path, 'file_url': file_url}, status=status.HTTP_201_CREATED)
 
 class FileUploadView(APIView):
-    permission_classes = [IsAuthenticated]  # Make sure the user is authenticated
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
         if not file:
-            return Response({"error": "No file provided."}, status=400)
+            return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Construct the full path to save the file
-        upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
-        try:
-            os.makedirs(os.path.dirname(upload_path), exist_ok=True)  # Create directories if not exist
+        # Save the file
+        uploaded_file = UploadedFile.objects.create(file=file, owner=request.user)  # Assuming file model with owner
+        file_url = settings.MEDIA_URL + uploaded_file.file.name
 
-            # Save the file
-            with open(upload_path, 'wb') as f:
-                for chunk in file.chunks():
-                    f.write(chunk)
+        return Response({"message": "File uploaded successfully!", "file_url": file_url}, status=status.HTTP_201_CREATED)
 
-            # Construct the file URL for response
-            file_url = settings.MEDIA_URL + 'uploads/' + file.name
 
-            return Response({"message": "File uploaded successfully!", "file_url": file_url}, status=200)
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+class FileListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        files = UploadedFile.objects.filter(owner=request.user)  # Get files of the authenticated user
+        serializer = FileSerializer(files, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CustomAuthToken(APIView):
     authentication_classes = [TokenAuthentication]
@@ -133,7 +147,7 @@ def list_files(request):
     
     return JsonResponse({'files': file_list})
 
-### Registration View
+# Registration View
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]  # Ensure registration is public
 
@@ -158,3 +172,19 @@ class RegisterUserView(APIView):
             "message": "User registered successfully",
             "token": token.key  # Include the token in the response
         }, status=status.HTTP_201_CREATED)
+    
+    # View to list all uploaded files in the media folder
+def list_uploaded_files(request):
+    media_path = settings.MEDIA_ROOT  # Path to the media folder
+    files = os.listdir(media_path)  # List files in the media folder
+    file_list = [file for file in files if os.path.isfile(os.path.join(media_path, file))]
+    return JsonResponse({'files': file_list})
+
+def get_file_url(request):
+    # Example logic for returning a file URL
+    return JsonResponse({"message": "File URL functionality not implemented yet."})
+
+def get_user_files(request):
+    # Replace this with your actual logic to get user files
+    files = []  # Example: Retrieve files from your database
+    return JsonResponse(files, safe=False)

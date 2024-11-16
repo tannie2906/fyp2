@@ -8,6 +8,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { UploadComponent } from './upload/upload.component';
 import { RegisterComponent } from './register/register.component';
 import { FolderComponent } from './folder/folder.component';
+import { FileViewComponent } from './file-view/file-view.component';  
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirect to home page
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'upload', component: UploadComponent},
   { path: 'folder', component: FolderComponent },
+  { path: 'folder/:fileName', component: FileViewComponent }, 
   // { path: '', redirectTo: '/login', pathMatch: 'full' },  // Redirect to login by default
 ];
 

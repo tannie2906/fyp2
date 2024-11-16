@@ -1,1 +1,61 @@
-<p>folder works!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Uploaded Files</title>
+</head>
+<body>
+    <h1>Your Uploaded Files</h1>
+    <div id="file-list">Loading...</div>
+
+    <script>
+        // Fetch and display uploaded files
+        async function fetchUploadedFiles() {
+            try {
+                // Replace 'yourToken' with the actual token received after authentication
+                const yourToken = "yourActualTokenHere";  // Replace with your actual token
+
+                const response = await fetch('/api/files/', {
+                    headers: {
+                        'Authorization': `Bearer ${yourToken}`  // Add the token to the request headers
+                    }
+                });
+
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Parse the JSON response
+                const files = await response.json();
+
+                // Check if files are present
+                if (files.length > 0) {
+                    displayFiles(files);
+                } else {
+                    document.querySelector('#file-list').innerText = 'No files uploaded yet.';
+                }
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                document.querySelector('#file-list').innerText = 'Failed to load files. Please try again later.';
+            }
+        }
+
+        // Function to display files in the HTML
+        function displayFiles(files) {
+            const fileListContainer = document.querySelector('#file-list');
+            fileListContainer.innerHTML = '';  // Clear existing content
+
+            files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.textContent = file.file;  // Assuming 'file' is the field containing the file URL
+                fileListContainer.appendChild(fileElement);
+            });
+        }
+
+        // Fetch files when the page loads
+        window.onload = fetchUploadedFiles;
+    </script>
+</body>
+</html>

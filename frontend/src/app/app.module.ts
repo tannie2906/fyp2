@@ -11,6 +11,7 @@ import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { UploadComponent } from './upload/upload.component';
 import { FolderComponent } from './folder/folder.component';
+import { FileViewComponent } from './file-view/file-view.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { FolderComponent } from './folder/folder.component';
     HomeComponent,
     UploadComponent,
     FolderComponent,
+    FileViewComponent,
   ],
   imports: [
     BrowserModule,

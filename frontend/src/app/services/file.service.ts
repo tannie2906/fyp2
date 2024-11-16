@@ -6,13 +6,19 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class FileService {
+
   private apiUrl = 'http://127.0.0.1:8000/api'; // Base URL for the API
 
   constructor(private http: HttpClient) {}
 
-  // Fetch user files from the backend
-  getUserFiles(): Observable<Array<{ name: string; size: number }>> {
-    return this.http.get<Array<{ name: string; size: number }>>(`${this.apiUrl}/files`);
+  // Fetch the user's uploaded files from the backend
+  getUserFiles(): Observable<{ fileName: string }[]> {
+    return this.http.get<{ fileName: string }[]>(`${this.apiUrl}/files/`);
+  }
+
+  // New method to get the URL of a specific file
+  getFileUrl(fileName: string): Observable<{ fileUrl: string }> {
+    return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`);
   }
 
   // Upload a file to the backend
