@@ -23,7 +23,7 @@ from django.contrib.auth.models import User
 import os
 from django.core.files.storage import default_storage
 from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
 
 
 @api_view(['POST'])
@@ -147,4 +147,10 @@ class RegisterUserView(APIView):
         user = User.objects.create_user(username=username, password=password)
         user.save()
 
-        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        # Generate token for the new user
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response({
+            "message": "User registered successfully",
+            "token": token.key  # Include the token in the response
+        }, status=status.HTTP_201_CREATED)
