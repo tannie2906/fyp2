@@ -30,18 +30,19 @@
     <button class="cta-button" (click)="onGetStartedClick()">Upload</button>
   </section>
 
-  <!-- User's Uploaded Files List -->
-  <section class="user-files" *ngIf="userFiles.length > 0">
-    <h2>Your Files</h2>
-    <ul class="file-list">
-      <li *ngFor="let file of userFiles" class="file-item">
-        <span>{{ file.name }}</span>
-        <span>{{ file.size }} KB</span>
-      </li>
-    </ul>
+   <!-- User's Uploaded Files List -->
+   <section class="user-files">
+    <h2>All Files</h2>
+    <ul class="file-list"></ul>
   </section>
 
   <!-- Display Features If There Are No Uploaded Files -->
+  <section class="features" *ngIf="userFiles.length === 0">
+    <p class="no-files-message">Upload files</p> <!-- Updated message here -->
+  </section>
+</main>
+    <!-- Other content (feature cards) will remain as is or be removed -->
+   <!--
   <section class="features" *ngIf="userFiles.length === 0">
     <p class="no-files-message">You have no files uploaded yet. Start uploading to see them here!</p>
     <div class="feature-card">
@@ -66,11 +67,9 @@
       </p>
     </div>
   </section>
-</main>
-
+-->
 <footer class="footer">
   <p>&copy; 2024 SecureShare. All rights reserved.</p>
 </footer>
-
-  </body>
+</body>
 </html>
