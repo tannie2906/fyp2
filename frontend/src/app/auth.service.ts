@@ -64,6 +64,7 @@ export class AuthService {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
     return this.http.put<any>(`${this.apiUrl}/settings/`, data, { headers });
   }
+  
   register(userData: any) {
     return this.http.post(this.registerUrl, userData);
   }

@@ -25,41 +25,45 @@ from django.core.files.storage import default_storage
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
-
 @api_view(['POST'])
 def file_upload(request):
     parser_classes = (MultiPartParser, FormParser)
     
     if request.method == 'POST':
-        file_obj = request.FILES.get('file')  # Get the uploaded file from the request
+        file_obj = request.FILES.get('file')
 
         if not file_obj:
             return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Save the file using Django's default storage
+        # Save the file using default storage
         file_path = default_storage.save(file_obj.name, file_obj)
         file_url = settings.MEDIA_URL + file_obj.name
 
         return Response({'file_path': file_path, 'file_url': file_url}, status=status.HTTP_201_CREATED)
 
 class FileUploadView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]  # Ensure the right parser is used
+    permission_classes = [IsAuthenticated]  # Make sure the user is authenticated
+    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "No file provided."}, status=400)
 
-        # Process the file (save, validate, etc.)
+        # Construct the full path to save the file
+        upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
         try:
-            # Example: Save the file (ensure the media directory is correctly configured)
-            with open(f"somepath/{file.name}", 'wb') as f:
+            os.makedirs(os.path.dirname(upload_path), exist_ok=True)  # Create directories if not exist
+
+            # Save the file
+            with open(upload_path, 'wb') as f:
                 for chunk in file.chunks():
                     f.write(chunk)
 
-            return Response({"message": "File uploaded successfully!"}, status=200)
+            # Construct the file URL for response
+            file_url = settings.MEDIA_URL + 'uploads/' + file.name
 
+            return Response({"message": "File uploaded successfully!", "file_url": file_url}, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 

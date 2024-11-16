@@ -55,11 +55,11 @@ export class UploadComponent {
     }
   
     try {
-      // Send the token in the Authorization header along with the file data
+      // Make the POST request to upload files
       const response = await axios.post('http://127.0.0.1:8000/api/upload/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',  // For file upload
-          'Authorization': `Token ${token}`       // Include the token in the Authorization header
+          'Content-Type': 'multipart/form-data',  // Ensure correct content type
+          'Authorization': `Token ${token}`       // Include the token in the header
         }
       });
       console.log('File uploaded successfully:', response.data);
@@ -68,11 +68,13 @@ export class UploadComponent {
       // Type-cast the error to AxiosError
       const axiosError = error as AxiosError;
       if (axiosError.response) {
-        console.error('Error uploading file:', axiosError.response.data);
+        // Type assertion to treat response.data as an object with an error property
+        const errorData = axiosError.response.data as { error?: string };
+        alert(`Error: ${errorData.error || 'Upload failed.'}`);
       } else {
         console.error('Error uploading file:', axiosError);
+        alert('An unexpected error occurred. Please try again.');
       }
-      alert('Error uploading file. Please try again.');
     }
   }
 }
