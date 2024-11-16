@@ -1,1 +1,54 @@
-<p>settings works!</p>
+<!-- settings.component.html -->
+<div class="settings-container">
+    <h2>Account Settings</h2>
+  
+    <!-- Username Form -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        [(ngModel)]="username"
+        name="username"
+        class="form-control"
+      />
+    </div>
+  
+    <!-- Password Change Form -->
+    <div class="form-group">
+      <label for="currentPassword">Current Password</label>
+      <input
+        type="password"
+        id="currentPassword"
+        [(ngModel)]="currentPassword"
+        name="currentPassword"
+        class="form-control"
+      />
+    </div>
+  
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input
+        type="password"
+        id="newPassword"
+        [(ngModel)]="newPassword"
+        name="newPassword"
+        class="form-control"
+      />
+    </div>
+  
+    <div class="form-group">
+      <label for="confirmPassword">Confirm New Password</label>
+      <input
+        type="password"
+        id="confirmPassword"
+        [(ngModel)]="confirmPassword"
+        name="confirmPassword"
+        class="form-control"
+      />
+    </div>
+  
+    <!-- Save Button -->
+    <button (click)="saveChanges()" class="btn btn-primary">Save Changes</button>
+  </div>
+  
