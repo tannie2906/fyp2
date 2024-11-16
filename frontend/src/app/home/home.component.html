@@ -17,14 +17,22 @@
     <p class="hero-description">
       Share and manage your files with top-notch security and simplicity.
     </p>
-    <button class="cta-button" (click)="onGetStartedClick()">
-      Get Started
-    </button>
+    
+    <!-- Create Button with Dropdown -->
+    <div class="dropdown">
+      <button class="dropdown-button">Create</button>
+      <div class="dropdown-content">
+        <a href="#" (click)="onCreateFolder()">Folder</a>
+        <a href="#" (click)="onCreateDocument()">Document</a>
+      </div>
+    </div>
+
+    <button class="cta-button" (click)="onGetStartedClick()">Upload</button>
   </section>
 
   <!-- User's Uploaded Files List -->
   <section class="user-files" *ngIf="userFiles.length > 0">
-    <h2>Your Uploaded Files</h2>
+    <h2>Your Files</h2>
     <ul class="file-list">
       <li *ngFor="let file of userFiles" class="file-item">
         <span>{{ file.name }}</span>

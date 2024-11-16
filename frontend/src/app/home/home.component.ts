@@ -57,4 +57,13 @@ export class HomeComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
+
+  onCreateFolder() {
+    console.log("Folder creation triggered")
+  }
+
+  onCreateDocument() {
+    // Logic to create a document
+    console.log("Document creation triggered");
+  }
 }
