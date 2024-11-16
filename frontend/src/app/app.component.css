@@ -1,3 +1,51 @@
+/* General styling for the header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Pushes items to opposite sides */
+  padding: 10px;
+  background-color: #f8f9fa; /* Optional: Light gray background for the header */
+}
+
+/* Title styling */
+.title {
+  margin: 0;
+  font-size: 2rem;
+  color: #007bff; /* Adjust color as needed */
+}
+
+/* Search bar container */
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* Pushes the search bar to the far right */
+}
+
+/* Search input */
+.search-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+  font-size: 16px;
+  outline: none;
+  width: 250px;
+}
+
+/* Search button */
+.search-button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -106,3 +154,6 @@ h1 {
 router-outlet {
   flex-grow: 1; /* Allow routed components to expand and take remaining space */
 }
+
+
+

@@ -28,6 +28,18 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  //search bar
+  onSearch(event: Event): void {
+    const input = (event.target as HTMLInputElement).value;
+    console.log('Search input:', input);
+    // Perform live filtering or update a search term variable
+  }
+  
+  onSearchClick(): void {
+    console.log('Search button clicked');
+    // Trigger a search function or filter the file/folder list
+  }
+  
   //ngOnInit() {
     //this.testModelService.getTestModels().subscribe((data) => {
       //this.testModels = data;

@@ -1,19 +1,33 @@
 <div class="home-page">
-  <h1>SecureShare</h1>
+  <div class="header">
+
+    <!-- Title -->
+    <h1 class="title">SecureShare</h1>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search files or folders..." 
+        (input)="onSearch($event)" />
+      <button class="search-button" (click)="onSearchClick()">🔍</button>
+    </div>
+
+  </div>
+  
   <nav class="navbar">
     <a routerLink="/home" class="home-button">Home</a>
-
-     <!-- Folder button -->
-     <a routerLink="/folder" class="folder-button">Folder</a>
-
-    <!-- Profile button with dropdown menu -->
+    <a routerLink="/folder" class="folder-button">Folder</a>
     <div class="profile-dropdown">
       <a routerLink="/profile" class="profile-button">Profile</a>
       <div class="dropdown-content">
+        <a routerLink="/manage-account" class="manage-account-button">Manage Account</a>
         <a routerLink="/settings" class="settings-button">Settings</a>
         <a href="#" class="logout-button" (click)="onLogout()">Logout</a>
       </div>
     </div>
   </nav>
+
   <router-outlet></router-outlet> <!-- Routed components appear here -->
 </div>

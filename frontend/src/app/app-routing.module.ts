@@ -9,6 +9,7 @@ import { UploadComponent } from './upload/upload.component';
 import { RegisterComponent } from './register/register.component';
 import { FolderComponent } from './folder/folder.component';
 import { FileViewComponent } from './file-view/file-view.component';  
+import { ManageAccountComponent } from './manage-account/manage-account.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirect to home page
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'upload', component: UploadComponent},
   { path: 'folder', component: FolderComponent },
   { path: 'folder/:fileName', component: FileViewComponent }, 
+  { path: 'manage-account', component: ManageAccountComponent},
   // { path: '', redirectTo: '/login', pathMatch: 'full' },  // Redirect to login by default
 ];
 
