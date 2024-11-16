@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { UploadComponent } from './upload/upload.component';
+import { FolderComponent } from './folder/folder.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { UploadComponent } from './upload/upload.component';
     RegisterComponent,
     HomeComponent,
     UploadComponent,
+    FolderComponent,
   ],
   imports: [
     BrowserModule,
