@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import TestModel
-from .serializers import TestModelSerializer
+#from .models import TestModel
+#from .serializers import TestModelSerializer
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,50 +14,54 @@ from rest_framework import status
 from .models import File
 from .serializers import FileSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import api_view
-from rest_framework.decorators import parser_classes
+from rest_framework.decorators import parser_classes, api_view
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import permissions
+from django.http import JsonResponse
+from django.conf import settings
+from django.contrib.auth.models import User
 import os
+from django.core.files.storage import default_storage
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 
-
-class TestModelViewSet(viewsets.ModelViewSet):
-    queryset = TestModel.objects.all()
-    serializer_class = TestModelSerializer
-    permission_classes = [IsAuthenticated]
-    # This should ensure your API returns JSON, not HTML.
 
 @api_view(['POST'])
-@parser_classes([MultiPartParser, FormParser])  # Add the parser classes here
 def file_upload(request):
+    parser_classes = (MultiPartParser, FormParser)
+    
     if request.method == 'POST':
-        serializer = FileSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        file_obj = request.FILES.get('file')  # Get the uploaded file from the request
 
-class FileUploadView(APIView):
-    permission_classes = [IsAuthenticated]  # Ensure this line is present
-    # Specify the parsers to handle multipart/form-data
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request, *args, **kwargs):
-        # Retrieve the file from the request
-        file_obj = request.FILES.get('file')  # 'file' is the key for file in FormData
-        
         if not file_obj:
             return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            # Create a new File instance using the file uploaded
-            new_file = File(file=file_obj)
-            new_file.save()  # This will save the file into MEDIA_ROOT
 
-            return Response({'message': 'File uploaded successfully'}, status=status.HTTP_201_CREATED)
-        
+        # Save the file using Django's default storage
+        file_path = default_storage.save(file_obj.name, file_obj)
+        file_url = settings.MEDIA_URL + file_obj.name
+
+        return Response({'file_path': file_path, 'file_url': file_url}, status=status.HTTP_201_CREATED)
+
+class FileUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Ensure the right parser is used
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"error": "No file provided."}, status=400)
+
+        # Process the file (save, validate, etc.)
+        try:
+            # Example: Save the file (ensure the media directory is correctly configured)
+            with open(f"somepath/{file.name}", 'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+
+            return Response({"message": "File uploaded successfully!"}, status=200)
+
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=500)
 
 class CustomAuthToken(APIView):
     authentication_classes = [TokenAuthentication]
@@ -79,12 +83,14 @@ class CustomAuthToken(APIView):
         
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        # Optionally, you can customize the behavior here
-        # Call the parent class method to authenticate and return the token
-        response = super().post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)  # Call the parent method to get the token
         
-        # Custom logic (if any) can be added here
-        
+        if response.status_code == 200:
+            # Optionally customize the response if needed, e.g., include username or other user details
+            token = response.data['token']
+            return Response({
+                'token': token
+            })
         return response
 
 class ProfileView(APIView):
@@ -114,3 +120,31 @@ class SettingsView(APIView):
     def put(self, request):
         # Update user settings if any
         return Response({"message": "Settings updated successfully"})
+
+def list_files(request):
+    # List files in the media directory
+    media_path = settings.MEDIA_ROOT
+    files = os.listdir(media_path)  # List files in the media folder
+    file_list = [file for file in files if os.path.isfile(os.path.join(media_path, file))]
+    
+    return JsonResponse({'files': file_list})
+
+### Registration View
+class RegisterUserView(APIView):
+    permission_classes = [AllowAny]  # Ensure registration is public
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create and save the new user
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+
+        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)

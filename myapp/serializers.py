@@ -1,13 +1,6 @@
 from rest_framework import serializers
-from .models import TestModel
 from django.contrib.auth.models import User
 from .models import File
-
-
-class TestModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestModel
-        fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,9 +12,12 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
+from rest_framework import serializers
+from .models import File
+
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ['id', 'name', 'file', 'upload_at']  # Include the fields you want to serialize
+        fields = ['file', 'name']  # Ensure these fields match your model definition
 
 

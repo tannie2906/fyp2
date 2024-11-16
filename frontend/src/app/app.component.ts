@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TestmodelService } from './testmodel.service';
+//import { TestmodelService } from './testmodel.service';
 import { Router } from '@angular/router';  // Add this import
 
 
@@ -8,11 +8,11 @@ import { Router } from '@angular/router';  // Add this import
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit  {
+export class AppComponent implements OnInit {
   title = 'frontend';
   testModels: any[] = [];
 
-  constructor(private testModelService: TestmodelService, private router: Router) {}
+  constructor(private router: Router) {}
 
   goToLogin() {
     this.router.navigate(['/login']);  // Navigate to the login page
@@ -25,9 +25,12 @@ export class AppComponent implements OnInit  {
     this.router.navigate(['/home']);
   }
 
-  ngOnInit() {
-    this.testModelService.getTestModels().subscribe((data) => {
-      this.testModels = data;
-    });
+  ngOnInit(): void {
   }
+
+  //ngOnInit() {
+    //this.testModelService.getTestModels().subscribe((data) => {
+      //this.testModels = data;
+    //});
+  //}
 }
