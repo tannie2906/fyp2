@@ -15,3 +15,8 @@
 <div *ngIf="!fileUrl">
   <p>Loading file...</p>
 </div>
+
+<ul>
+  <li *ngFor="let file of files">{{ file.name }}</li>
+</ul>
+

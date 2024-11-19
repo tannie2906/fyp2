@@ -1,6 +1,13 @@
 <!-- register.component.html -->
 <div class="register-form">
   <form (ngSubmit)="register()">
+
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" [(ngModel)]="firstName" name="first_name">
+
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" [(ngModel)]="lastName" name="last_name">
+    
     <label for="username">Username:</label>
     <input type="text" id="username" [(ngModel)]="username" name="username" required>
 

@@ -22,8 +22,12 @@
       placeholder="Enter a name for your file"
       [(ngModel)]="fileName"
     />
-  
-    <button class="upload-button" (click)="uploadFiles()">Upload Files</button>
+   
+    <div>
+      <input type="file" (change)="onFileSelected($event)" multiple />
+      <button class="upload-button" (click)="uploadFiles()">Upload Files</button>
+  </div>  
+   
   
     <div *ngIf="selectedFiles.length > 0" class="selected-files-list">
       <h3>Selected Files:</h3>

@@ -44,11 +44,13 @@ export class AuthService {
     this.isLoggedIn = false;
   }
 
-
+// Fetch user profile
   getProfile(token: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
-    return this.http.get<any>(`${this.apiUrl}/profile/`, { headers });
-  }  
+    return this.http.get('/api/profile/', { headers });
+}
+
+ 
 
   updateProfile(token: string, data: any): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);

@@ -44,11 +44,11 @@ export class UploadComponent {
     }
 
     const formData = new FormData();
-    this.selectedFiles.forEach(file => {
+    this.selectedFiles.forEach((file) => {
       formData.append('file', file);
     });
 
-    const token = this.authService.getToken();  // Get the token from localStorage
+    const token = this.authService.getToken();
 
     if (!token) {
       alert('You are not authenticated. Please log in first.');
@@ -58,15 +58,24 @@ export class UploadComponent {
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/upload/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',  // For file upload
-          'Authorization': `Token ${token}`       // Include the token in the Authorization header
-        }
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Token ${token}`,
+        },
       });
-      console.log('File uploaded successfully:', response.data);
-      alert('File uploaded successfully!');
 
-      // Emit event to notify the parent component to reload the uploaded files
-      this.fileUploaded.emit();  // Emit event to trigger folder update
+      const uploadedFile = response.data; // Assuming the API returns the uploaded file info
+      console.log('File uploaded successfully:', uploadedFile);
+
+      // Add file to shared file service
+      this.fileService.addFile({
+        id: Date.now(), // Example: generate a unique ID
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+        type: 'unknown', // Example: default value for type
+      });
+      
+
+      alert('File uploaded successfully!');
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {

@@ -1,12 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { FileService } from '../services/file.service';
-
-interface UserFile {
-  name: string;
-  size: number;
-}
+import { HttpClient } from '@angular/common/http';
+import { UserFile } from '../models/user-file.model'; 
 
 @Component({
   selector: 'app-home',
@@ -15,45 +12,43 @@ interface UserFile {
 })
 
 export class HomeComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef;
   userFiles: UserFile[] = [];
   isAuthenticated: boolean = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private fileService: FileService
+    private fileService: FileService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    this.isAuthenticated = this.authService.isAuthenticated();
-
-    if (this.isAuthenticated) {
-      // Fetch files if the user is authenticated
-      this.fetchUserFiles();
+    // Check if the user is authenticated
+    if (this.authService.isAuthenticated()) {
+      this.isAuthenticated = true;
+  
+      // Fetch files from the server initially
+      this.fetchFiles();
+  
+      // Subscribe to the file updates from FileService
+      this.fileService.getFiles().subscribe((files) => {
+        this.userFiles = files;
+      });
     }
   }
+  
 
-  fetchUserFiles(): void {
-    this.fileService.getUserFiles().subscribe(
-      (files: { fileName: string }[]) => {
-        // Transform the files to match the UserFile interface
-        this.userFiles = files.map(file => ({
-          name: file.fileName,
-          size: 0 // Placeholder for size, as it's not provided. Update if the size is available from the backend
-        }));
-      },
-      (error: any) => {
-        console.error('Error fetching files:', error);
-      }
-    );
+  fetchFiles(): void {
+    this.http.get<UserFile[]>('/api/files').subscribe((files) => {
+      this.userFiles = files;
+    });
   }
 
   onGetStartedClick(): void {
-    if (this.authService.isAuthenticated()) {
-      // User is logged in, redirect to upload page
-      this.router.navigate(['/upload']); // Ensure the "upload" route exists in your routing module
+    if (this.isAuthenticated) {
+      this.router.navigate(['/upload']);
     } else {
-      // User is not logged in, redirect to login page
       this.router.navigate(['/login']);
     }
   }
@@ -62,8 +57,22 @@ export class HomeComponent implements OnInit {
     console.log("Folder creation triggered")
   }
 
-  onCreateDocument() {
-    // Logic to create a document
-    console.log("Document creation triggered");
+  onCreateDocument(): void {
+    console.log('Document creation triggered');
+  }
+
+  onFileUpload(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.http.post('/api/upload', formData).subscribe(() => {
+        this.fetchFiles(); // Refresh file list after upload
+      });
+    }
+  }
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click(); // Programmatically click the file input
   }
 }

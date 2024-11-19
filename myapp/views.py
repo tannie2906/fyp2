@@ -13,6 +13,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from .models import File
 from .serializers import FileSerializer
+from .serializers import UserRegistrationSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import parser_classes, api_view
 from django.views.decorators.csrf import csrf_exempt
@@ -112,12 +113,15 @@ class CustomAuthToken(ObtainAuthToken):
         return response
 
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]  # Token-based authentication
+    permission_classes = [IsAuthenticated]         # Ensure the user is authenticated
 
     def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        try:
+            serializer = UserSerializer(request.user)  # Serialize the logged-in user's details
+            return Response(serializer.data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
     def put(self, request):
         user = request.user
@@ -154,6 +158,9 @@ class RegisterUserView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
 
         if not username or not password:
             return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -162,7 +169,7 @@ class RegisterUserView(APIView):
             return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create and save the new user
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
         user.save()
 
         # Generate token for the new user
@@ -188,3 +195,4 @@ def get_user_files(request):
     # Replace this with your actual logic to get user files
     files = []  # Example: Retrieve files from your database
     return JsonResponse(files, safe=False)
+

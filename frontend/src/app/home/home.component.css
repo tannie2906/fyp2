@@ -187,6 +187,23 @@ body {
   font-size: 1rem;
 }
 
+.file-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.file-list li {
+  margin: 0.5em 0;
+}
+
+.file-list a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.file-list a:hover {
+  text-decoration: underline;
+}
 
 
 

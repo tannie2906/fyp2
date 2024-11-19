@@ -25,5 +25,6 @@ urlpatterns = [
     path('register/', RegisterUserView.as_view(), name='register'),
     path('files/', views.list_uploaded_files, name='list_uploaded_files'),
     path('files/', get_user_files, name='get_user_files'),
-     path('files/', FileListView.as_view(), name='file-list'),
+    path('files/', FileListView.as_view(), name='file-list'),
+    path('token/', CustomAuthToken.as_view(), name='token-auth'),
 ]

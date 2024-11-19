@@ -1,1 +1,25 @@
-<p>profile works!</p>
+<div class="profile-page" *ngIf="profile; else loading">
+  <div class="profile-container">
+    <h2 class="profile-title">Profile</h2>
+    <div class="profile-group">
+      <p><strong>Username:</strong> {{ profile.username }}</p>
+    </div>
+    <div class="profile-group">
+      <p><strong>Email:</strong> {{ profile.email || 'Not Provided' }}</p>
+    </div>
+    <div class="profile-group">
+      <p><strong>First Name:</strong> {{ profile.first_name }}</p>
+    </div>
+    <div class="profile-group">
+      <p><strong>Last Name:</strong> {{ profile.last_name }}</p>
+    </div>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="profile-page">
+    <div class="profile-container">
+      <p>Loading profile...</p>
+    </div>
+  </div>
+</ng-template>
