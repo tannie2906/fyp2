@@ -1,0 +1,35 @@
+.file-list {
+    padding: 20px;
+  }
+  
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .file-name {
+    font-weight: bold;
+    color: #2c3e50;
+    text-decoration: none;
+  }
+  
+  .file-name:hover {
+    text-decoration: underline;
+  }
+  
+  .file-meta {
+    font-size: 0.9em;
+    color: #7f8c8d;
+  }
+  
+  .file-size, .upload-date, .file-owner {
+    margin-right: 10px;
+  }
+  
+  .error {
+    color: red;
+    font-weight: bold;
+  }
+  

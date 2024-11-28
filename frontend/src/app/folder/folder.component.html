@@ -6,10 +6,12 @@
         {{ file.filename }}
       </a>
       <span> - Uploaded on: {{ file.upload_date | date: 'medium' }}</span>
+      <span> - Size: {{ formatFileSize(file.size) }}</span>  <!-- Display size -->
+      <span> - Owner: {{ file.owner.username }}</span>  <!-- Display owner -->
     </li>
   </ul>
   <ng-template #noFiles>
     <p>No files found.</p>
   </ng-template>
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p> <!-- Display error -->
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
 </div>

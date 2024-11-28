@@ -1,9 +1,7 @@
-// src/app/upload/upload.component.ts
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FileService } from '../services/file.service'; // Ensure this service handles file upload
-//import axios from 'axios';
 import { AuthService } from '../auth.service'; // Ensure the path to AuthService is correct
-import axios, { AxiosError } from 'axios'; 
+import axios, { AxiosError } from 'axios';
 
 @Component({
   selector: 'app-upload',
@@ -12,7 +10,7 @@ import axios, { AxiosError } from 'axios';
 })
 export class UploadComponent {
   selectedFiles: File[] = [];
-  fileName: string = '';
+  fileName: string = ''; // Variable for custom file name
 
   @Output() fileUploaded = new EventEmitter<void>();
 
@@ -43,9 +41,15 @@ export class UploadComponent {
       return;
     }
 
+    if (!this.fileName.trim()) {
+      alert('Please provide a name for the file.');
+      return;
+    }
+
     const formData = new FormData();
     this.selectedFiles.forEach((file) => {
       formData.append('file', file);
+      formData.append('name', this.fileName); // Add custom file name
     });
 
     const token = this.authService.getToken();
@@ -63,11 +67,9 @@ export class UploadComponent {
         },
       });
 
-      const uploadedFile = response.data; // Assuming the API returns the uploaded file info
-      console.log('File uploaded successfully:', uploadedFile);
+      console.log('File uploaded successfully:', response.data);
 
-      
-
+      this.fileUploaded.emit(); // Notify parent component
       alert('File uploaded successfully!');
     } catch (error) {
       const axiosError = error as AxiosError;
