@@ -11,8 +11,12 @@ import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { UploadComponent } from './upload/upload.component';
 import { FolderComponent } from './folder/folder.component';
-import { FileViewComponent } from './file-view/file-view.component';
-import { ManageAccountComponent } from './manage-account/manage-account.component';
+import { RouterModule } from '@angular/router';
+import { FileListComponent } from './file-list/file-list.component';
+import { FileService } from './services/file.service';
+
+
+
 
 @NgModule({
   declarations: [
@@ -24,8 +28,8 @@ import { ManageAccountComponent } from './manage-account/manage-account.componen
     HomeComponent,
     UploadComponent,
     FolderComponent,
-    FileViewComponent,
-    ManageAccountComponent,
+    FileListComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -33,7 +37,7 @@ import { ManageAccountComponent } from './manage-account/manage-account.componen
     FormsModule,       // Import FormsModule for ngModel binding
     HttpClientModule,
   ],
-  providers: [],
+  providers: [FileService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

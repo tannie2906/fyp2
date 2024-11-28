@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';  // Import HttpClient
 import { AuthService } from '../auth.service';  // For authentication handling
+import { FileService } from '../services/file.service';
+
 
 @Component({
   selector: 'app-folder',
@@ -8,13 +10,21 @@ import { AuthService } from '../auth.service';  // For authentication handling
   styleUrls: ['./folder.component.css']
 })
 export class FolderComponent implements OnInit {
-  uploadedFiles: string[] = [];  // Array to store list of file names
+  files: any[] = []; // Array to store file data
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService, private fileService: FileService) {}
 
   ngOnInit(): void {
-    this.loadUploadedFiles();  // Load files when the component initializes
+    this.fileService.getFiles().subscribe(
+      (data) => {
+        this.files = data; // Store fetched data
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
   }
+
 
   // Fetch uploaded files from the backend
   loadUploadedFiles(): void {
@@ -33,7 +43,7 @@ export class FolderComponent implements OnInit {
     })
     .subscribe(
       response => {
-        this.uploadedFiles = response.files;  // Store the file list in the uploadedFiles array
+        this.files = response.files;  // Store the file list in the uploadedFiles array
       },
       error => {
         console.error('Error fetching uploaded files:', error);

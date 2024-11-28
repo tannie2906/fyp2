@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FileViewComponent } from './file-view.component';
+import { FileListComponent } from './file-list.component';
 
-describe('FileViewComponent', () => {
-  let component: FileViewComponent;
-  let fixture: ComponentFixture<FileViewComponent>;
+describe('FileListComponent', () => {
+  let component: FileListComponent;
+  let fixture: ComponentFixture<FileListComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FileViewComponent]
+      declarations: [FileListComponent]
     });
-    fixture = TestBed.createComponent(FileViewComponent);
+    fixture = TestBed.createComponent(FileListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

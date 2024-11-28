@@ -2,6 +2,7 @@ from django.db import models
 from django import forms
 import os
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 class File(models.Model):
     name = models.CharField(max_length=255)
@@ -11,10 +12,13 @@ class File(models.Model):
         return self.name
     
 class UploadedFile(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='uploads/')
+    file = models.FileField(upload_to='files/')
     filename = models.CharField(max_length=255)
     upload_date = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.filename
 
 class CustomUserCreationForm(forms.ModelForm):
     class Meta:

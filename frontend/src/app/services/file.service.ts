@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders  } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { UserFile } from '../models/user-file.model';
 
@@ -12,13 +12,15 @@ export class FileService {
   private filesSubject = new BehaviorSubject<UserFile[]>([]);
   private files: UserFile[] = [];
   private apiUrl = 'http://127.0.0.1:8000/api'; // Base URL for the API
+  private token = 'b1f2ce0dd994ca60bee216e989282288982730ab'; // Your Bearer token (you can set this dynamically based on login)
 
 
   constructor(private http: HttpClient) {}
 
   // Fetch the user's uploaded files from the backend
   getFiles(): Observable<UserFile[]> {
-    return this.http.get<UserFile[]>(`${this.apiUrl}/files`); // Corrected `apiUrl`
+    const headers = new HttpHeaders().set('Authorization', `Token ${this.token}`);
+    return this.http.get<UserFile[]>(`${this.apiUrl}/files`, { headers });// Corrected `apiUrl`
   }
 
   fetchFiles(): void {

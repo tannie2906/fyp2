@@ -1,0 +1,14 @@
+<!-- src/app/file-list/file-list.component.html -->
+<div *ngIf="files.length > 0; else noFiles">
+    <h2>Uploaded Files</h2>
+    <ul>
+      <li *ngFor="let file of files">
+        <a [href]="file.file" target="_blank">{{ file.filename }}</a>
+      </li>
+    </ul>
+  </div>
+  
+  <ng-template #noFiles>
+    <p>No files uploaded.</p>
+  </ng-template>
+  
