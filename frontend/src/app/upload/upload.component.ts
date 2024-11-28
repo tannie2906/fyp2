@@ -66,13 +66,6 @@ export class UploadComponent {
       const uploadedFile = response.data; // Assuming the API returns the uploaded file info
       console.log('File uploaded successfully:', uploadedFile);
 
-      // Add file to shared file service
-      this.fileService.addFile({
-        id: Date.now(), // Example: generate a unique ID
-        name: uploadedFile.name,
-        size: uploadedFile.size,
-        type: 'unknown', // Example: default value for type
-      });
       
 
       alert('File uploaded successfully!');

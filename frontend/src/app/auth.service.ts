@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';  // Add this import
 import axios from 'axios';
@@ -20,11 +21,9 @@ export class AuthService {
     // Send a login request to the backend
     return this.http.post<any>(`${this.apiUrl}/login/`, { username, password }).pipe(
       tap((response: any) => {  // Log the response to see the result
-        console.log('Login Response:', response);
         if (response && response.token) {
           this.isLoggedIn = true;
-          localStorage.setItem('auth_token', response.token); // Store the token in localStorage
-          console.log('User logged in. Token stored in localStorage.');
+          localStorage.setItem('auth_token', response.token); // Store token
         }
       })
     );
@@ -48,9 +47,7 @@ export class AuthService {
   getProfile(token: string): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
     return this.http.get('/api/profile/', { headers });
-}
-
- 
+  }
 
   updateProfile(token: string, data: any): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);

@@ -13,6 +13,7 @@ from .models import UploadedFile
 from .serializers import UserSerializer, FileSerializer, UserRegistrationSerializer, UploadedFileSerializer
 from rest_framework import viewsets
 from .models import File
+from rest_framework import permissions, viewsets
 
 # File Upload
 class FileUploadView(APIView):
@@ -23,7 +24,6 @@ class FileUploadView(APIView):
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "No file provided."}, status=400)
-
         uploaded_file = UploadedFile.objects.create(file=file, filename=file.name, owner=request.user)
         return Response({"message": "File uploaded successfully!", "file_url": settings.MEDIA_URL + uploaded_file.file.name}, status=201)
 
@@ -31,9 +31,6 @@ class FileListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        files = UploadedFile.objects.filter(owner=request.user)
-        #serializer = FileSerializer(files, many=True)
-        #return Response(serializer.data)
         uploaded_files = UploadedFile.objects.filter(owner=request.user)
         serializer = UploadedFileSerializer(uploaded_files, many=True)
         return Response(serializer.data)
@@ -87,6 +84,12 @@ def list_uploaded_files(request):
     files = [file for file in os.listdir(media_path) if os.path.isfile(os.path.join(media_path, file))]
     return JsonResponse({'files': files})
 
+#for user to look at their own file
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Ensure the user is authenticated
+
+    def get_queryset(self):
+        # Only show files for the logged-in user
+        return File.objects.filter(user=self.request.user)

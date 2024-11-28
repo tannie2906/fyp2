@@ -14,9 +14,8 @@ import { FolderComponent } from './folder/folder.component';
 import { RouterModule } from '@angular/router';
 import { FileListComponent } from './file-list/file-list.component';
 import { FileService } from './services/file.service';
-
-
-
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { TokenInterceptor } from '/Users/intan/testproject/frontend/src/app/token.interceptor';
 
 @NgModule({
   declarations: [
@@ -37,7 +36,14 @@ import { FileService } from './services/file.service';
     FormsModule,       // Import FormsModule for ngModel binding
     HttpClientModule,
   ],
-  providers: [FileService],
+  providers: [
+    FileService,
+    { 
+      provide: HTTP_INTERCEPTORS, 
+      useClass: TokenInterceptor, 
+      multi: true 
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
