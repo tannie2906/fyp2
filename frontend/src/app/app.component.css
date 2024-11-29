@@ -11,7 +11,7 @@
 .title {
   margin: 0;
   font-size: 2rem;
-  color: #007bff; /* Adjust color as needed */
+  color: #9d9b9b; /* Adjust color as needed */
 }
 
 /* Search bar container */
@@ -34,7 +34,7 @@
 /* Search button */
 .search-button {
   padding: 8px 12px;
-  background-color: #007bff;
+  background-color: #f8761f;
   color: white;
   border: none;
   border-radius: 0 5px 5px 0;
@@ -43,7 +43,7 @@
 }
 
 .search-button:hover {
-  background-color: #0056b3;
+  background-color: #003366;
 }
 
 * {
@@ -69,7 +69,7 @@ body {
   top: 0;
   left: 0;
   height: 100vh; /* Ensure it takes full height */
-  background-color: #007bff; /* Background color for navbar */
+  background-color: #003366; /* Background color for navbar */
   width: 200px; /* Set width of navbar */
 }
 
@@ -85,7 +85,7 @@ body {
 }
 
 .navbar a:hover {
-  background-color: #0056b3; /* Change color on hover */
+  background-color: #003366; /* Change color on hover */
 }
 
 /* Dropdown menu styling */
@@ -106,7 +106,7 @@ body {
 }
 
 .profile-button:hover {
-  background-color: #0056b3; /* Same hover color as links */
+  background-color: #003366; /* Same hover color as links */
 }
 
 .dropdown-content {
@@ -148,12 +148,38 @@ body {
 
 h1 {
   font-size: 2.5rem;
-  color: #007bff;
+  color: #003366;
 }
 
 router-outlet {
   flex-grow: 1; /* Allow routed components to expand and take remaining space */
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.search-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
 
+.login-container {
+  margin-left: 20px; /* Space between search bar and login button */
+}
+
+.login-button {
+  padding: 5px 10px;
+  background-color: #003366;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #003366;
+}

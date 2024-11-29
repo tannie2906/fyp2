@@ -13,8 +13,11 @@ export class ProfileComponent implements OnInit {
     email: '',
     first_name: '',
     last_name: '',
-  }; // mean it will hold user profile data
+    picture: null,
+  }; 
+  defaultProfilePicture = 'assets/images/profile.png'; // Placeholder image path
   router: any;
+  selectedFile: File | null = null; // For file upload
 
   constructor(private authService: AuthService) {}
 

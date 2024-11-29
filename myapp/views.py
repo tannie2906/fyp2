@@ -22,10 +22,19 @@ class FileUploadView(APIView):
 
     def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
+        name = request.data.get('name') #name file that user provide
         if not file:
             return Response({"error": "No file provided."}, status=400)
-        uploaded_file = UploadedFile.objects.create(file=file, filename=file.name, owner=request.user)
-        return Response({"message": "File uploaded successfully!", "file_url": settings.MEDIA_URL + uploaded_file.file.name}, status=201)
+        if not name:
+            name = file.name # default ori file name if name not provide
+        uploaded_file = UploadedFile.objects.create(
+            file=file, 
+            filename=name, #make name appear as user
+            owner=request.user)
+        return Response({
+            "message": "File uploaded successfully!", 
+            "file_url": settings.MEDIA_URL + uploaded_file.file.name
+        }, status=201)
 
 class FileListView(APIView):
     permission_classes = [IsAuthenticated]

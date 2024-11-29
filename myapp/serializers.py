@@ -26,6 +26,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 class UploadedFileSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField()  # Add size field
+    owner = UserSerializer()  # Include owner details using the UserSerializer
+
     class Meta:
         model = UploadedFile
-        fields = ['id', 'filename', 'file', 'upload_date']
+        fields = ['id', 'filename', 'file', 'upload_date', 'size', 'owner']  # Add size and owner to fields
+
+    def get_size(self, obj):
+        return obj.file.size  # Get the file size in bytes

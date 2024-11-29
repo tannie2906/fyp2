@@ -12,7 +12,7 @@ body {
 }
 
 .header {
-  background-color: #007bff;
+  background-color: #003366; /*upload button on button*/
   color: #fff;
   display: flex;
   justify-content: space-between;
@@ -53,7 +53,7 @@ body {
 
 .hero-title {
   font-size: 2.5rem;
-  color: #007bff;
+  color: #9d9b9b;
   margin-bottom: 1rem;
 }
 
@@ -64,7 +64,7 @@ body {
 }
 
 .cta-button {
-  background-color: #007bff;
+  background-color: #f8761f;
   color: #fff;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -74,7 +74,7 @@ body {
 }
 
 .cta-button:hover {
-  background-color: #0056b3;
+  background-color: #003366;
 }
 
 .features {
@@ -102,7 +102,7 @@ body {
 
 .feature-title {
   font-size: 1.3rem;
-  color: #007bff;
+  color: #003366;
   margin-bottom: 0.5rem;
 }
 
@@ -127,7 +127,7 @@ body {
 }
 
 .dropdown-button {
-  background-color: #007bff;
+  background-color: #003366;
   color: white;
   padding: 10px 20px;
   font-size: 16px;
@@ -163,7 +163,7 @@ body {
 }
 
 .dropdown:hover .dropdown-button {
-  background-color: #0056b3;
+  background-color: #003366;
 }
 
 /* User Files Section */
@@ -198,7 +198,7 @@ body {
 
 .file-list a {
   text-decoration: none;
-  color: #007bff;
+  color: #003366;
 }
 
 .file-list a:hover {

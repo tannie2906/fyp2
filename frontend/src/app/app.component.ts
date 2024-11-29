@@ -18,6 +18,11 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);  // Navigate to the login page
   }
 
+  onLogin(): void {
+    // Navigate to login page or trigger login functionality
+    this.router.navigate(['/login']);
+  }
+
   onLogout() {
     // Clear the authentication token from localStorage
     localStorage.removeItem('auth_token');

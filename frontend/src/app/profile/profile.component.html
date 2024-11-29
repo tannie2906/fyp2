@@ -1,6 +1,17 @@
 <div class="profile-page" *ngIf="profile; else loading">
   <div class="profile-container">
     <h2 class="profile-title">Profile</h2>
+
+    <!-- Profile Picture -->
+    <div class="profile-picture-container">
+      <img 
+        [src]="profile.picture || defaultProfilePicture" 
+        alt="Profile Picture" 
+        class="profile-picture" 
+      />
+    </div>
+    
+    <!-- Profile Details -->
     <div class="profile-group">
       <p><strong>Username:</strong> {{ profile.username }}</p>
     </div>
