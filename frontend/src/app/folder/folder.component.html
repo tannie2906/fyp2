@@ -1,17 +1,53 @@
-<div>
-  <h2>Uploaded Files</h2>
-  <ul *ngIf="files.length > 0; else noFiles">
-    <li *ngFor="let file of files">
-      <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">
-        {{ file.filename }}
-      </a>
-      <span> - Uploaded on: {{ file.upload_date | date: 'medium' }}</span>
-      <span> - Size: {{ formatFileSize(file.size) }}</span>  <!-- Display size -->
-      <span> - Owner: {{ file.owner.username }}</span>  <!-- Display owner -->
-    </li>
-  </ul>
-  <ng-template #noFiles>
-    <p>No files found.</p>
-  </ng-template>
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-</div>
+<div class="folder-page">
+  <!-- Header Section -->
+  <section class="hero">
+    <h1 class="hero-title">Secure & Effortless File Sharing</h1>
+    <p class="hero-description">
+      Share and manage your files with top-notch security and simplicity.
+    </p>
+    
+    <!-- Create Button with Dropdown -->
+    <div class="dropdown">
+      <button class="dropdown-button">Create</button>
+      <div class="dropdown-content">
+        <a href="#" (click)="onCreateFolder()">Folder</a>
+        <a href="#" (click)="onCreateDocument()">Document</a>
+      </div>
+    </div>
+
+    <button class="cta-button" (click)="onGetStartedClick()">Upload</button>
+  </section>
+
+  <!-- Files Section -->
+  <h2>Your Files</h2>
+  <table class="file-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Size</th>
+        <th>Who can access</th>
+        <th>Modified</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tbody>
+        <tr *ngFor="let file of files">
+          <td>
+            <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
+          </td>
+          <td>{{ formatFileSize(file.size) }}</td>
+          <td>Owner: {{ file.owner.username }}</td>
+          <td>{{ file.upload_date | date: 'medium' }}</td>
+          <td class="actions">
+            <button class="more-button">⋮</button>
+            <div class="dropdown-menu">
+              <a href="#" (click)="onRename(file)">Rename</a>
+              <a href="#" (click)="onMove(file)">Move</a>
+              <a href="#" (click)="onDelete(file)">Delete</a>
+              <a href="#" (click)="onShare(file)">Share</a>
+              <a href="#" (click)="onDownload(file)">Download</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      

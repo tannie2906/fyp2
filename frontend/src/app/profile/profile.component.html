@@ -2,13 +2,13 @@
   <div class="profile-container">
     <h2 class="profile-title">Profile</h2>
 
-    <!-- Profile Picture -->
-    <div class="profile-picture-container">
+    <!-- Profile Picture Section -->
+    <div class="profile-group">
       <img 
         [src]="profile.picture || defaultProfilePicture" 
         alt="Profile Picture" 
-        class="profile-picture" 
-      />
+        class="profile-image" />
+      <input type="file" (change)="onFileChange($event)" accept="image/*" />
     </div>
     
     <!-- Profile Details -->

@@ -1,3 +1,4 @@
+/* General Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -11,8 +12,9 @@ body {
   line-height: 1.6;
 }
 
+/* Header */
 .header {
-  background-color: #003366; /*upload button on button*/
+  background-color: #003366;
   color: #fff;
   display: flex;
   justify-content: space-between;
@@ -22,11 +24,6 @@ body {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-}
-
-.nav {
-  display: flex;
-  gap: 1rem;
 }
 
 .nav-link {
@@ -39,6 +36,7 @@ body {
   text-decoration: underline;
 }
 
+/* Main Content */
 .main-content {
   text-align: center;
   padding: 3rem 2rem;
@@ -53,87 +51,41 @@ body {
 
 .hero-title {
   font-size: 2.5rem;
-  color: #9d9b9b;
+  color: #555;
   margin-bottom: 1rem;
 }
 
 .hero-description {
   font-size: 1.1rem;
-  color: #555;
+  color: #777;
   margin-bottom: 1.5rem;
 }
 
-.cta-button {
-  background-color: #f8761f;
+/* Buttons (Create and Upload) */
+.cta-button,
+.dropdown-button {
+  background-color: #003366;
   color: #fff;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 5px;
+  padding: 0.75rem 2rem;
   font-size: 1rem;
+  border-radius: 15px; /* Rounded edges */
   cursor: pointer;
-}
-
-.cta-button:hover {
-  background-color: #003366;
-}
-
-.features {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.feature-card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1.5rem;
-  width: 300px;
+  display: inline-block;
+  width: 150px; /* Uniform button width */
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.feature-icon {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 1rem;
-}
-
-.feature-title {
-  font-size: 1.3rem;
-  color: #003366;
-  margin-bottom: 0.5rem;
-}
-
-.feature-description {
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.footer {
-  background-color: #f1f5f9;
-  color: #777;
-  text-align: center;
-  padding: 1rem 0;
-  margin-top: 3rem;
+.cta-button:hover,
+.dropdown-button:hover {
+  background-color: #f8761f;
 }
 
 /* Dropdown Menu */
 .dropdown {
-  position: relative;
   display: inline-block;
+  position: relative;
   margin-right: 10px;
-}
-
-.dropdown-button {
-  background-color: #003366;
-  color: white;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .dropdown-content {
@@ -144,7 +96,6 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
-  overflow: hidden;
 }
 
 .dropdown-content a {
@@ -162,48 +113,11 @@ body {
   display: block;
 }
 
-.dropdown:hover .dropdown-button {
-  background-color: #003366;
+/* Footer */
+.footer {
+  background-color: #f1f5f9;
+  color: #777;
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 3rem;
 }
-
-/* User Files Section */
-.user-files {
-  margin: 20px;
-}
-
-.file-list {
-  list-style: none;
-  padding: 0;
-}
-
-.file-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.file-item span {
-  font-size: 1rem;
-}
-
-.file-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.file-list li {
-  margin: 0.5em 0;
-}
-
-.file-list a {
-  text-decoration: none;
-  color: #003366;
-}
-
-.file-list a:hover {
-  text-decoration: underline;
-}
-
-
-

@@ -8,6 +8,9 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
+onFileChange($event: Event) {
+throw new Error('Method not implemented.');
+}
   profile: any = {
     username: '',
     email: '',

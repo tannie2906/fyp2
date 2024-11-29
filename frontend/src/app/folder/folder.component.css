@@ -1,35 +1,178 @@
-.file-list {
-    padding: 20px;
-  }
-  
-  .file-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .file-name {
-    font-weight: bold;
-    color: #2c3e50;
-    text-decoration: none;
-  }
-  
-  .file-name:hover {
-    text-decoration: underline;
-  }
-  
-  .file-meta {
-    font-size: 0.9em;
-    color: #7f8c8d;
-  }
-  
-  .file-size, .upload-date, .file-owner {
-    margin-right: 10px;
-  }
-  
-  .error {
-    color: red;
-    font-weight: bold;
-  }
-  
+/* General Styles */
+.folder-page {
+  font-family: Arial, sans-serif;
+  background-color: #f9fafb;
+  padding: 20px;
+}
+
+/* Header Section */
+.hero {
+  text-align: center;
+  background-color: #f1f5f9;
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  color: #9d9b9b;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* Buttons (Create and Upload) */
+.cta-button,
+.dropdown-button {
+  background-color: #003366;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border-radius: 15px; /* Rounded edges */
+  cursor: pointer;
+  display: inline-block;
+  width: 150px; /* Uniform button width */
+  text-align: center;
+}
+
+.cta-button:hover,
+.dropdown-button:hover {
+  background-color: #f8761f;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  display: inline-block;
+  position: relative;
+  margin-right: 10px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Table Styles */
+.file-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.file-table thead {
+  background-color: #f1f1f1;
+  text-align: left;
+}
+
+.file-table th, .file-table td {
+  padding: 12px 20px;
+}
+
+.file-table tr {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.file-table tr:last-child {
+  border-bottom: none;
+}
+
+.file-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.file-table th {
+  font-weight: bold;
+  color: #333;
+}
+
+.file-table td {
+  color: #666;
+}
+
+.file-table td a {
+  color: #007aff;
+  text-decoration: none;
+}
+
+.file-table td a:hover {
+  text-decoration: underline;
+}
+
+/* More Options Button */
+.more-button {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  min-width: 150px;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f4f4f4;
+  color: #007aff;
+}
+
+/* Show dropdown on button click */
+.actions:hover .dropdown-menu {
+  display: block;
+}
+
+/* Align Actions Column */
+.actions {
+  position: relative;
+  text-align: right;
+}
+
+

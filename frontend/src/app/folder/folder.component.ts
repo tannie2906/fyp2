@@ -9,6 +9,42 @@ import { FileService } from '../services/file.service';
   styleUrls: ['./folder.component.css']
 })
 export class FolderComponent implements OnInit {
+
+onDownload(_t23: any) {
+throw new Error('Method not implemented.');
+}
+
+onShare(_t23: any) {
+throw new Error('Method not implemented.');
+}
+
+onMove(_t23: any) {
+throw new Error('Method not implemented.');
+}
+
+onDelete(_t23: any) {
+throw new Error('Method not implemented.');
+}
+
+onRename(_t23: any) {
+throw new Error('Method not implemented.');
+}
+
+onGetStartedClick() {
+throw new Error('Method not implemented.');
+}
+
+onUploadClick() {
+throw new Error('Method not implemented.');
+}
+
+onCreateDocument() {
+throw new Error('Method not implemented.');
+}
+
+onCreateFolder() {
+throw new Error('Method not implemented.');
+}
   files: any[] = []; // Array to store file data
   errorMessage: string = ''; // For displaying errors
 

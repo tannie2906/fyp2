@@ -72,6 +72,7 @@ export class HomeComponent implements OnInit {
       });
     }
   }
+
   triggerFileInput(): void {
     this.fileInput.nativeElement.click(); // Programmatically click the file input
   }

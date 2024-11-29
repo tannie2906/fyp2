@@ -14,11 +14,25 @@
       <button class="search-button" (click)="onSearchClick()">🔍</button>
     </div>
 
-    <!-- Login Button -->
-    <div class="login-container">
-      <button class="login-button" (click)="onLogin()">Login</button>
+    <!-- Profile Picture as Login Button -->
+    <div class="profile-picture-container">
+      <button class="profile-button" (click)="toggleDropdown()">
+        <img 
+          *ngIf="profilePictureUrl; else defaultProfile" 
+          [src]="profilePictureUrl" 
+          alt="Profile Picture" 
+          class="profile-picture" />
+        <ng-template #defaultProfile>
+          <img src="assets/images/profile.png" alt="Default Profile" class="profile-picture" />
+        </ng-template>
+      </button>
+      <div *ngIf="dropdownVisible" class="dropdown-menu">
+        <button *ngIf="!isAuthenticated" (click)="onLogin()">Login</button>
+        <button *ngIf="isAuthenticated" (click)="onProfileClick()">Profile</button>
+        <button *ngIf="isAuthenticated" (click)="onLogout()">Logout</button>
+        <button *ngIf="isAuthenticated" (click)="goToSettings()">Settings</button>
+      </div>
     </div>
-
   </div>
   
   <nav class="navbar">

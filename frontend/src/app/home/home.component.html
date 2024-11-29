@@ -29,33 +29,17 @@
     <button class="cta-button" (click)="onGetStartedClick()">Upload</button>
   </section>
 
-     <!-- User's Uploaded Files List -->
-  <section class="user-files">
-    <h2>All Files</h2>
-    <ul class="file-list">
-      <li *ngFor="let file of userFiles">
-        <a [href]="'/uploads/' + file.name" target="_blank">{{ file.name }}</a>
-      </li>
-    </ul>
-  </section>
-
-  <section class="features" *ngIf="userFiles.length === 0">
-    <p class="no-files-message">No files uploaded yet. Click Upload to add files.</p>
-  </section>
-
   <!-- Hidden File Input -->
   <input
-  type="file"
-  id="fileUpload"
-  style="display: none;"
-  #fileInput
-  (change)="onFileUpload($event)"
-/>
-
+    type="file"
+    id="fileUpload"
+    style="display: none;"
+    #fileInput
+    (change)="onFileUpload($event)"
+    />
+  </main>
 <!-- Button to Trigger File Input -->
-<button class="cta-button" (click)="triggerFileInput()">Upload</button>
-</main>
-    <!-- Other content (feature cards) will remain as is or be removed -->
+     <!--Other content (feature cards) will remain as is or be removed -->
    <!--
   <section class="features" *ngIf="userFiles.length === 0">
     <p class="no-files-message">You have no files uploaded yet. Start uploading to see them here!</p>
@@ -80,10 +64,10 @@
         Share your documents securely and seamlessly with colleagues or friends.
       </p>
     </div>
-  </section>
--->
-<footer class="footer">
-  <p>&copy; 2024 SecureShare. All rights reserved.</p>
-</footer>
-</body>
+  </section> -->
+
+    <footer class="footer">
+      <p>&copy; 2024 SecureShare. All rights reserved.</p>
+    </footer>
+  </body>
 </html>
