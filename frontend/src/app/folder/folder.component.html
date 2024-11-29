@@ -30,24 +30,24 @@
       </tr>
     </thead>
     <tbody>
-      <tbody>
-        <tr *ngFor="let file of files">
-          <td>
-            <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
-          </td>
-          <td>{{ formatFileSize(file.size) }}</td>
-          <td>Owner: {{ file.owner.username }}</td>
-          <td>{{ file.upload_date | date: 'medium' }}</td>
-          <td class="actions">
-            <button class="more-button">⋮</button>
-            <div class="dropdown-menu">
-              <a href="#" (click)="onRename(file)">Rename</a>
-              <a href="#" (click)="onMove(file)">Move</a>
-              <a href="#" (click)="onDelete(file)">Delete</a>
-              <a href="#" (click)="onShare(file)">Share</a>
-              <a href="#" (click)="onDownload(file)">Download</a>
-            </div>
-          </td>
-        </tr>
-      </tbody>
+      <tr *ngFor="let file of files">
+        <td>
+          <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
+        </td>
+        <td>{{ formatFileSize(file.size) }}</td>
+        <td>Owner: {{ file.owner.username }}</td>
+        <td>{{ file.upload_date | date: 'medium' }}</td>
+        <td class="actions">
+          <button class="more-button">⋮</button>
+          <div class="dropdown-menu">
+            <a href="#" (click)="onRename(file)">Rename</a>
+            <a href="#" (click)="onMove(file)">Move</a>
+            <button (click)="onDelete(file, $event)">Delete</button>
+            <a href="#" (click)="onShare(file)">Share</a>
+            <a href="#" (click)="onDownload(file)">Download</a>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    
       

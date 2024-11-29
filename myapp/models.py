@@ -7,6 +7,7 @@ from django.utils.timezone import now
 class File(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to='uploads/')  # Ensure 'uploads/' is valid and writable
+    filename = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name

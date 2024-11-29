@@ -15,7 +15,8 @@ import { RouterModule } from '@angular/router';
 import { FileListComponent } from './file-list/file-list.component';
 import { FileService } from './services/file.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { TokenInterceptor } from '/Users/intan/testproject/frontend/src/app/token.interceptor';
+import { TokenInterceptor } from './token.interceptor';
+import { DeleteComponent } from './delete/delete.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { TokenInterceptor } from '/Users/intan/testproject/frontend/src/app/toke
     UploadComponent,
     FolderComponent,
     FileListComponent,
+    DeleteComponent,
 
   ],
   imports: [

@@ -1,0 +1,26 @@
+<div class="bin-page">
+    <h2>Deleted Files</h2>
+  
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Owner</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let file of deletedFiles">
+          <td>{{ file.filename }}</td>
+          <td>{{ file.size | number }} bytes</td>
+          <td>{{ file.owner.username }}</td>
+          <td>
+            <button (click)="restoreFile(file)">Restore</button>
+            <button (click)="emptyBin()">Empty Bin</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

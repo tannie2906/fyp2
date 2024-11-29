@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView
 from .views import FileViewSet
+from .views import rename_file
 
 
 router = DefaultRouter()
@@ -13,4 +14,5 @@ urlpatterns = [
     path('login/', CustomAuthToken.as_view(), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('register/', RegisterUserView.as_view(), name='register'),
+    path('files/<int:file_id>/rename', rename_file, name='rename_file'),
 ]

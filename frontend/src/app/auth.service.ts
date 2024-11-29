@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';  // Add this import
+
 import axios from 'axios';
 
 
@@ -14,6 +15,8 @@ export class AuthService {
   private apiUrl = 'http://127.0.0.1:8000/api'; //make sure this api url correct
   private isLoggedIn = false; // set to true if user is logged in
   private registerUrl = 'http://127.0.0.1:8000/api/register/';
+  private tokenKey = 'auth_token';
+  
 
   constructor(private http: HttpClient) {}
 

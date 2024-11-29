@@ -14,6 +14,12 @@ from .serializers import UserSerializer, FileSerializer, UserRegistrationSeriali
 from rest_framework import viewsets
 from .models import File
 from rest_framework import permissions, viewsets
+from django.views.decorators.csrf import csrf_exempt
+import json
+import logging
+from .models import UploadedFile 
+
+logger = logging.getLogger(__name__)
 
 # File Upload
 class FileUploadView(APIView):
@@ -102,3 +108,22 @@ class FileViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Only show files for the logged-in user
         return File.objects.filter(user=self.request.user)
+    
+@csrf_exempt
+def rename_file(request, file_id):
+    if request.method == 'PUT':
+        data = json.loads(request.body)
+        new_name = data.get('newName', None)
+
+        if not new_name:
+            return JsonResponse({'error': 'New name is required.'}, status=400)
+
+        try:
+            file = UploadedFile.objects.get(id=file_id)  # Ensure you're targeting the right model
+            file.filename = new_name
+            file.save()
+            return JsonResponse({'message': 'File renamed successfully.'})
+        except UploadedFile.DoesNotExist:  # Update exception for the correct model
+            return JsonResponse({'error': 'File not found.'}, status=404)
+    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
