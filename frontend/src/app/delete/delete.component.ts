@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DeletedFilesService } from '/Users/intan/testproject/frontend/src/app/delete-files.service'; // Import service
+import { DeletedFilesService } from '../delete-files.service'; 
 
 @Component({
   selector: 'app-delete',
@@ -12,9 +12,10 @@ export class DeleteComponent implements OnInit {
   constructor(private deletedFilesService: DeletedFilesService) {}
 
   ngOnInit(): void {
-    // Retrieve deleted files from the service
+    // Retrieve the list of deleted files from localStorage
     this.deletedFiles = this.deletedFilesService.getDeletedFiles();
   }
+  
 
   // Restore file logic
   restoreFile(file: any): void {
@@ -22,13 +23,14 @@ export class DeleteComponent implements OnInit {
     if (index !== -1) {
       this.deletedFiles.splice(index, 1); // Remove the file from the deleted files list
       console.log('File restored:', file);
+      // Optionally: You can also add code to restore the file to the original location here
     }
   }
 
   // Empty Bin logic
   emptyBin(): void {
-    this.deletedFilesService.clearDeletedFiles(); // Clear all deleted files from the service
-    this.deletedFiles = []; // Update the local array
+    this.deletedFilesService.clearDeletedFiles(); // Clear deleted files from localStorage
+    this.deletedFiles = []; // Clear the local array for display
     console.log('Bin emptied');
   }
 }

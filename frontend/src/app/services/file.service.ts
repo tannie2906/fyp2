@@ -11,6 +11,7 @@ import { UserFile } from '../models/user-file.model';
 export class FileService {
   private apiUrl = 'http://127.0.0.1:8000/api'; // Base URL for the API
   authService: any;
+  router: any;
   
   constructor(private http: HttpClient) {}
 
@@ -35,5 +36,9 @@ export class FileService {
         return of(error);
       })
     );
+  }
+
+  goToBin(): void {
+    this.router.navigate(['/delete']); // Navigate to the delete page
   }
 }

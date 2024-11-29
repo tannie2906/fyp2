@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 import { FileService } from '../services/file.service';
 import { Router } from '@angular/router';
-import { DeletedFilesService } from '../delete-files.service'; // Import service
+import { DeletedFilesService } from '../delete-files.service'; // Path should match
 
 @Component({
   selector: 'app-folder',
@@ -13,14 +13,14 @@ import { DeletedFilesService } from '../delete-files.service'; // Import service
 export class FolderComponent implements OnInit {
   files: any[] = []; // Array to store file data
   errorMessage: string = ''; // For displaying errors
-  deletedFiles: any[] = []; // Store deleted files
+  //deletedFiles: any[] = []; // Store deleted files
 
   constructor(
     private http: HttpClient, 
     private authService: AuthService, 
     private fileService: FileService,
     private router: Router,
-    private deletedFilesService: DeletedFilesService // Inject DeletedFilesService
+    private deletedFilesService: DeletedFilesService
   ) {}
 
   ngOnInit(): void {
@@ -33,7 +33,13 @@ export class FolderComponent implements OnInit {
     // Fetch user-specific files
     this.fileService.getFiles().subscribe(
       (data) => {
-        this.files = data;
+        // Get the deleted files from the service
+        const deletedFiles = this.deletedFilesService.getDeletedFiles();
+        
+        // Filter out the deleted files from the list of current files
+        this.files = data.filter(file => 
+          !deletedFiles.some(deletedFile => deletedFile.id === file.id)
+        );
       },
       (error) => {
         console.error('Error fetching files:', error);
@@ -42,13 +48,14 @@ export class FolderComponent implements OnInit {
     );
   }
 
+
   // Handle file deletion
   onDelete(file: any, event: Event): void {
-    event.preventDefault(); // Prevent default navigation of <a> tag
-    this.files = this.files.filter(f => f !== file); // Remove the file from the current list
-    this.deletedFilesService.addDeletedFile(file); // Add the file to DeletedFilesService
-    console.log('Deleted Files:', this.deletedFilesService.getDeletedFiles());
-  }
+    event.preventDefault(); // Prevent default anchor behavior
+    this.files = this.files.filter(f => f !== file); // Remove file from current list
+    this.deletedFilesService.addDeletedFile(file); // Add to deleted files service
+  }  
+  
 
   // Navigate to the Bin/Delete page
   goToBin(): void {
