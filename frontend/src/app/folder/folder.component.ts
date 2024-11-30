@@ -52,9 +52,15 @@ export class FolderComponent implements OnInit {
   // Handle file deletion
   onDelete(file: any, event: Event): void {
     event.preventDefault(); // Prevent default anchor behavior
-    this.files = this.files.filter(f => f !== file); // Remove file from current list
-    this.deletedFilesService.addDeletedFile(file); // Add to deleted files service
-  }  
+
+    // Remove file from current file list
+    this.files = this.files.filter(f => f !== file); 
+
+    // Add the deleted file to the deleted files list for the current user
+    this.deletedFilesService.addDeletedFile(file);
+
+    console.log('File deleted and added to the deleted files list:', file);
+  } 
   
 
   // Navigate to the Bin/Delete page

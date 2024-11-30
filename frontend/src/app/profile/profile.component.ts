@@ -29,7 +29,7 @@ throw new Error('Method not implemented.');
     if (token) {
       this.authService.getProfile(token).subscribe({
         next: (data) => {
-          console.log('Profile Data:', data); // Verify response
+          console.log('Profile Data:', data);  // Log to verify data
           this.profile = data;
         },
         error: (err) => {

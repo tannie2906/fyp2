@@ -1,16 +1,23 @@
-<!-- login.component.html -->
 <div class="login-page">
-  <div class="login-container">
-    <h2 class="login-title">Login</h2>
+  <!-- Left Section -->
+  <div class="login-left">
+    <img src="assets/images/file.png" alt="Locker Icon" />
+    <h1>Welcome To SFSS</h1>
+    <p>Just a couple of clicks and we start</p>
+  </div>
+
+  <!-- Right Section -->
+  <div class="login-form-container">
+    <h2>Sign In</h2>
     <form (ngSubmit)="login()">
       <div class="form-group">
-        <label for="username">Username:</label>
+        <label for="username">Email:</label>
         <input
           type="text"
           id="username"
           name="username"
           [(ngModel)]="username"
-          placeholder="Enter username"
+          placeholder="Enter email"
         />
       </div>
 
@@ -25,9 +32,8 @@
         />
       </div>
 
-      <button type="submit" class="cta-button">Login</button>
+      <button type="submit" class="cta-button">Sign In</button>
     </form>
-
-    <button class="register-button" routerLink="/register">Register</button>
+    <button class="register-button" routerLink="/register">Don’t have an account? Sign Up</button>
   </div>
 </div>

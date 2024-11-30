@@ -20,7 +20,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'upload', component: UploadComponent, canActivate: [AuthGuard] },
   { path: 'folder', component: FolderComponent, canActivate: [AuthGuard] },
-  { path: 'delete', component: DeleteComponent }, // Add this route
+  { path: 'delete', component: DeleteComponent, canActivate: [AuthGuard] }, // Add this route
   // { path: '', redirectTo: '/login', pathMatch: 'full' },  // Redirect to login by default
 ];
 

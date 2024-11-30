@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import logging
 from .models import UploadedFile 
+from rest_framework.authentication import TokenAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = UserSerializer(request.user)  # Serialize the User model directly
         return Response(serializer.data)
 
     def put(self, request):
@@ -127,3 +128,10 @@ def rename_file(request, file_id):
             return JsonResponse({'error': 'File not found.'}, status=404)
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
+@api_view(['GET'])
+def profile_view(request):
+    # This assumes you are using token authentication
+    user = request.user
+    profile = user.profile  # Profile linked to the user
+    serializer = ProfileSerializer(profile)
+    return Response(serializer.data)

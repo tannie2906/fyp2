@@ -70,5 +70,6 @@ export class AuthService {
   register(userData: any) {
     return this.http.post(this.registerUrl, userData);
   }
+  
 }
 

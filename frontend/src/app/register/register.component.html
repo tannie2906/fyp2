@@ -1,22 +1,72 @@
-<!-- register.component.html -->
-<div class="register-form">
-  <form (ngSubmit)="register()">
+<div class="register-page">
+  <!-- Left Section -->
+  <div class="register-left">
+    <img src="assets/images/file.png" alt="Locker Icon" />
+    <h1>Welcome To SFSS</h1>
+    <p>Create an account to get started</p>
+  </div>
 
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" [(ngModel)]="firstName" name="first_name">
+  <!-- Right Section -->
+  <div class="register-form-container">
+    <h2>Sign Up</h2>
+    <form (ngSubmit)="register()">
+      <div class="form-group">
+        <label for="firstName">First Name:</label>
+        <input
+          type="text"
+          id="firstName"
+          [(ngModel)]="firstName"
+          name="first_name"
+          placeholder="Enter your first name"
+        />
+      </div>
 
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" [(ngModel)]="lastName" name="last_name">
-    
-    <label for="username">Username:</label>
-    <input type="text" id="username" [(ngModel)]="username" name="username" required>
+      <div class="form-group">
+        <label for="lastName">Last Name:</label>
+        <input
+          type="text"
+          id="lastName"
+          [(ngModel)]="lastName"
+          name="last_name"
+          placeholder="Enter your last name"
+        />
+      </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" [(ngModel)]="email" name="email" required>
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Enter your username"
+        />
+      </div>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" [(ngModel)]="password" name="password" required>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Enter your email"
+        />
+      </div>
 
-    <button type="submit">Register</button>
-  </form>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+        />
+      </div>
+
+      <button type="submit" class="cta-button">Register</button>
+    </form>
+    <button class="login-link" routerLink="/login">Already have an account? Login</button>
+  </div>
 </div>

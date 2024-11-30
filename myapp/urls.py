@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView
 from .views import FileViewSet
 from .views import rename_file
+from . import views
 
 
 router = DefaultRouter()
