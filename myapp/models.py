@@ -17,6 +17,7 @@ class UploadedFile(models.Model):
     filename = models.CharField(max_length=255)
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)  # New field to mark deleted files
 
     def __str__(self):
         return self.filename

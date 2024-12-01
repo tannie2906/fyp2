@@ -15,9 +15,30 @@ export class FileService {
   
   constructor(private http: HttpClient) {}
 
-  // Fetch the user's uploaded files from the backend
-  getFiles(): Observable<UserFile[]> {
-    return this.http.get<UserFile[]>(`${this.apiUrl}/files/`);
+  // Fetch all user files
+  getFiles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/files/`);
+  }
+
+  // Fetch deleted files
+  getDeletedFiles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/files/deleted/`);
+  }
+
+  // Delete a file
+  deleteFile(fileId: number): Observable<any> {
+    const url = `/api/files/${fileId}/`;  // Ensure this matches backend route
+    return this.http.delete(url);
+  }
+
+  // Restore a deleted file
+  restoreFile(fileId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/files/${fileId}/restore/`, {});
+  }
+
+  // Empty the deleted files bin
+  emptyBin(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/files/deleted/empty/`);
   }
   
   // Get the URL for a specific file
@@ -27,16 +48,9 @@ export class FileService {
 
   // Rename file
   renameFile(fileId: number, newName: string): Observable<any> {
-    const url = `http://localhost:8000/api/files/${fileId}/rename`;
-    const body = { newName: newName };
-  
-    return this.http.put(url, body).pipe(
-      catchError((error) => {
-        console.error('File rename failed:', error);
-        return of(error);
-      })
-    );
-  }
+    const url = `${this.apiUrl}/files/${fileId}/rename`; // Correct base URL
+    return this.http.put(url, { newName }); // Ensure payload is correct
+}
 
   goToBin(): void {
     this.router.navigate(['/delete']); // Navigate to the delete page

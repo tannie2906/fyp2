@@ -19,6 +19,7 @@ import json
 import logging
 from .models import UploadedFile 
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view, permission_classes
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,17 @@ class RegisterUserView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({"message": "User registered successfully", "token": token.key}, status=201)
         return Response(serializer.errors, status=400)
+    
+
+# view to retrieve only the deleted files for auth user    
+class DeletedFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        deleted_files = UploadedFile.objects.filter(owner=request.user, is_deleted=True)
+        serializer = UploadedFileSerializer(deleted_files, many=True)
+        return Response(serializer.data)
+
 
 # List Files
 @api_view(['GET'])
@@ -111,22 +123,41 @@ class FileViewSet(viewsets.ModelViewSet):
         return File.objects.filter(user=self.request.user)
     
 @csrf_exempt
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def rename_file(request, file_id):
-    if request.method == 'PUT':
+    try:
         data = json.loads(request.body)
-        new_name = data.get('newName', None)
+        new_name = data.get('newName')
 
         if not new_name:
             return JsonResponse({'error': 'New name is required.'}, status=400)
 
-        try:
-            file = UploadedFile.objects.get(id=file_id)  # Ensure you're targeting the right model
-            file.filename = new_name
-            file.save()
-            return JsonResponse({'message': 'File renamed successfully.'})
-        except UploadedFile.DoesNotExist:  # Update exception for the correct model
-            return JsonResponse({'error': 'File not found.'}, status=404)
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+        file = UploadedFile.objects.get(id=file_id, owner=request.user)
+        file.filename = new_name
+        file.save()
+        return JsonResponse({'message': 'File renamed successfully.'})
+
+    except UploadedFile.DoesNotExist:
+        return JsonResponse({'error': 'File not found or not owned by the user.'}, status=404)
+    except Exception as e:
+        logger.exception(f"Unhandled exception in rename_file: {e}")
+        return JsonResponse({'error': f'Internal server error: {e}'}, status=500)
+
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_file(request, file_id):
+    try:
+        file = UploadedFile.objects.get(id=file_id, owner=request.user)
+        file.is_deleted = True  # Mark as deleted instead of actual deletion
+        file.save()
+        return JsonResponse({'message': 'File deleted successfully.'})
+    except UploadedFile.DoesNotExist:
+        return JsonResponse({'error': 'File not found or not owned by the user.'}, status=404)
+    except Exception as e:
+        logger.exception(f"Unhandled exception in delete_file: {e}")
+        return JsonResponse({'error': 'Internal server error.'}, status=500)
 
 @api_view(['GET'])
 def profile_view(request):

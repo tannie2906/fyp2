@@ -13,7 +13,7 @@ import { DeletedFilesService } from '../delete-files.service'; // Path should ma
 export class FolderComponent implements OnInit {
   files: any[] = []; // Array to store file data
   errorMessage: string = ''; // For displaying errors
-  //deletedFiles: any[] = []; // Store deleted files
+  deletedFiles: any[] = [];
 
   constructor(
     private http: HttpClient, 
@@ -30,20 +30,25 @@ export class FolderComponent implements OnInit {
       return;
     }
 
-    // Fetch user-specific files
+    // Fetch all files
     this.fileService.getFiles().subscribe(
       (data) => {
-        // Get the deleted files from the service
-        const deletedFiles = this.deletedFilesService.getDeletedFiles();
-        
-        // Filter out the deleted files from the list of current files
-        this.files = data.filter(file => 
-          !deletedFiles.some(deletedFile => deletedFile.id === file.id)
-        );
+        this.files = data;
       },
       (error) => {
         console.error('Error fetching files:', error);
         this.errorMessage = 'Failed to load files. Please try again later.';
+      }
+    );
+
+    // Fetch deleted files
+    this.fileService.getDeletedFiles().subscribe(
+      (data) => {
+        this.deletedFiles = data;
+      },
+      (error) => {
+        console.error('Error fetching deleted files:', error);
+        this.errorMessage = 'Failed to load deleted files.';
       }
     );
   }
@@ -51,22 +56,23 @@ export class FolderComponent implements OnInit {
 
   // Handle file deletion
   onDelete(file: any, event: Event): void {
-    event.preventDefault(); // Prevent default anchor behavior
-
-    // Remove file from current file list
-    this.files = this.files.filter(f => f !== file); 
-
-    // Add the deleted file to the deleted files list for the current user
-    this.deletedFilesService.addDeletedFile(file);
-
-    console.log('File deleted and added to the deleted files list:', file);
-  } 
-  
-
-  // Navigate to the Bin/Delete page
-  goToBin(): void {
-    this.router.navigate(['/delete']); // Navigate to the delete page
+    event.preventDefault();
+    this.fileService.deleteFile(file.id).subscribe({
+      next: () => {
+        this.files = this.files.filter(f => f.id !== file.id);
+        this.deletedFiles.push(file); // Add file to deleted list
+      },
+      error: (error) => {
+        console.error('Error deleting file:', error);
+        alert('Failed to delete the file. Please try again.');
+      }
+    });
   }
+
+  goToBin(): void {
+    this.router.navigate(['/delete']);
+  }
+
 
   // Utility to format the file size to a readable format
   formatFileSize(size: number): string {
@@ -91,30 +97,22 @@ export class FolderComponent implements OnInit {
 
   onRename(file: any): void {
     const newName = prompt('Enter a new name for the file:', file.filename);
-  
+
     if (newName && newName.trim() !== '' && newName !== file.filename) {
-      const payload = { newName }; // Explicit payload for debugging
-  
-      console.log('Sending rename payload:', payload);
-  
-      this.fileService.renameFile(file.id, newName).subscribe({
-        next: (response) => {
-          console.log('Rename response:', response);
-          file.filename = newName; // Update the UI
-          alert('File renamed successfully!');
-        },
-        error: (error) => {
-          console.error('Error renaming file:', error);
-          alert('Failed to rename the file. Please try again.');
-        },
-      });
-  
-      console.log('File rename logic executed without navigation.');
+        this.fileService.renameFile(file.id, newName).subscribe({
+            next: (response) => {
+                file.filename = newName; // Update the UI with new name
+                alert('File renamed successfully!');
+            },
+            error: (error) => {
+                console.error('Error renaming file:', error);
+                alert(error.error?.message || 'Failed to rename the file. Please try again.');
+            }
+        });
     } else if (newName === file.filename) {
-      alert('The new name is the same as the current name.');
+        alert('The new name is the same as the current name.');
     }
   }
-  
 
   onGetStartedClick() {
     throw new Error('Method not implemented.');
