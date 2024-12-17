@@ -23,6 +23,7 @@ export class FolderComponent implements OnInit {
     size: 'asc',
     modified: 'asc',
   };
+  isAuthenticated: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -33,22 +34,25 @@ export class FolderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const token = this.authService.getToken();
-    if (!token) {
+    // Check if the user is authenticated by checking the token in AuthService
+    this.isAuthenticated = !!this.authService.getToken();
+    
+    if (!this.isAuthenticated) {
       this.errorMessage = 'You are not authenticated. Please log in.';
-      return;
     }
 
-    // Fetch all files
-    this.fileService.getFiles().subscribe(
-      (data) => {
-        this.files = data;
-      },
-      (error) => {
-        console.error('Error fetching files:', error);
-        this.errorMessage = 'Failed to load files. Please try again later.';
-      }
-    );
+    // Fetch all files only if authenticated
+    if (this.isAuthenticated) {
+      this.fileService.getFiles().subscribe(
+        (data) => {
+          this.files = data;
+        },
+        (error) => {
+          console.error('Error fetching files:', error);
+          this.errorMessage = 'Failed to load files. Please try again later.';
+        }
+      );
+    }
 
     // Fetch deleted files
     this.fileService.getDeletedFiles().subscribe(
@@ -195,8 +199,12 @@ export class FolderComponent implements OnInit {
     this.router.navigate(['/upload']);  // Routes to the upload page (similar to the HomeComponent)
   }
 
-  onUploadClick() {
-    throw new Error('Method not implemented.');
+  onUploadClick(): void {
+    if (this.isAuthenticated) {
+      this.router.navigate(['/upload']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   onCreateDocument() {

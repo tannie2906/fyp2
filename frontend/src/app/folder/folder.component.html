@@ -5,7 +5,20 @@
     <p class="hero-description">
       Share and manage your files with top-notch security and simplicity.
     </p>
+
+    <!-- Create Button with Dropdown -->
+    <div class="dropdown">
+      <button class="dropdown-button">Create</button>
+      <div class="dropdown-content">
+        <a href="#" (click)="onCreateFolder()">Folder</a>
+        <a href="#" (click)="onCreateDocument()">Document</a>
+      </div>
+    </div>
+
+    <!-- Upload Button -->
+    <button class="cta-button" (click)="onUploadClick()">Upload</button>
   </section>
+
 
   <!-- Files Section -->
   <h2>Your Files</h2>
