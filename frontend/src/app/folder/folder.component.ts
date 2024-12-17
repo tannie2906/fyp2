@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth.service';
-import { FileService } from '../services/file.service';
+import { FileService, File } from '../services/file.service';
 import { Router } from '@angular/router';
 import { DeletedFilesService } from '../delete-files.service'; // Path should match
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-folder',
@@ -14,6 +15,7 @@ export class FolderComponent implements OnInit {
   files: any[] = []; // Array to store file data
   errorMessage: string = ''; // For displaying errors
   deletedFiles: any[] = [];
+  folderFiles: File[] = [];
 
   constructor(
     private http: HttpClient, 
@@ -24,6 +26,7 @@ export class FolderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    
     const token = this.authService.getToken();
     if (!token) {
       this.errorMessage = 'You are not authenticated. Please log in.';
@@ -77,15 +80,49 @@ export class FolderComponent implements OnInit {
   // Utility to format the file size to a readable format
   formatFileSize(size: number): string {
     if (size < 1024) return `${size} B`;
-    else if (size < 1048576) return (size / 1024).toFixed(2) + ' KB';
-    else if (size < 1073741824) return (size / 1048576).toFixed(2) + ' MB';
-    else return (size / 1073741824).toFixed(2) + ' GB';
+    if (size < 1048576) return `${(size / 1024).toFixed(2)} KB`;
+    if (size < 1073741824) return `${(size / 1048576).toFixed(2)} MB`;
+    return `${(size / 1073741824).toFixed(2)} GB`;
   }
 
-  // Other placeholder methods (to be implemented later)
-  onDownload(_t23: any) {
-    throw new Error('Method not implemented.');
+  // File download functionality
+  onDownload(file: File, event: Event): void {
+    event.preventDefault();
+    const token = this.authService.getToken(); // Retrieve the token from AuthService
+  
+    if (!token) {
+      alert('You are not authenticated. Please log in.');
+      return;
+    }
+  
+    const fileUrl = `http://127.0.0.1:8000/api/files/download/${file.id}/`;
+  
+    // Send request with Authorization header
+    this.http
+      .get(fileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Expect a file response
+      })
+      .subscribe({
+        next: (blob) => {
+          // Create a link to download the file
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name; // Filename from the file object
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        },
+        error: (error) => {
+          console.error('Error downloading file:', error);
+          alert('Failed to download the file. Please try again.');
+        },
+      });
   }
+  
 
   onShare(_t23: any) {
     throw new Error('Method not implemented.');
@@ -114,8 +151,8 @@ export class FolderComponent implements OnInit {
     }
   }
 
-  onGetStartedClick() {
-    throw new Error('Method not implemented.');
+  onGetStartedClick(): void {
+    this.router.navigate(['/upload']);  // Routes to the upload page (similar to the HomeComponent)
   }
 
   onUploadClick() {
@@ -128,5 +165,33 @@ export class FolderComponent implements OnInit {
 
   onCreateFolder() {
     throw new Error('Method not implemented.');
+  }
+
+  // Fetch files using the service
+  getFolderFiles(): void {
+    this.fileService.getFolderFiles().subscribe({
+        next: (files: File[]) => {
+            this.folderFiles = files; // Update the local array
+        },
+        error: (error: HttpErrorResponse) => {
+            console.error('Error fetching files:', error.message);
+        },
+    });
+}
+
+    // Delete a file and refresh the file list
+    deleteFile(file: File): void {
+      this.fileService.deleteFile(file.id).subscribe({
+          next: () => {
+              // Option 1: Refetch the file list
+              this.getFolderFiles();
+
+              // Option 2: Remove the deleted file locally (if you don't want to refetch)
+              // this.folderFiles = this.folderFiles.filter(f => f.id !== file.id);
+          },
+          error: (error: HttpErrorResponse) => {
+              console.error('Error deleting file:', error.message);
+          },
+      });
   }
 }

@@ -1,4 +1,3 @@
-// src/app/file-list/file-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FileService } from '../services/file.service';
 

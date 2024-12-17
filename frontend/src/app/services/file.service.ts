@@ -2,7 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders  } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of } from 'rxjs';
 import { UserFile } from '../models/user-file.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
+export interface File {
+  id: number;
+  name: string;
+  size: number;
+  type: string;
+  // Add other fields as per your API response
+}
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +20,7 @@ export class FileService {
   private apiUrl = 'http://127.0.0.1:8000/api'; // Base URL for the API
   authService: any;
   router: any;
+  folderFiles: File[] = [];
   
   constructor(private http: HttpClient) {}
 
@@ -21,15 +30,21 @@ export class FileService {
   }
 
   // Fetch deleted files
-  getDeletedFiles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/files/deleted/`);
-  }
+  getDeletedFiles(): Observable<File[]> {
+    return this.http.get<File[]>(`${this.apiUrl}/files/deleted/`);  // Ensure you're hitting the correct endpoint for deleted files
+  }  
 
   // Delete a file
-  deleteFile(fileId: number): Observable<any> {
-    const url = `/api/files/${fileId}/`;  // Ensure this matches backend route
-    return this.http.delete(url);
+  deleteFile(fileId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/files/${fileId}/`); // Correct backend endpoint for file deletion
   }
+    
+
+  // Correctly typed method to fetch files
+  getFolderFiles(): Observable<File[]> {
+    return this.http.get<File[]>(`${this.apiUrl}/files/`);  // Ensure backend is filtering out deleted files
+  }
+  
 
   // Restore a deleted file
   restoreFile(fileId: number): Observable<any> {
@@ -43,16 +58,17 @@ export class FileService {
   
   // Get the URL for a specific file
   getFileUrl(fileName: string): Observable<{ fileUrl: string }> {
-    return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`); // Corrected `apiUrl`
+    return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`); // Corrected apiUrl
   }  
 
   // Rename file
   renameFile(fileId: number, newName: string): Observable<any> {
-    const url = `${this.apiUrl}/files/${fileId}/rename`; // Correct base URL
+    const url = `${this.apiUrl}/files/${fileId}/rename/`; // Correct base URL
     return this.http.put(url, { newName }); // Ensure payload is correct
 }
 
   goToBin(): void {
     this.router.navigate(['/delete']); // Navigate to the delete page
   }
+  
 }

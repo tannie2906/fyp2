@@ -65,20 +65,39 @@ export class UploadComponent {
           'Content-Type': 'multipart/form-data',
           Authorization: `Token ${token}`,
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.loaded && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+            console.log(`Upload Progress: ${progress}%`);
+          } else {
+            console.log(`Uploaded: ${progressEvent.loaded} bytes`);
+          }
+        },
       });
 
       console.log('File uploaded successfully:', response.data);
 
       this.fileUploaded.emit(); // Notify parent component
       alert('File uploaded successfully!');
+
+      // Clear fields after successful upload
+      this.selectedFiles = [];
+      this.fileName = '';
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
         console.error('Error uploading file:', axiosError.response.data);
+        if (axiosError.response.status === 403) {
+          alert('You do not have permission to upload files.');
+        } else if (axiosError.response.status === 500) {
+          alert('Server error. Please try again later.');
+        } else {
+          alert('Error uploading file. Please try again.');
+        }
       } else {
         console.error('Error uploading file:', axiosError);
+        alert('An unknown error occurred. Please try again.');
       }
-      alert('Error uploading file. Please try again.');
     }
   }
 }

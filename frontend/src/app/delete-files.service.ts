@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -24,7 +24,7 @@ export class DeletedFilesService {
   // Get deleted files from localStorage (returns an Observable)
   getDeletedFiles(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
-  }
+  }  
 
   // Synchronous version for internal use
   private getDeletedFilesSync(): any[] {
@@ -39,6 +39,11 @@ export class DeletedFilesService {
 
   // Clear all deleted files from localStorage (empty the bin)
   clearDeletedFiles(): Observable<void> {
-    return this.http.delete<void>(this.apiUrl); // Assuming DELETE clears the bin
+    return this.http.delete<void>(this.apiUrl).pipe(
+      tap(() => {
+        // Clear local storage or any cache
+        localStorage.removeItem('deletedFiles');
+      })
+    );
   }
 }

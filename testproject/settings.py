@@ -99,6 +99,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -119,6 +120,18 @@ USE_TZ = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",  # Your Angular app's URL
 ]
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'accept',
+    'origin',
+    'x-requested-with',
+    'x-csrf-token',
+]
+
+CSRF_COOKIE_HTTPONLY = True  # Ensures the CSRF token is accessible by JavaScript.
+
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -145,3 +158,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/uploads')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/login/'  # Or wherever your login page is
+LOGIN_REDIRECT_URL = '/'  # Default redirect after login
+

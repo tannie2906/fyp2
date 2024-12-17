@@ -17,12 +17,15 @@ export class DeleteComponent implements OnInit {
   }
 
   private loadDeletedFiles(): void {
+    console.log('Fetching deleted files...');
     this.deletedFilesService.getDeletedFiles().subscribe(
       (data) => {
+        console.log('Deleted files fetched:', data);
         this.deletedFiles = data;
       },
       (error) => {
         console.error('Error loading deleted files:', error);
+        alert('Failed to load deleted files.');
       }
     );
   }
