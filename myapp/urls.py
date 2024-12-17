@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import DeletedFilesView, FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, delete_file
+from .views import DeletedFilesView, FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, delete_file, FileViewSet
 from .views import FileViewSet
 from .views import rename_file
 from . import views
@@ -8,7 +8,7 @@ from .views import download_file
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
-router.register(r'files', FileViewSet)
+router.register(r'files', FileViewSet, basename='file')
 
 urlpatterns = [
     path('upload/', FileUploadView.as_view(), name='file-upload'),
