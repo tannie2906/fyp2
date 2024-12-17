@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authtoken.models import Token
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 
 from django.views.decorators.csrf import csrf_exempt
@@ -30,7 +30,7 @@ class FileUploadView(APIView):
 
     def post(self, request):
         file = request.FILES.get('file')
-        name = request.data.get('name', file.name)
+        name = request.data.get('name')
         if not file:
             return Response({"error": "No file provided."}, status=400)
 

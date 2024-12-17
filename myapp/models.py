@@ -1,14 +1,20 @@
+from django.contrib.auth.models import User
+from django.utils.timezone import now
 from django.db import models
 from django import forms
 import os
-from django.contrib.auth.models import User
-from django.utils.timezone import now
+
+def custom_file_name(instance, filename):
+    # Extract file extension
+    _, ext = os.path.splitext(filename)
+    # Use the custom name provided in the 'name' field
+    return os.path.join('uploads/', f"{instance.name}{ext}")
 
 class File(models.Model):
-    name = models.CharField(max_length=255)
-    file = models.FileField(upload_to='uploads/')  # Ensure 'uploads/' is valid and writable
-    filename = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+    name = models.CharField(max_length=255)  # Custom file name
+    file = models.FileField(upload_to=custom_file_name)  # Custom storage function
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

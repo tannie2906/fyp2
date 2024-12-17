@@ -5,17 +5,6 @@
     <p class="hero-description">
       Share and manage your files with top-notch security and simplicity.
     </p>
-    
-    <!-- Create Button with Dropdown -->
-    <div class="dropdown">
-      <button class="dropdown-button">Create</button>
-      <div class="dropdown-content">
-        <a href="#" (click)="onCreateFolder()">Folder</a>
-        <a href="#" (click)="onCreateDocument()">Document</a>
-      </div>
-    </div>
-
-    <button class="cta-button" (click)="onGetStartedClick()">Upload</button>
   </section>
 
   <!-- Files Section -->
@@ -23,10 +12,24 @@
   <table class="file-table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Size</th>
+        <!-- Clickable Headers with Sorting -->
+        <th (click)="sortFiles('name')" style="cursor: pointer;">
+          Name
+          <span *ngIf="sortOrder['name'] === 'asc'">▲</span>
+          <span *ngIf="sortOrder['name'] === 'desc'">▼</span>
+        </th>
+        <th (click)="sortFiles('size')" style="cursor: pointer;">
+          Size
+          <span *ngIf="sortOrder['size'] === 'asc'">▲</span>
+          <span *ngIf="sortOrder['size'] === 'desc'">▼</span>
+        </th>
         <th>Who can access</th>
-        <th>Modified</th>
+        <th (click)="sortFiles('modified')" style="cursor: pointer;">
+          Modified
+          <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
+          <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
+        </th>
+        <th>Actions</th> <!-- Column for more options -->
       </tr>
     </thead>
     <tbody>
@@ -34,18 +37,24 @@
         <td>
           <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
         </td>
-        <td>{{ formatFileSize(file.size) }}</td>
+        <td>{{ file.size }} bytes</td>
         <td>Owner: {{ file.owner.username }}</td>
         <td>{{ file.upload_date | date: 'medium' }}</td>
+        <!-- Actions column -->
         <td class="actions">
-          <button class="more-button">⋮</button>
-          <div class="dropdown-menu">
-            <a href="#" (click)="onRename(file)">Rename</a>
-            <a href="#" (click)="onMove(file)">Move</a>
-            <button (click)="onDelete(file, $event)">Delete</button>
-            <a href="#" (click)="onShare(file)">Share</a>
-            <a href="#" (click)="onDownload(file, $event)">Download</a>
+          <!-- More Options Button -->
+          <div class="dropdown">
+            <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
+            <div class="dropdown-menu" *ngIf="file.showDropdown">
+              <a href="#" (click)="onRename(file)">Rename</a>
+              <a href="#" (click)="onMove(file)">Move</a>
+              <a href="#" (click)="onShare(file)">Share</a>
+              <a href="#" (click)="onDownload(file, $event)">Download</a>
+              <button (click)="onDelete(file, $event)">Delete</button>
+            </div>
           </div>
         </td>
       </tr>
     </tbody>
+  </table>
+</div>

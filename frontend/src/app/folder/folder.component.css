@@ -149,7 +149,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 10;
   min-width: 150px;
-}
+} 
 
 .dropdown-menu a {
   display: block;
@@ -157,6 +157,10 @@
   color: #333;
   text-decoration: none;
   font-size: 0.9rem;
+}
+
+.dropdown-menu {
+  transform-origin: top right;
 }
 
 .dropdown-menu a:hover {
@@ -169,10 +173,19 @@
   display: block;
 }
 
+.actions .dropdown-menu {
+  bottom: 100%; /* Position the dropdown upwards */
+  margin-bottom: 5px;
+}
+
 /* Align Actions Column */
 .actions {
   position: relative;
   text-align: right;
+}
+
+.file-actions {
+  position: relative; /* Allows dropdown to align relative to this */
 }
 
 

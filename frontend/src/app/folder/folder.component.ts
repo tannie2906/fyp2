@@ -17,16 +17,22 @@ export class FolderComponent implements OnInit {
   deletedFiles: any[] = [];
   folderFiles: File[] = [];
 
+  // To track sort order for each column
+  sortOrder: { [key: string]: 'asc' | 'desc' } = {
+    name: 'asc',
+    size: 'asc',
+    modified: 'asc',
+  };
+
   constructor(
-    private http: HttpClient, 
-    private authService: AuthService, 
+    private http: HttpClient,
+    private authService: AuthService,
     private fileService: FileService,
     private router: Router,
     private deletedFilesService: DeletedFilesService
   ) {}
 
   ngOnInit(): void {
-    
     const token = this.authService.getToken();
     if (!token) {
       this.errorMessage = 'You are not authenticated. Please log in.';
@@ -56,6 +62,37 @@ export class FolderComponent implements OnInit {
     );
   }
 
+  // Sort files by column
+  sortFiles(column: string): void {
+    this.sortOrder[column] = this.sortOrder[column] === 'asc' ? 'desc' : 'asc';
+
+    switch (column) {
+      case 'name':
+        this.files.sort((a, b) =>
+          this.sortOrder['name'] === 'asc'
+            ? a.filename.localeCompare(b.filename)
+            : b.filename.localeCompare(a.filename)
+        );
+        break;
+      case 'size':
+        this.files.sort((a, b) =>
+          this.sortOrder['size'] === 'asc' ? a.size - b.size : b.size - a.size
+        );
+        break;
+      case 'modified':
+        this.files.sort((a, b) =>
+          this.sortOrder['modified'] === 'asc'
+            ? new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime()
+            : new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
+        );
+        break;
+    }
+  }
+
+  // Toggle dropdown visibility for a file
+  toggleDropdown(file: any): void {
+    file.showDropdown = !file.showDropdown;
+  }
 
   // Handle file deletion
   onDelete(file: any, event: Event): void {
