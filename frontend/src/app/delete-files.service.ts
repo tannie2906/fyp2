@@ -46,4 +46,9 @@ export class DeletedFilesService {
       })
     );
   }
+
+  // Permanently delete a file
+  deletePermanently(fileId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete/${fileId}/`);
+  } 
 }

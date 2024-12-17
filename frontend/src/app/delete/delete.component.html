@@ -1,9 +1,20 @@
 <div class="bin-page">
   <h2>Deleted Files</h2>
 
+  <!-- Buttons to restore or delete selected files -->
+  <div class="actions">
+    <button (click)="restoreSelectedFiles()">Restore Selected</button>
+    <button (click)="deleteFilePermanently(file)">Delete Permanently</button>
+  </div>
+
+  <!-- Files Table -->
   <table class="file-table">
     <thead>
       <tr>
+        <th>
+          <!-- Master Checkbox to Select All -->
+          <input type="checkbox" (change)="toggleSelectAll($event)" />
+        </th>
         <th>Name</th>
         <th>Size</th>
         <th>Owner</th>
@@ -11,15 +22,28 @@
       </tr>
     </thead>
     <tbody>
+      <!-- Loop over deleted files -->
       <tr *ngFor="let file of deletedFiles">
+        <td>
+          <!-- Individual Checkbox for Each File -->
+          <input
+            type="checkbox"
+            [checked]="selectedFiles.includes(file.id)"
+            (change)="toggleSelection(file.id, $event)"
+          />
+        </td>
         <td>{{ file.filename }}</td>
         <td>{{ file.size | number }} bytes</td>
         <td>{{ file.owner.username }}</td>
         <td>
+          <!-- Restore and Delete Buttons -->
           <button (click)="restoreFile(file)">Restore</button>
+          <button (click)="deleteFilePermanently(file)">Delete Permanently</button>
         </td>
       </tr>
     </tbody>
   </table>
+
+  <!-- Empty Bin -->
   <button (click)="emptyBin()">Empty Bin</button>
 </div>

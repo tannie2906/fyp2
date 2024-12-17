@@ -165,6 +165,30 @@ def download_file(request, file_id):
     except UploadedFile.DoesNotExist:
         return JsonResponse({'error': 'File not found or deleted.'}, status=404)
 
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def permanently_delete_file(request, file_id):
+    """
+    Permanently delete a file both from storage and the database.
+    """
+    try:
+        # Fetch the file owned by the authenticated user
+        file_obj = UploadedFile.objects.get(id=file_id, owner=request.user, is_deleted=True)
+        
+        # Delete file from storage if it exists
+        file_path = file_obj.file.path
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+        
+        # Delete the file record from the database
+        file_obj.delete()
+        return JsonResponse({'message': 'File permanently deleted.'}, status=200)
+    
+    except UploadedFile.DoesNotExist:
+        return JsonResponse({'error': 'File not found or unauthorized access.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
 
 # ViewSet for files
 class FileViewSet(viewsets.ModelViewSet):
