@@ -161,19 +161,20 @@ def rename_file(request, file_id):
 
         file = UploadedFile.objects.get(id=file_id, owner=request.user)
 
-        # Check if the new name already exists for the user
+        # Check if the new name already exists
         if UploadedFile.objects.filter(owner=request.user, filename=new_name).exists():
             return JsonResponse({'error': 'A file with this name already exists.'}, status=400)
 
         file.filename = new_name
         file.save()
-        return JsonResponse({'message': 'File renamed successfully.'})
+        return JsonResponse({'message': 'File renamed successfully.'}, status=200)
 
     except UploadedFile.DoesNotExist:
         return JsonResponse({'error': 'File not found or not owned by the user.'}, status=404)
     except Exception as e:
-        logger.exception(f"Unhandled exception in rename_file: {e}")
-        return JsonResponse({'error': f'Internal server error: {e}'}, status=500)
+        logger.exception(f"Unhandled exception: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
 
 
 @csrf_exempt

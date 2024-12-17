@@ -121,6 +121,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",  # Your Angular app's URL
 ]
 
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+
 CORS_ALLOW_HEADERS = [
     'authorization',
     'content-type',

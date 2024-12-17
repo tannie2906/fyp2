@@ -63,9 +63,15 @@ export class FileService {
 
   // Rename file
   renameFile(fileId: number, newName: string): Observable<any> {
-    const url = `${this.apiUrl}/files/${fileId}/rename/`; // Correct base URL
-    return this.http.put(url, { newName }); // Ensure payload is correct
-}
+    const url = `${this.apiUrl}/files/${fileId}/rename/`;
+    return this.http.put<any>(url, { newName }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Rename File Error:', error.message);
+        return of({ error: error.error?.error || 'Failed to rename file' });
+      })
+    );
+  }  
+       
 
   goToBin(): void {
     this.router.navigate(['/delete']); // Navigate to the delete page
