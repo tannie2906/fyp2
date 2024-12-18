@@ -1,72 +1,130 @@
-/* src/app/upload/upload.component.css */
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f4f7fc;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Container Styling */
 .upload-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    text-align: center;
-  }
-  
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .drop-area {
-    border: 2px dashed #007bff;
-    padding: 2rem;
-    margin-bottom: 1rem;
-    border-radius: 10px;
-    color: #007bff;
-    cursor: pointer;
-  }
-  
-  .drop-area:hover {
-    background-color: #f0f8ff;
-  }
-  
-  .file-input {
-    display: none;
-  }
-  
-  .file-name-input {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-  
-  .upload-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .upload-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .selected-files-list {
-    margin-top: 1rem;
-  }
-  
-  .selected-files-list ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .selected-files-list li {
-    background-color: #f8f9fa;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 0.5rem;
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Title Styling */
+h2 {
+  font-size: 2.4rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #007bff;
+}
+
+/* Drop Area Styling */
+.drop-area {
+  border: 2px dashed #007bff;
+  padding: 3rem;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.drop-area:hover {
+  background-color: #e6f7ff;
+}
+
+.drop-area p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+}
+
+/* File Name Input Styling */
+.file-name-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.file-name-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Upload Button Styling */
+.upload-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+/* Selected Files List Styling */
+.selected-files-list {
+  margin-top: 2rem;
+}
+
+.selected-files-list h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.selected-files-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.selected-files-list li {
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .upload-container {
+    padding: 1.5rem;
+    width: 90%;
   }
 
- 
-  
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  .file-name-input,
+  .upload-button {
+    font-size: 1rem;
+  }
+}
