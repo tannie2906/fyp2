@@ -6,14 +6,12 @@ import { tap } from 'rxjs/operators';  // Add this import
 
 import axios from 'axios';
 
-
-
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/api'; //make sure this api url correct
-  private isLoggedIn = false; // set to true if user is logged in
+  private apiUrl = 'http://127.0.0.1:8000/api'; // Ensure this is correct
+  private isLoggedIn = false;
   private registerUrl = 'http://127.0.0.1:8000/api/register/';
   private tokenKey = 'auth_token';
   private profileSubject = new BehaviorSubject<any>(null);
@@ -23,9 +21,8 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
-    // Send a login request to the backend
     return this.http.post<any>(`${this.apiUrl}/login/`, { username, password }).pipe(
-      tap((response: any) => {  // Log the response to see the result
+      tap((response: any) => {
         if (response && response.token) {
           this.isLoggedIn = true;
           localStorage.setItem('auth_token', response.token); // Store token
@@ -34,35 +31,33 @@ export class AuthService {
     );
   }
 
-  // Check if user is authenticated (is logged in)
   isAuthenticated(): boolean {
-    return this.isLoggedIn || localStorage.getItem('auth_token') !== null; // Check if there's a token stored in localStorage
+    return this.isLoggedIn || localStorage.getItem('auth_token') !== null;
   }
 
   getToken(): string | null {
-    return localStorage.getItem('auth_token'); // Retrieve the token
+    return localStorage.getItem('auth_token');
   }
 
   logout(): void {
-    localStorage.removeItem('auth_token'); // Clear the token on logout
+    localStorage.removeItem('auth_token');
     this.isLoggedIn = false;
   }
 
-// Fetch user profile
+  // Fetch user profile
   getProfile(token: string): Observable<any> {
-    return this.http.get('/api/profile', { headers: { Authorization: `Token ${token}` } })
-      .pipe(
-        tap((profile) => {
-          this.profileSubject.next(profile); // Update the shared state
-        })
-      );
+    return this.http.get(`${this.apiUrl}/profile/`, {
+      headers: { Authorization: `Token ${token}` },
+    }).pipe(
+      tap((profile) => {
+        this.profileSubject.next(profile); // Update the shared state
+      })
+    );
   }
 
-  // Expose a method to update the profile state directly
   updateProfileState(updatedProfile: any): void {
     this.profileSubject.next(updatedProfile);
   }
-
 
   updateProfile(token: string, data: any): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
@@ -78,10 +73,8 @@ export class AuthService {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
     return this.http.put<any>(`${this.apiUrl}/settings/`, data, { headers });
   }
-  
+
   register(userData: any) {
     return this.http.post(this.registerUrl, userData);
   }
-  
 }
-

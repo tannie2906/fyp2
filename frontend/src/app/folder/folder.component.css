@@ -1,6 +1,6 @@
 /* General Styles */
 .folder-page {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   background-color: #f9fafb;
   padding: 20px;
 }
@@ -12,12 +12,14 @@
   padding: 2rem;
   border-radius: 10px;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .hero-title {
   font-size: 2.5rem;
-  color: #9d9b9b;
+  color: #333;
   margin-bottom: 1rem;
+  font-weight: bold;
 }
 
 .hero-description {
@@ -30,15 +32,16 @@
 .cta-button,
 .dropdown-button {
   background-color: #003366;
-  color: #fff;
+  color: white;
   border: none;
   padding: 0.75rem 2rem;
   font-size: 1rem;
-  border-radius: 15px; /* Rounded edges */
+  border-radius: 15px;
   cursor: pointer;
   display: inline-block;
-  width: 150px; /* Uniform button width */
+  width: 150px;
   text-align: center;
+  transition: background-color 0.3s;
 }
 
 .cta-button:hover,
@@ -68,6 +71,7 @@
   padding: 12px 16px;
   text-decoration: none;
   display: block;
+  font-size: 0.9rem;
 }
 
 .dropdown-content a:hover {
@@ -76,6 +80,11 @@
 
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+/* Files Section */
+.file-section {
+  margin-top: 20px;
 }
 
 /* Table Styles */
@@ -96,6 +105,7 @@
 
 .file-table th, .file-table td {
   padding: 12px 20px;
+  font-size: 14px;
 }
 
 .file-table tr {
@@ -174,7 +184,7 @@
 }
 
 .actions .dropdown-menu {
-  bottom: 100%; /* Position the dropdown upwards */
+  bottom: 100%;
   margin-bottom: 5px;
 }
 
@@ -185,7 +195,7 @@
 }
 
 .file-actions {
-  position: relative; /* Allows dropdown to align relative to this */
+  position: relative;
 }
 
 .starred-icon {
@@ -200,5 +210,26 @@
   cursor: pointer;
 }
 
+/* Toggle Button for Starred Files */
+.toggle-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
+.toggle-button:hover {
+  background-color: #0056b3;
+}
 
+/* Additional styles for Star Icon */
+.star-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  color: #f1c40f;
+}

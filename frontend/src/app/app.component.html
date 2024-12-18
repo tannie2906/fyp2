@@ -1,6 +1,5 @@
 <div class="home-page">
   <div class="header">
-
     <!-- Title -->
     <h1 class="title">SecureShare</h1>
     
@@ -34,7 +33,8 @@
       </div>
     </div>
   </div>
-  
+
+  <!-- Navbar -->
   <nav class="navbar">
     <a routerLink="/home" class="home-button">Home</a>
     <a routerLink="/folder" class="folder-button">Folder</a>
@@ -49,6 +49,9 @@
     </div>
   </nav>
 
-  <router-outlet></router-outlet> <!-- Routed components appear here -->
+  <!-- Routed Components -->
+  <router-outlet></router-outlet>
+
+  <!-- File List Component (for example) -->
   <app-file-list></app-file-list>
 </div>

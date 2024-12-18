@@ -1,51 +1,4 @@
-/* General styling for the header */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Pushes items to opposite sides */
-  padding: 10px;
-  background-color: #f8f9fa; /* Optional: Light gray background for the header */
-}
-
-/* Title styling */
-.title {
-  margin: 0;
-  font-size: 2rem;
-  color: #9d9b9b; /* Adjust color as needed */
-}
-
-/* Search bar container */
-.search-container {
-  display: flex;
-  align-items: center;
-  margin-left: auto; /* Pushes the search bar to the far right */
-}
-
-/* Search input */
-.search-input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px 0 0 5px;
-  font-size: 16px;
-  outline: none;
-  width: 250px;
-}
-
-/* Search button */
-.search-button {
-  padding: 8px 12px;
-  background-color: #f8761f;
-  color: white;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.search-button:hover {
-  background-color: #003366;
-}
-
+/* General styling */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -53,134 +6,182 @@
   font-family: 'Arial', sans-serif;
 }
 
+/* Body and overall background */
 body {
   background-color: #f9fafb;
   color: #333;
   line-height: 1.6;
 }
 
-/* Navbar styling */
+/* Header Styling */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 20px;
+}
+
+/* Title Styling */
+.title {
+  font-size: 2rem;
+  color: #003366;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.search-input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 250px;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #f8761f;
+  outline: none;
+}
+
+.search-button {
+  padding: 10px 15px;
+  background-color: #f8761f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #003366;
+}
+
+/* Navbar Styling */
 .navbar {
   display: flex;
-  flex-direction: column; /* Arrange links vertically */
-  align-items: flex-start; /* Align the links to the left */
-  padding: 1rem;
-  position: fixed; /* Make the navbar stick to the left side */
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  position: fixed;
   top: 0;
   left: 0;
-  height: 100vh; /* Ensure it takes full height */
-  background-color: #003366; /* Background color for navbar */
-  width: 200px; /* Set width of navbar */
+  height: 100vh;
+  background-color: #003366;
+  width: 220px;
+  color: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar a {
   color: #fff;
   text-decoration: none;
   font-size: 1.2rem;
-  margin-bottom: 1rem; /* Space out the links */
-  padding: 0.75rem 1.5rem;
-  width: 100%; /* Full width of the navbar */
-  text-align: left; /* Left align text */
+  margin-bottom: 20px;
+  padding: 12px;
+  width: 100%;
+  text-align: left;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 .navbar a:hover {
-  background-color: #003366; /* Change color on hover */
+  background-color: #f8761f;
 }
 
-/* Dropdown menu styling */
+/* Profile Dropdown */
 .profile-dropdown {
-  position: relative; /* Position relative to allow absolute positioning of dropdown content */
+  position: relative;
 }
 
 .profile-button {
   background-color: transparent;
-  color: #fff;
+  color: white;
   border: none;
   cursor: pointer;
   font-size: 1.2rem;
-  text-align: left;
+  padding: 12px;
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  text-align: left;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 .profile-button:hover {
-  background-color: #003366; /* Same hover color as links */
+  background-color: #f8761f;
 }
 
 .dropdown-content {
-  display: none; /* Hidden by default */
-  position: absolute; /* Position it below the profile button */
-  left: 100%; /* Align it to the right of the profile button */
-  background-color: #f9f9f9; /* Background color for dropdown */
-  min-width: 160px; /* Set a minimum width */
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Add some shadow */
-  z-index: 1; /* Ensure it is above other elements */
+  display: none;
+  position: absolute;
+  left: 100%;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
   border-radius: 5px;
+  margin-left: 10px;
 }
 
 .dropdown-content a {
-  color: #333; /* Text color for dropdown items */
+  color: #333;
   padding: 12px 16px;
   text-decoration: none;
-  display: block; /* Block display to take full width */
-  border-bottom: 1px solid #ddd; /* Divider between items */
+  display: block;
+  border-bottom: 1px solid #ddd;
 }
 
 .dropdown-content a:hover {
-  background-color: #eee; /* Light background on hover */
+  background-color: #f4f4f4;
 }
 
-/* Show the dropdown on hover */
 .profile-dropdown:hover .dropdown-content {
-  display: block; /* Show dropdown on hover */
+  display: block;
 }
 
-/* Main content styling */
+/* Main content layout */
 .home-page {
   display: flex;
   flex-direction: column;
-  margin-left: 200px; /* Offset content from the navbar */
+  margin-left: 220px; /* Offset the content to the right of the navbar */
   padding: 2rem;
-  width: calc(100% - 200px); /* Ensure the content takes the remaining width */
+  width: calc(100% - 220px); /* Content width adjustment */
 }
 
 h1 {
   font-size: 2.5rem;
   color: #003366;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
 }
 
 router-outlet {
-  flex-grow: 1; /* Allow routed components to expand and take remaining space */
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.search-container {
   flex-grow: 1;
-  display: flex;
-  align-items: center;
+  margin-top: 20px;
 }
 
 .profile-picture-container {
   position: relative;
 }
 
-.profile-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
 .profile-picture {
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 .dropdown-menu {
@@ -191,12 +192,13 @@ router-outlet {
   border: 1px solid #ddd;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  width: 150px;
+  width: 160px;
+  border-radius: 5px;
 }
 
 .dropdown-menu button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   text-align: left;
   background: none;
   border: none;
@@ -204,5 +206,5 @@ router-outlet {
 }
 
 .dropdown-menu button:hover {
-  background-color: #f0f0f0;
+  background-color: #f4f4f4;
 }

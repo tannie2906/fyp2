@@ -2,9 +2,11 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UploadedFile
 
+from rest_framework import serializers
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = User  # Assuming you're using Django's built-in User model
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 class FileSerializer(serializers.ModelSerializer):

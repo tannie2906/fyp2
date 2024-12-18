@@ -24,70 +24,70 @@
     <h2 *ngIf="!showStarredFiles">Your Files</h2>
     <h2 *ngIf="showStarredFiles">Starred Files</h2>
     <button class="toggle-button" (click)="toggleStarredView()">
-      {{ showStarredFiles ? 'View All Files' : 'View Starred Files' }}
+      <span class="star-icon">
+        {{ showStarredFiles ? '⭐' : '⭐' }}
+      </span>
     </button>
   </div>
 
-
   <!-- Files Section -->
-  <h2>Your Files</h2>
-  <table class="file-table">
-    <thead>
-      <tr>
-        <!-- Clickable Headers with Sorting -->
-        <th (click)="sortFiles('name')" style="cursor: pointer;">
-          Name
-          <span *ngIf="sortOrder['name'] === 'asc'">▲</span>
-          <span *ngIf="sortOrder['name'] === 'desc'">▼</span>
-        </th>
-        <th (click)="sortFiles('size')" style="cursor: pointer;">
-          Size
-          <span *ngIf="sortOrder['size'] === 'asc'">▲</span>
-          <span *ngIf="sortOrder['size'] === 'desc'">▼</span>
-        </th>
-        <th>Who can access</th>
-        <th (click)="sortFiles('modified')" style="cursor: pointer;">
-          Modified
-          <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
-          <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
-        </th>
-        
-        <th>Actions</th> <!-- Column for more options -->
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Render All Files or Starred Files -->
-      <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
-        <td>
-          <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
-        </td>
-        <td>{{ file.size }} bytes</td>
-        <td>Owner: {{ file.owner.username }}</td>
-        <td>{{ file.upload_date | date: 'medium' }}</td>
+  <section class="file-section">
+    <table class="file-table">
+      <thead>
+        <tr>
+          <!-- Clickable Headers with Sorting -->
+          <th (click)="sortFiles('name')" style="cursor: pointer;">
+            Name
+            <span *ngIf="sortOrder['name'] === 'asc'">▲</span>
+            <span *ngIf="sortOrder['name'] === 'desc'">▼</span>
+          </th>
+          <th (click)="sortFiles('size')" style="cursor: pointer;">
+            Size
+            <span *ngIf="sortOrder['size'] === 'asc'">▲</span>
+            <span *ngIf="sortOrder['size'] === 'desc'">▼</span>
+          </th>
+          <th>Who can access</th>
+          <th (click)="sortFiles('modified')" style="cursor: pointer;">
+            Modified
+            <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
+            <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
+          </th>
+          <th>Actions</th> <!-- Column for more options -->
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Render All Files or Starred Files -->
+        <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
+          <td>
+            <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
+          </td>
+          <td>{{ file.size }} bytes</td>
+          <td>Owner: {{ file.owner.username }}</td>
+          <td>{{ file.upload_date | date: 'medium' }}</td>
 
-        <!-- Star Button -->
-        <td>
-          <button (click)="toggleStar(file)" aria-label="Toggle star">
-            <span [class]="file.isStarred ? 'starred-icon' : 'unstarred-icon'">★</span>
-          </button>
-        </td>
-        
-        <!-- Actions column -->
-        <td class="actions">
-
-          <!-- More Options Button -->
-          <div class="dropdown">
-            <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
-            <div class="dropdown-menu" *ngIf="file.showDropdown">
-              <a href="#" (click)="onRename(file)">Rename</a>
-              <a href="#" (click)="onMove(file)">Move</a>
-              <a href="#" (click)="onShare(file)">Share</a>
-              <a href="#" (click)="onDownload(file, $event)">Download</a>
-              <button (click)="onDelete(file, $event)">Delete</button>
+          <!-- Star Button -->
+          <td>
+            <button (click)="toggleStar(file)" aria-label="Toggle star">
+              <span [class]="file.isStarred ? 'starred-icon' : 'unstarred-icon'">★</span>
+            </button>
+          </td>
+          
+          <!-- Actions column -->
+          <td class="actions">
+            <!-- More Options Button -->
+            <div class="dropdown">
+              <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
+              <div class="dropdown-menu" *ngIf="file.showDropdown">
+                <a href="#" (click)="onRename(file)">Rename</a>
+                <a href="#" (click)="onMove(file)">Move</a>
+                <a href="#" (click)="onShare(file)">Share</a>
+                <a href="#" (click)="onDownload(file, $event)">Download</a>
+                <button (click)="onDelete(file, $event)">Delete</button>
+              </div>
             </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 </div>

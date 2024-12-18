@@ -38,6 +38,9 @@ export class FolderComponent implements OnInit {
   ngOnInit(): void {
     // Check if the user is authenticated by checking the token in AuthService
     this.isAuthenticated = !!this.authService.getToken();
+    this.fetchFiles();          // Loads all files
+    this.fetchStarredFiles(); 
+    this.loadDeletedFiles();
     
     if (!this.isAuthenticated) {
       this.errorMessage = 'You are not authenticated. Please log in.';
@@ -66,6 +69,18 @@ export class FolderComponent implements OnInit {
         this.errorMessage = 'Failed to load deleted files.';
       }
     );
+  }
+
+  fetchFiles(): void {
+    this.fileService.getFiles().subscribe({
+      next: (data) => {
+        console.log('Files:', data);
+        this.files = data; // Files now include correct isStarred status
+      },
+      error: (error) => {
+        console.error('Error fetching files:', error);
+      }
+    });
   }
 
   // Sort files by column
@@ -195,6 +210,31 @@ export class FolderComponent implements OnInit {
       alert('The new name is the same as the current name.');
     }
   }  
+
+  // Method to fetch deleted files
+  loadDeletedFiles(): void {
+    this.fileService.getDeletedFiles().subscribe({
+      next: (files) => {
+        this.deletedFiles = files;
+        console.log('Deleted files loaded:', this.deletedFiles);
+      },
+      error: (error) => {
+        console.error('Error fetching deleted files:', error);
+      }
+    });
+  }
+
+  permanentlyDelete(file: File): void {
+    this.fileService.permanentlyDeleteFile(file.id).subscribe({
+      next: () => {
+        console.log('File permanently deleted.');
+        this.loadDeletedFiles(); // Refresh the list of deleted files
+      },
+      error: (error) => {
+        console.error('Permanent delete error:', error);
+      },
+    });
+  }
   
 
   onGetStartedClick(): void {
@@ -255,7 +295,7 @@ export class FolderComponent implements OnInit {
   fetchStarredFiles(): void {
     this.fileService.getStarredFiles().subscribe({
       next: (data) => {
-        console.log('Starred Files:', data); // Log the data to ensure correct response
+        console.log('Fetched Starred Files:', data);
         this.starredFiles = data;
       },
       error: (error) => {
@@ -265,19 +305,21 @@ export class FolderComponent implements OnInit {
   }
   
   toggleStar(file: any): void {
-    const previousState = file.isStarred; // Save previous state
-    file.isStarred = !file.isStarred; // Toggle local state
+    const previousState = file.isStarred;
+    file.isStarred = !file.isStarred;
+  
+    if (file.isStarred) {
+      this.starredFiles.push(file); // Add to starred list
+    } else {
+      this.starredFiles = this.starredFiles.filter(f => f.id !== file.id);
+    }
   
     this.fileService.toggleStar(file.id, file.isStarred).subscribe({
-      next: () => {
-        console.log(`File ${file.filename} is now ${file.isStarred ? 'starred' : 'unstarred'}`);
-        
-        // Refetch the starred files after the API call completes
-        this.fetchStarredFiles(); // Refresh starred files list
-      },
+      next: () => console.log('Star status updated'),
       error: (error) => {
         console.error('Error toggling star:', error);
-        file.isStarred = previousState; // Revert state on failure
+        file.isStarred = previousState; // Revert on failure
+        this.fetchStarredFiles(); // Refetch as a fallback
       }
     });
   }

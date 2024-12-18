@@ -53,7 +53,7 @@ export class FileService {
 
   // Empty the deleted files bin
   emptyBin(): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/files/deleted/empty/`);
+    return this.http.delete(`${this.apiUrl}/files/deleted`);  // No trailing slash
   }
   
   // Get the URL for a specific file
@@ -92,4 +92,12 @@ export class FileService {
       }
     );
   }  
+  permanentlyDeleteFile(fileId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/files/${fileId}/permanent-delete/`).pipe(
+      catchError((error) => {
+        console.error('Error during permanent delete:', error);
+        throw error;
+      })
+    );
+  }
 }

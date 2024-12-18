@@ -221,3 +221,35 @@ def update_username(request):
         # Replace with actual logic to update username
         return JsonResponse({'message': f'Username updated to {new_username}'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def empty_bin(request):
+    try:
+        # Fetch and permanently delete all files marked as deleted
+        deleted_files = UploadedFile.objects.filter(owner=request.user, is_deleted=True)
+        for file in deleted_files:
+            # Remove the file from storage
+            file_path = file.file.path
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            # Delete the file from the database
+            file.delete()
+        
+        return JsonResponse({"message": "Bin emptied successfully."}, status=200)
+    
+    except Exception as e:
+        return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+    
+@api_view(['GET'])
+def profile_view(request):
+    user = request.user
+    profile_data = {
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        # Add more profile data if needed
+    }
+    return Response(profile_data)
