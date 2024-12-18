@@ -2,35 +2,32 @@
   <div class="profile-container">
     <h2 class="profile-title">Profile</h2>
 
-    <!-- Profile Picture Section -->
-    <div class="profile-group">
+    <!-- Profile Picture Section (Centered) -->
+    <div class="profile-image-container">
       <img 
         [src]="profile.picture || defaultProfilePicture" 
         alt="Profile Picture" 
         class="profile-image" />
-      <input type="file" (change)="onFileChange($event)" accept="image/*" />
     </div>
     
-    <!-- Profile Details -->
+    <!-- Profile Details (Aligned) -->
     <div class="profile-group">
-      <p><strong>Username:</strong> {{ profile.username }}</p>
+      <strong>Username:</strong> <span>{{ profile.username }}</span>
     </div>
     <div class="profile-group">
-      <p><strong>Email:</strong> {{ profile.email || 'Not Provided' }}</p>
+      <strong>Email:</strong> <span>{{ profile.email || 'Not Provided' }}</span>
     </div>
     <div class="profile-group">
-      <p><strong>First Name:</strong> {{ profile.first_name }}</p>
+      <strong>First Name:</strong> <span>{{ profile.first_name }}</span>
     </div>
     <div class="profile-group">
-      <p><strong>Last Name:</strong> {{ profile.last_name }}</p>
+      <strong>Last Name:</strong> <span>{{ profile.last_name }}</span>
     </div>
   </div>
 </div>
 
 <ng-template #loading>
-  <div class="profile-page">
-    <div class="profile-container">
-      <p>Loading profile...</p>
-    </div>
+  <div class="loading-container">
+    <p>Loading profile...</p>
   </div>
 </ng-template>

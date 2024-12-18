@@ -1,48 +1,124 @@
-/* General styles similar to login.component.css */
+/* Global Styles */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  body {
-    background-color: #f9fafb;
-    color: #333;
-    line-height: 1.6;
-  }
-  
-  /* Centering the profile page */
-  .profile-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-  
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f4f7fc; /* Light background */
+  color: #333;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Centering the Profile Page */
+.profile-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Profile Container Styling */
+.profile-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-container:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Styling */
+.profile-title {
+  font-size: 2.2rem;
+  color: #007bff;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Profile Group Styling (Flexbox for alignment) */
+.profile-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.profile-group p {
+  color: #555;
+}
+
+.profile-group strong {
+  font-weight: 600;
+  color: #333;
+  width: 140px; /* Fixed width for alignment */
+}
+
+.profile-group span {
+  color: #555;
+  flex-grow: 1; /* Ensures value takes the remaining space */
+}
+
+/* Profile Image Styling (Centered) */
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  object-fit: cover;
+  transition: border-color 0.3s ease;
+}
+
+.profile-image:hover {
+  border-color: #0056b3;
+}
+
+/* Loading Section */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #777;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 600px) {
   .profile-container {
-    background-color: #fff;
-    padding: 3rem 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
+    padding: 1.5rem;
+    max-width: 90%;
   }
-  
+
   .profile-title {
-    font-size: 2rem;
-    color: #007bff;
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
   }
-  
-  .profile-group {
-    margin-bottom: 1rem;
-    text-align: left;
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
   }
-  
+
   .profile-group p {
     font-size: 1rem;
-    color: #555;
   }
-  
+}

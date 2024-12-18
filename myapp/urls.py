@@ -32,6 +32,6 @@ urlpatterns = [
     path('files/', FileListView.as_view(), name='file-list'),
     path('files/deleted', DeletedFilesView.as_view(), name='deleted-files'),  # No slash
     path('files/deleted/empty', empty_bin, name='empty_bin'), 
-   # path('profile/', ProfileView.as_view(), name='profile'),
+   
    
 ]
