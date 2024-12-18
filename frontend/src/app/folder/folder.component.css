@@ -188,4 +188,17 @@
   position: relative; /* Allows dropdown to align relative to this */
 }
 
+.starred-icon {
+  color: gold;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.unstarred-icon {
+  color: gray;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
 

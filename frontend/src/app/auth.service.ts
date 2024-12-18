@@ -16,6 +16,8 @@ export class AuthService {
   private isLoggedIn = false; // set to true if user is logged in
   private registerUrl = 'http://127.0.0.1:8000/api/register/';
   private tokenKey = 'auth_token';
+  private profileSubject = new BehaviorSubject<any>(null);
+  public profile$ = this.profileSubject.asObservable();
   
 
   constructor(private http: HttpClient) {}
@@ -48,9 +50,19 @@ export class AuthService {
 
 // Fetch user profile
   getProfile(token: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
-    return this.http.get('/api/profile/', { headers });
+    return this.http.get('/api/profile', { headers: { Authorization: `Token ${token}` } })
+      .pipe(
+        tap((profile) => {
+          this.profileSubject.next(profile); // Update the shared state
+        })
+      );
   }
+
+  // Expose a method to update the profile state directly
+  updateProfileState(updatedProfile: any): void {
+    this.profileSubject.next(updatedProfile);
+  }
+
 
   updateProfile(token: string, data: any): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);

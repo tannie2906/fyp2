@@ -18,9 +18,12 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('register/', RegisterUserView.as_view(), name='register'),
     path('files/<int:file_id>/rename/', rename_file, name='rename_file'),
-    path('files/deleted/delete/<int:file_id>/', views.permanently_delete_file, name='delete_file'),
     path('files/<int:file_id>/', delete_file, name='delete_file'), 
     path('files/download/<int:file_id>/', download_file, name='download_file'),
     path('token-auth/', TokenObtainPairView.as_view(), name='api_token_auth'),
     path('token-refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    #update setting
+    path('settings/', views.get_settings, name='get_settings'),  # GET endpoint
+    path('update-username', views.update_username, name='update_username'),  # PUT endpoint
 ]

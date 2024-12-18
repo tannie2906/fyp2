@@ -76,5 +76,20 @@ export class FileService {
   goToBin(): void {
     this.router.navigate(['/delete']); // Navigate to the delete page
   }
+
+  getStarredFiles() {
+    return this.http.get<any[]>('http://127.0.0.1:8000/api/files/starred/', {
+      headers: { Authorization: `Bearer ${this.authService.getToken()}` },
+    });
+  }
   
+  toggleStar(fileId: number, isStarred: boolean) {
+    return this.http.post(
+      `http://127.0.0.1:8000/api/files/toggle-star/${fileId}/`,
+      { isStarred },
+      {
+        headers: { Authorization: `Bearer ${this.authService.getToken()}` },
+      }
+    );
+  }  
 }

@@ -16,6 +16,8 @@ export class FolderComponent implements OnInit {
   errorMessage: string = ''; // For displaying errors
   deletedFiles: any[] = [];
   folderFiles: File[] = [];
+  showStarredFiles: boolean = false; // To toggle between main and starred view
+  starredFiles: any[] = []; // Holds starred files
 
   // To track sort order for each column
   sortOrder: { [key: string]: 'asc' | 'desc' } = {
@@ -227,19 +229,65 @@ export class FolderComponent implements OnInit {
     });
 }
 
-    // Delete a file and refresh the file list
-    deleteFile(file: File): void {
-      this.fileService.deleteFile(file.id).subscribe({
-          next: () => {
-              // Option 1: Refetch the file list
-              this.getFolderFiles();
+  // Delete a file and refresh the file list
+  deleteFile(file: File): void {
+    this.fileService.deleteFile(file.id).subscribe({
+        next: () => {
+            // Option 1: Refetch the file list
+            this.getFolderFiles();
 
-              // Option 2: Remove the deleted file locally (if you don't want to refetch)
-              // this.folderFiles = this.folderFiles.filter(f => f.id !== file.id);
-          },
-          error: (error: HttpErrorResponse) => {
-              console.error('Error deleting file:', error.message);
-          },
-      });
+            // Option 2: Remove the deleted file locally (if you don't want to refetch)
+            // this.folderFiles = this.folderFiles.filter(f => f.id !== file.id);
+        },
+        error: (error: HttpErrorResponse) => {
+             console.error('Error deleting file:', error.message);
+        },
+    });
   }
+
+  // Navigate to Starred Files
+  goToStarred(): void {
+    this.showStarredFiles = true;
+    this.fetchStarredFiles();
+  }
+
+  // Fetch Starred Files
+  fetchStarredFiles(): void {
+    this.fileService.getStarredFiles().subscribe({
+      next: (data) => {
+        console.log('Starred Files:', data); // Log the data to ensure correct response
+        this.starredFiles = data;
+      },
+      error: (error) => {
+        console.error('Error fetching starred files:', error);
+      }
+    });
+  }
+  
+  toggleStar(file: any): void {
+    const previousState = file.isStarred; // Save previous state
+    file.isStarred = !file.isStarred; // Toggle local state
+  
+    this.fileService.toggleStar(file.id, file.isStarred).subscribe({
+      next: () => {
+        console.log(`File ${file.filename} is now ${file.isStarred ? 'starred' : 'unstarred'}`);
+        
+        // Refetch the starred files after the API call completes
+        this.fetchStarredFiles(); // Refresh starred files list
+      },
+      error: (error) => {
+        console.error('Error toggling star:', error);
+        file.isStarred = previousState; // Revert state on failure
+      }
+    });
+  }
+  
+
+  toggleStarredView(): void {
+    this.showStarredFiles = !this.showStarredFiles;
+    if (this.showStarredFiles) {
+      this.fetchStarredFiles();
+    }
+  }
+  
 }

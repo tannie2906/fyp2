@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
-
+import { SettingsService } from '../services/settings.service';
 
 @Component({
   selector: 'app-profile',
@@ -22,23 +22,52 @@ throw new Error('Method not implemented.');
   router: any;
   selectedFile: File | null = null; // For file upload
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private settingsService: SettingsService
+  ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('auth_token'); // Correct the key here
+    // Subscribe to the shared profile state
+    this.authService.profile$.subscribe((data) => {
+      if (data) {
+        this.profile = data;
+      } else {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          this.authService.getProfile(token).subscribe();
+        }
+      }
+    });
+  }
+
+
+  // Method to load profile data
+  loadProfile(): void {
+    const token = localStorage.getItem('auth_token');
     if (token) {
       this.authService.getProfile(token).subscribe({
         next: (data) => {
-          console.log('Profile Data:', data);  // Log to verify data
-          this.profile = data;
+          console.log('Profile Data:', data);
+          this.profile = data; // Update the profile object
         },
         error: (err) => {
           console.error('Error fetching profile:', err);
         },
       });
-    } else {
-      console.error('No token found in localStorage!');
-      this.router.navigate(['/login']); // Redirect to login if token is missing
     }
+  }
+
+  // Method to update the username
+  updateUsername(newUsername: string): void {
+    this.settingsService.updateUsername(newUsername).subscribe({
+      next: () => {
+        console.log('Username updated successfully!');
+        this.loadProfile(); // Reload the updated profile
+      },
+      error: (err) => {
+        console.error('Error updating username:', err);
+      },
+    });
   }
 }  

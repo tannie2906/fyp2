@@ -5,6 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.authtoken.models import Token
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
 
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
@@ -19,6 +20,9 @@ import json
 import logging
 import uuid
 import os
+
+# new 
+from django.views.decorators.http import require_GET
 
 logger = logging.getLogger(__name__)
 
@@ -197,3 +201,23 @@ class FileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return File.objects.filter(user=self.request.user, is_deleted=False)
+
+# update new
+@require_GET
+def get_settings(request):
+    # Replace with actual user settings logic
+    settings_data = {
+        'username': 'example_user',
+        'email': 'example@example.com',
+        'language': 'en',
+    }
+    return JsonResponse(settings_data)
+
+@csrf_exempt
+def update_username(request):
+    if request.method == 'PUT':
+        data = json.loads(request.body)
+        new_username = data.get('username')
+        # Replace with actual logic to update username
+        return JsonResponse({'message': f'Username updated to {new_username}'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)

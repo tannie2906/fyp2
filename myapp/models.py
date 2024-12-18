@@ -4,6 +4,7 @@ from django.db import models
 from django import forms
 import os
 
+
 def custom_file_name(instance, filename):
     # Extract file extension
     _, ext = os.path.splitext(filename)

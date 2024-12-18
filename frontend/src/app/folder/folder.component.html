@@ -19,6 +19,15 @@
     <button class="cta-button" (click)="onUploadClick()">Upload</button>
   </section>
 
+  <!-- Starred Files Button -->
+  <div class="files-header">
+    <h2 *ngIf="!showStarredFiles">Your Files</h2>
+    <h2 *ngIf="showStarredFiles">Starred Files</h2>
+    <button class="toggle-button" (click)="toggleStarredView()">
+      {{ showStarredFiles ? 'View All Files' : 'View Starred Files' }}
+    </button>
+  </div>
+
 
   <!-- Files Section -->
   <h2>Your Files</h2>
@@ -42,19 +51,30 @@
           <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
           <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
         </th>
+        
         <th>Actions</th> <!-- Column for more options -->
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let file of files">
+      <!-- Render All Files or Starred Files -->
+      <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
         <td>
           <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
         </td>
         <td>{{ file.size }} bytes</td>
         <td>Owner: {{ file.owner.username }}</td>
         <td>{{ file.upload_date | date: 'medium' }}</td>
+
+        <!-- Star Button -->
+        <td>
+          <button (click)="toggleStar(file)" aria-label="Toggle star">
+            <span [class]="file.isStarred ? 'starred-icon' : 'unstarred-icon'">★</span>
+          </button>
+        </td>
+        
         <!-- Actions column -->
         <td class="actions">
+
           <!-- More Options Button -->
           <div class="dropdown">
             <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
