@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 import { FileService, File } from '../services/file.service';
 import { Router } from '@angular/router';
-import { DeletedFilesService } from '../delete-files.service'; // Path should match
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -14,7 +13,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class FolderComponent implements OnInit {
   files: any[] = []; // Array to store file data
   errorMessage: string = ''; // For displaying errors
-  deletedFiles: any[] = [];
   folderFiles: File[] = [];
   showStarredFiles: boolean = false; // To toggle between main and starred view
   starredFiles: any[] = []; // Holds starred files
@@ -25,6 +23,7 @@ export class FolderComponent implements OnInit {
     size: 'asc',
     modified: 'asc',
   };
+
   isAuthenticated: boolean = false;
 
   constructor(
@@ -32,7 +31,6 @@ export class FolderComponent implements OnInit {
     private authService: AuthService,
     private fileService: FileService,
     private router: Router,
-    private deletedFilesService: DeletedFilesService
   ) {}
 
   ngOnInit(): void {
@@ -40,7 +38,6 @@ export class FolderComponent implements OnInit {
     this.isAuthenticated = !!this.authService.getToken();
     this.fetchFiles();          // Loads all files
     this.fetchStarredFiles(); 
-    this.loadDeletedFiles();
     
     if (!this.isAuthenticated) {
       this.errorMessage = 'You are not authenticated. Please log in.';
@@ -48,41 +45,44 @@ export class FolderComponent implements OnInit {
 
     // Fetch all files only if authenticated
     if (this.isAuthenticated) {
-      this.fileService.getFiles().subscribe(
-        (data) => {
-          this.files = data;
-        },
-        (error) => {
-          console.error('Error fetching files:', error);
-          this.errorMessage = 'Failed to load files. Please try again later.';
-        }
-      );
+      this.fetchFiles(); 
+    } else {
+      this.errorMessage = 'You are not authenticated. Please log in.';
     }
-
-    // Fetch deleted files
-    this.fileService.getDeletedFiles().subscribe(
-      (data) => {
-        this.deletedFiles = data;
-      },
-      (error) => {
-        console.error('Error fetching deleted files:', error);
-        this.errorMessage = 'Failed to load deleted files.';
-      }
-    );
   }
 
   fetchFiles(): void {
-    this.fileService.getFiles().subscribe({
+    this.fileService.getFolderFiles().subscribe({
       next: (data) => {
-        console.log('Files:', data);
-        this.files = data; // Files now include correct isStarred status
+        console.log('API Response:', data); // Debug to ensure correct data structure
+        this.files = data;
       },
       error: (error) => {
         console.error('Error fetching files:', error);
-      }
+      },
     });
   }
 
+  // Handle file deletion
+  onDelete(file: any, event?: Event): void {
+    if (event) {
+      event.preventDefault(); // Prevent the default link behavior
+    }
+    if (confirm('Are you sure you want to delete this file?')) {
+      this.fileService.deleteFile(file.id).subscribe({
+        next: (response: any) => { // Ensure TypeScript knows the response structure
+          console.log('File deleted successfully:', response);
+          this.files = this.files.filter((f) => f.id !== file.id);
+          alert(response.message); // Show backend's success message
+        },
+        error: (error) => {
+          console.error('Error deleting file:', error);
+          alert(error.error?.error || 'Failed to delete the file. Please try again.');
+        },
+      });
+    }
+  }
+  
   // Sort files by column
   sortFiles(column: string): void {
     this.sortOrder[column] = this.sortOrder[column] === 'asc' ? 'desc' : 'asc';
@@ -91,8 +91,8 @@ export class FolderComponent implements OnInit {
       case 'name':
         this.files.sort((a, b) =>
           this.sortOrder['name'] === 'asc'
-            ? a.filename.localeCompare(b.filename)
-            : b.filename.localeCompare(a.filename)
+            ? a.name.localeCompare(b.name)
+            : b.name.localeCompare(a.name)
         );
         break;
       case 'size':
@@ -103,8 +103,8 @@ export class FolderComponent implements OnInit {
       case 'modified':
         this.files.sort((a, b) =>
           this.sortOrder['modified'] === 'asc'
-            ? new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime()
-            : new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime()
+            ? new Date(a.created_at).getTime() - new Date(b.upload_date).getTime()
+            : new Date(b.upload_date).getTime() - new Date(a.created_at).getTime()
         );
         break;
     }
@@ -114,26 +114,6 @@ export class FolderComponent implements OnInit {
   toggleDropdown(file: any): void {
     file.showDropdown = !file.showDropdown;
   }
-
-  // Handle file deletion
-  onDelete(file: any, event: Event): void {
-    event.preventDefault();
-    this.fileService.deleteFile(file.id).subscribe({
-      next: () => {
-        this.files = this.files.filter(f => f.id !== file.id);
-        this.deletedFiles.push(file); // Add file to deleted list
-      },
-      error: (error) => {
-        console.error('Error deleting file:', error);
-        alert('Failed to delete the file. Please try again.');
-      }
-    });
-  }
-
-  goToBin(): void {
-    this.router.navigate(['/delete']);
-  }
-
 
   // Utility to format the file size to a readable format
   formatFileSize(size: number): string {
@@ -169,7 +149,7 @@ export class FolderComponent implements OnInit {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = file.name; // Filename from the file object
+          a.download = file.filename; // Filename from the file object
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -181,10 +161,29 @@ export class FolderComponent implements OnInit {
       });
   }
   
-
-  onShare(_t23: any) {
-    throw new Error('Method not implemented.');
-  }
+  // sharing the file
+  onShare(file: any): void {
+    const emails = prompt('Enter emails to share (comma-separated):');
+    const permissions = 'read';  // Example: fixed 'read' permissions
+  
+    if (emails) {
+      const shareWith = emails.split(',').map(email => email.trim());
+      this.http.post('http://127.0.0.1:8000/api/files/share/', {
+        file_id: file.id,
+        share_with: shareWith,
+        permissions: permissions
+      }).subscribe({
+        next: (response: any) => {
+          console.log('File shared successfully:', response);
+          alert(`Shared Links:\n${response.share_links.map((link: any) => link.share_link).join('\n')}`);
+        },
+        error: (error) => {
+          console.error('Error sharing file:', error);
+          alert('Failed to share the file. Please try again.');
+        }
+      });
+    }
+  }  
 
   onMove(_t23: any) {
     throw new Error('Method not implemented.');
@@ -210,32 +209,6 @@ export class FolderComponent implements OnInit {
       alert('The new name is the same as the current name.');
     }
   }  
-
-  // Method to fetch deleted files
-  loadDeletedFiles(): void {
-    this.fileService.getDeletedFiles().subscribe({
-      next: (files) => {
-        this.deletedFiles = files;
-        console.log('Deleted files loaded:', this.deletedFiles);
-      },
-      error: (error) => {
-        console.error('Error fetching deleted files:', error);
-      }
-    });
-  }
-
-  permanentlyDelete(file: File): void {
-    this.fileService.permanentlyDeleteFile(file.id).subscribe({
-      next: () => {
-        console.log('File permanently deleted.');
-        this.loadDeletedFiles(); // Refresh the list of deleted files
-      },
-      error: (error) => {
-        console.error('Permanent delete error:', error);
-      },
-    });
-  }
-  
 
   onGetStartedClick(): void {
     this.router.navigate(['/upload']);  // Routes to the upload page (similar to the HomeComponent)
@@ -268,22 +241,6 @@ export class FolderComponent implements OnInit {
         },
     });
 }
-
-  // Delete a file and refresh the file list
-  deleteFile(file: File): void {
-    this.fileService.deleteFile(file.id).subscribe({
-        next: () => {
-            // Option 1: Refetch the file list
-            this.getFolderFiles();
-
-            // Option 2: Remove the deleted file locally (if you don't want to refetch)
-            // this.folderFiles = this.folderFiles.filter(f => f.id !== file.id);
-        },
-        error: (error: HttpErrorResponse) => {
-             console.error('Error deleting file:', error.message);
-        },
-    });
-  }
 
   // Navigate to Starred Files
   goToStarred(): void {
@@ -323,7 +280,6 @@ export class FolderComponent implements OnInit {
       }
     });
   }
-  
 
   toggleStarredView(): void {
     this.showStarredFiles = !this.showStarredFiles;
@@ -331,5 +287,15 @@ export class FolderComponent implements OnInit {
       this.fetchStarredFiles();
     }
   }
-  
+
+  loadFiles(): void {
+    this.fileService.getFiles().subscribe(
+      (files) => {
+        this.files = files;
+      },
+      (error) => {
+        console.error('Error loading files:', error);
+      }
+    );
+  }
 }

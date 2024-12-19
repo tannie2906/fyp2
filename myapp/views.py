@@ -1,3 +1,4 @@
+from datetime import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -6,26 +7,106 @@ from rest_framework.authtoken.models import Token
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.exceptions import ValidationError
 
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_GET
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now 
+from django.utils import timezone
 
-from .models import UploadedFile, File
-from .serializers import UserSerializer, UploadedFileSerializer, UserRegistrationSerializer, FileSerializer
+
+from .models import DeletedFile, UploadedFile, File, SharedFile
+from .serializers import DeletedFilesSerializer, UserSerializer, UploadedFileSerializer, UserRegistrationSerializer, FileSerializer
+from myapp.models import File
 
 import json
 import logging
 import uuid
 import os
 
-# new 
-from django.views.decorators.http import require_GET
 
 logger = logging.getLogger(__name__)
 
+# Helper to validate file ownership
+def validate_file_owner(file_id, user):
+    try:
+        file = File.objects.get(id=file_id)
+        if file.user != user:
+            raise ValidationError("You are not authorized to access this file.")
+        return file
+    except File.DoesNotExist:
+        raise ValidationError("File not found.")
+
+@api_view(['GET'])
+def shared_file_detail(request, share_link):
+    try:
+        shared_file = SharedFile.objects.get(share_link=share_link)
+        file = shared_file.file
+        return Response({
+            "filename": file.filename,
+            "file_url": request.build_absolute_uri(file.file.url),
+            "permissions": shared_file.permissions
+        })
+    except SharedFile.DoesNotExist:
+        return Response({"error": "Shared link not found."}, status=404)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def share_file(request):
+    print("Share file endpoint hit")
+    file_id = request.data.get('file_id')
+    share_with = request.data.get('share_with')  # List of emails
+    print(f"File ID: {file_id}")
+    print(f"Request User: {request.user}")
+
+    if not file_id:
+        return Response({"error": "File ID is required."}, status=400)
+
+    if not isinstance(share_with, list):
+        return Response({"error": "'share_with' must be a list of emails."}, status=400)
+
+    permissions = request.data.get('permissions', 'read')
+
+    # Validate file
+    try:
+        # Check ownership explicitly
+        file = File.objects.get(id=file_id)
+        if file.user != request.user:
+            print(f"File with ID {file_id} is not owned by user {request.user}")
+            return Response({"error": "Unauthorized to access this file."}, status=403)
+
+        print(f"File fetched successfully: {file}")
+    except File.DoesNotExist:
+        print(f"File with ID {file_id} not found.")
+        return Response({"error": "File not found."}, status=404)
+
+    # Share file with each user
+    share_links = []
+    for email in share_with:
+        shared_file = SharedFile.objects.create(
+            file=file,
+            shared_with=email,
+            permissions=permissions
+        )
+        share_link = request.build_absolute_uri(
+            reverse('shared_file_detail', kwargs={'share_link': shared_file.share_link})
+        )
+        share_links.append({
+            "shared_with": email,
+            "share_link": share_link,
+            "permissions": permissions
+        })
+
+    return Response({"file_id": file_id, "share_links": share_links}, status=201)
 
 # File Upload
 class FileUploadView(APIView):
@@ -35,44 +116,52 @@ class FileUploadView(APIView):
     def post(self, request):
         file = request.FILES.get('file')
         name = request.data.get('name')
+        user = request.user 
+        
         if not file:
             return Response({"error": "No file provided."}, status=400)
 
-        unique_filename = f"{uuid.uuid4().hex}_{name}"
-        uploaded_file = UploadedFile.objects.create(file=file, filename=unique_filename, owner=request.user)
+        if not name:
+            # If the name is not provided, use the file name
+            name = file.name
+
+        if not name:
+            return Response({"error": "File name is required."}, status=400)
+
+        # Create the file instance, and populate name, size, and user correctly
+        file_instance = File.objects.create(
+            name=name,
+            file=file,
+            size=file.size,  # This should automatically get the size of the uploaded file
+            user=user
+        )
+
         return Response({
             "message": "File uploaded successfully!",
-            "file_url": settings.MEDIA_URL + uploaded_file.file.name
+            "file_url": file_instance.file.url,  # return the file URL after uploading
+            "file_id": file_instance.id,
+            "file_name": file_instance.name,
+            "file_size": file_instance.size,
+            "file_user": file_instance.user.id
         }, status=201)
 
+
 class FileViewSet(viewsets.ModelViewSet):
-    queryset = File.objects.all()  # Explicitly set the queryset
     serializer_class = FileSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filter queryset based on the current authenticated user
-        return self.queryset.filter(user=self.request.user, is_deleted=False)
+        return File.objects.filter(user=self.request.user, is_deleted=False)
+
 
 # List user-uploaded files
 class FileListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        uploaded_files = UploadedFile.objects.filter(owner=request.user, is_deleted=False)
-        serializer = UploadedFileSerializer(uploaded_files, many=True)
+        files = File.objects.filter(user=request.user)
+        serializer = FileSerializer(files, many=True)
         return Response(serializer.data)
-
-
-# View for handling deleted files
-class DeletedFilesView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        deleted_files = UploadedFile.objects.filter(owner=request.user, is_deleted=True)
-        serializer = UploadedFileSerializer(deleted_files, many=True)
-        return Response(serializer.data)
-
 
 # User Authentication
 class CustomAuthToken(APIView):
@@ -139,21 +228,6 @@ def rename_file(request, file_id):
     except UploadedFile.DoesNotExist:
         return JsonResponse({'error': 'File not found or not owned by the user.'}, status=404)
 
-
-# Delete a file
-@csrf_exempt
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_file(request, file_id):
-    try:
-        file = UploadedFile.objects.get(id=file_id, owner=request.user)
-        file.is_deleted = True
-        file.save()
-        return JsonResponse({"message": "File successfully deleted."})
-    except UploadedFile.DoesNotExist:
-        return JsonResponse({"error": "File not found or not owned by the user."}, status=404)
-
-
 # File Download
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -168,31 +242,6 @@ def download_file(request, file_id):
         return response
     except UploadedFile.DoesNotExist:
         return JsonResponse({'error': 'File not found or deleted.'}, status=404)
-
-@csrf_exempt
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def permanently_delete_file(request, file_id):
-    """
-    Permanently delete a file both from storage and the database.
-    """
-    try:
-        # Fetch the file owned by the authenticated user
-        file_obj = UploadedFile.objects.get(id=file_id, owner=request.user, is_deleted=True)
-        
-        # Delete file from storage if it exists
-        file_path = file_obj.file.path
-        if file_path and os.path.exists(file_path):
-            os.remove(file_path)
-        
-        # Delete the file record from the database
-        file_obj.delete()
-        return JsonResponse({'message': 'File permanently deleted.'}, status=200)
-    
-    except UploadedFile.DoesNotExist:
-        return JsonResponse({'error': 'File not found or unauthorized access.'}, status=404)
-    except Exception as e:
-        return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
 
 # ViewSet for files
 class FileViewSet(viewsets.ModelViewSet):
@@ -221,26 +270,6 @@ def update_username(request):
         # Replace with actual logic to update username
         return JsonResponse({'message': f'Username updated to {new_username}'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
-@csrf_exempt
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def empty_bin(request):
-    try:
-        # Fetch and permanently delete all files marked as deleted
-        deleted_files = UploadedFile.objects.filter(owner=request.user, is_deleted=True)
-        for file in deleted_files:
-            # Remove the file from storage
-            file_path = file.file.path
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            # Delete the file from the database
-            file.delete()
-        
-        return JsonResponse({"message": "Bin emptied successfully."}, status=200)
-    
-    except Exception as e:
-        return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
     
 @api_view(['GET'])
 def profile_view(request):
@@ -253,3 +282,93 @@ def profile_view(request):
         # Add more profile data if needed
     }
     return Response(profile_data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_file(request):
+    if request.method == 'POST':
+        file = request.FILES.get('file')  # This is the uploaded file
+        size = file.size  # Get the size of the file
+        user = request.user  # Assuming the user is logged in and associated with the file
+
+        # Create the File instance, using the correct fields
+        file_instance = File.objects.create(file=file, size=size, owner=user)
+
+        # Serialize and return the response
+        serializer = FileSerializer(file_instance)
+        return Response(serializer.data)
+
+def get(self, request, *args, **kwargs):
+    files = File.objects.all()
+    logger.info(f"Fetched files: {files}")
+    serializer = FileSerializer(files, many=True)
+    return Response(serializer.data)
+
+#delete function
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def delete_file(request, id):
+    try:
+        # Get the file by its ID
+        file = File.objects.get(id=id)
+        user = request.user  # Get the authenticated user
+
+        # Record the deletion in the DeletedFile model
+        DeletedFile.objects.create(
+            user_id=user.id,  # Use the authenticated user's ID
+            file_name=file.name,  # Adjust to your model field
+            deleted_at=timezone.now()  # Correctly use timezone.now()
+        )
+
+        # Proceed with deleting the file
+        file.delete()
+        return JsonResponse({'message': 'File deleted successfully'}, status=200)
+
+    except File.DoesNotExist:
+        return JsonResponse({'error': 'File not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+# fetch delete file
+@api_view(['GET'])
+@csrf_exempt
+def get_deleted_files(request):
+    user_id = request.GET.get('userId')
+    if not user_id or not user_id.isdigit():
+        return Response({"error": "Invalid user ID"}, status=400)
+
+    try:
+        deleted_files = DeletedFile.objects.filter(user_id=user_id)
+        serializer = DeletedFilesSerializer(deleted_files, many=True)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+    
+# Restore deleted file
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def restore_file(request, id):
+    deleted_file = get_object_or_404(DeletedFile, id=id)
+    File.objects.create(
+        user_id=deleted_file.user_id,
+        name=deleted_file.file_name
+    )
+    deleted_file.delete()
+    return Response({"message": "File restored successfully."}, status=200)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def permanently_delete(request, id):
+    deleted_file = get_object_or_404(DeletedFile, id=id)
+    deleted_file.delete()
+    return Response({"message": "File permanently deleted."}, status=200)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def empty_trash(request):
+    DeletedFile.objects.filter(user=request.user).delete()
+    return Response({"message": "Trash emptied successfully."}, status=200)
+

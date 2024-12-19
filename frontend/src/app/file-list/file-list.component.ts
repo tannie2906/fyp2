@@ -26,4 +26,19 @@ export class FileListComponent implements OnInit {
       }
     );
   }
+  
+  deleteFile(id: number) {
+    if (confirm('Are you sure you want to delete this file?')) {
+      this.fileService.deleteFile(id).subscribe({
+        next: () => {
+          this.files = this.files.filter((file) => file.id !== id);
+          alert('File deleted successfully');
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Error deleting file');
+        },
+      });
+    }
+  }
 }

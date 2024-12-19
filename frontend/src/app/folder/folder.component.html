@@ -59,11 +59,11 @@
         <!-- Render All Files or Starred Files -->
         <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
           <td>
-            <a [href]="'http://127.0.0.1:8000' + file.file" target="_blank">{{ file.filename }}</a>
+            <a [href]="file.file" target="_blank">{{ file.name }}</a>
           </td>
-          <td>{{ file.size }} bytes</td>
-          <td>Owner: {{ file.owner.username }}</td>
-          <td>{{ file.upload_date | date: 'medium' }}</td>
+          <td>{{ formatFileSize(file.size) }}</td>
+          <td>Owner: {{ file.owner?.username }}</td>
+          <td>{{ file.created_at | date: 'medium' }}</td>
 
           <!-- Star Button -->
           <td>
@@ -82,7 +82,7 @@
                 <a href="#" (click)="onMove(file)">Move</a>
                 <a href="#" (click)="onShare(file)">Share</a>
                 <a href="#" (click)="onDownload(file, $event)">Download</a>
-                <button (click)="onDelete(file, $event)">Delete</button>
+                <a href="#" (click)="onDelete(file, $event)">Delete</a>
               </div>
             </div>
           </td>

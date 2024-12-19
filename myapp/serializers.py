@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UploadedFile
+from .models import File
+from .models import DeletedFile
 
 from rest_framework import serializers
 
@@ -11,8 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UploadedFile
-        fields = ['id', 'filename', 'file', 'upload_date']
+        model = File
+        fields = ['id', 'name', 'file', 'size', 'user', 'created_at']  
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,7 +37,12 @@ class UploadedFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedFile
-        fields = ['id', 'filename', 'file', 'upload_date', 'size', 'owner']  # Add size and owner to fields
+        fields = ['id', 'filename', 'file', 'upload_date', 'size', 'owner']
 
     def get_size(self, obj):
         return obj.file.size  # Get the file size in bytes
+
+class DeletedFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeletedFile
+        fields = '__all__'  # Or specify the fields you need explicitly

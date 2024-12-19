@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 import os
 
 
@@ -38,6 +39,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -123,6 +125,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",  # Your Angular app's URL
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+DEBUG_PROPAGATE_EXCEPTIONS = True
+
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 
 CORS_ALLOW_HEADERS = [
@@ -132,9 +141,10 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'x-requested-with',
     'x-csrf-token',
+    "x-csrftoken",  
 ]
 
-CSRF_COOKIE_HTTPONLY = True  # Ensures the CSRF token is accessible by JavaScript.
+CSRF_COOKIE_HTTPONLY = False  # Ensures the CSRF token is accessible by JavaScript.
 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
@@ -166,3 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'  # Or wherever your login page is
 LOGIN_REDIRECT_URL = '/'  # Default redirect after login
 
+class IgnoreBrokenPipeFilter(logging.Filter):
+    def filter(self, record):
+        return not ("Broken pipe" in record.getMessage())
+
+logging.getLogger("django.server").addFilter(IgnoreBrokenPipeFilter())

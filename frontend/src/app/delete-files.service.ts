@@ -1,36 +1,41 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, tap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DeletedFilesService {
+  private baseUrl = 'http://localhost:8000/api';
   private apiUrl = '/api/files/deleted'; 
   private deletedFilesKey = 'deletedFiles'; // Key to store files in localStorage
+  headers: HttpHeaders | { [header: string]: string | string[]; } | undefined;
+  fileService: any;
 
   constructor(private http: HttpClient) {}
 
   // Add a deleted file to the service and localStorage
-  addDeletedFile(file: any): Observable<void> {
-    const deletedFiles = this.getDeletedFilesSync(); // Get existing deleted files
-    if (!deletedFiles.some(f => f.id === file.id)) {
-      deletedFiles.push(file); // Add the new file only if it doesn't exist already
-      localStorage.setItem(this.deletedFilesKey, JSON.stringify(deletedFiles)); // Persist in localStorage
-    }
-    return of(); // Return an observable
+  addDeletedFile(file: { id: number; name: string }): Observable<void> {
+    console.log('Notifying server about deleted file:', file);
+    return this.http.post<void>(this.apiUrl, file); // Notify backend with file details
   }
 
-  // Get deleted files from localStorage (returns an Observable)
+  deleteFile(fileId: number) {
+    return this.fileService.deleteFile(fileId);
+  }
+
+
+  // Get deleted files from both localStorage and the server
   getDeletedFiles(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
-  }  
+    const url = `${this.apiUrl}/deleted/`; // Ensure this matches Django's route
+    return this.http.get<any[]>(url);
+}
 
   // Synchronous version for internal use
-  private getDeletedFilesSync(): any[] {
-    const deletedFiles = localStorage.getItem(this.deletedFilesKey);
-    return deletedFiles ? JSON.parse(deletedFiles) : [];
-  }
+  //private getDeletedFilesSync(): any[] {
+    //const deletedFiles = localStorage.getItem(this.deletedFilesKey);
+    //return deletedFiles ? JSON.parse(deletedFiles) : [];
+  //}
 
   // Restore a deleted file and remove from the deleted list
   restoreDeletedFile(fileId: string): Observable<void> {
@@ -48,7 +53,7 @@ export class DeletedFilesService {
   }
 
   // Permanently delete a file
-  deletePermanently(fileId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/delete/${fileId}/`);
-  } 
+  permanentlyDeleteFile(fileId: number) {
+    return this.fileService.permanentlyDeleteFile(fileId);
+  }
 }

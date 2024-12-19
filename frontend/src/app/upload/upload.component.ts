@@ -35,55 +35,65 @@ export class UploadComponent {
   }
 
   // Upload files
+  // Upload files
   async uploadFiles(): Promise<void> {
+    // Check if any files are selected
     if (this.selectedFiles.length === 0) {
       alert('No files selected.');
       return;
     }
 
+    // Check if a custom name is provided for the file
     if (!this.fileName.trim()) {
       alert('Please provide a name for the file.');
       return;
     }
 
+    // Create a FormData object to send files to the server
     const formData = new FormData();
     this.selectedFiles.forEach((file) => {
-      formData.append('file', file);
-      formData.append('name', this.fileName); // Add custom file name
+      formData.append('file', file);  // Add the file to FormData
+      formData.append('name', this.fileName);  // Add the custom name
     });
 
+    // Get the authentication token
     const token = this.authService.getToken();
 
+    // Check if the token exists (user is logged in)
     if (!token) {
       alert('You are not authenticated. Please log in first.');
       return;
     }
 
     try {
+      // Send the files to the backend using axios POST request
       const response = await axios.post('http://127.0.0.1:8000/api/upload/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Token ${token}`,
+          'Content-Type': 'multipart/form-data',  // Set content type for file upload
+          Authorization: `Token ${token}`,  // Attach the authentication token
         },
+        // Handle upload progress
         onUploadProgress: (progressEvent) => {
           if (progressEvent.loaded && progressEvent.total) {
             const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-            console.log(`Upload Progress: ${progress}%`);
+            console.log(`Upload Progress: ${progress}%`);  // Show progress in the console
           } else {
-            console.log(`Uploaded: ${progressEvent.loaded} bytes`);
+            console.log(`Uploaded: ${progressEvent.loaded} bytes`); // Log bytes uploaded if total is not available
           }
         },
       });
 
+      // On success, notify the parent component and clear the form
       console.log('File uploaded successfully:', response.data);
-
-      this.fileUploaded.emit(); // Notify parent component
+      this.fileUploaded.emit();  // Notify parent component
       alert('File uploaded successfully!');
 
-      // Clear fields after successful upload
+      // Clear selected files and file name
       this.selectedFiles = [];
       this.fileName = '';
+
     } catch (error) {
+      // Handle errors during the upload
       const axiosError = error as AxiosError;
       if (axiosError.response) {
         console.error('Error uploading file:', axiosError.response.data);

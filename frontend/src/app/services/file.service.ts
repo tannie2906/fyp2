@@ -3,13 +3,15 @@ import { HttpClient, HttpHeaders  } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, of } from 'rxjs';
 import { UserFile } from '../models/user-file.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '/Users/intan/testproject/frontend/src/app/auth.service'
 
 export interface File {
   id: number;
-  name: string;
+  filename: string; 
   size: number;
-  type: string;
-  // Add other fields as per your API response
+  type?: string; // Optional if not provided
+  upload_date: string;
+  path: string;
 }
 
 @Injectable({
@@ -26,34 +28,22 @@ export class FileService {
 
   // Fetch all user files
   getFiles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/files/`);
+    return this.http.get<any[]>(`${this.apiUrl}/files/`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error fetching files:', error.message);
+        return of([]); // Return an empty array in case of error
+      })
+    );
   }
-
-  // Fetch deleted files
-  getDeletedFiles(): Observable<File[]> {
-    return this.http.get<File[]>(`${this.apiUrl}/files/deleted/`);  // Ensure you're hitting the correct endpoint for deleted files
-  }  
-
-  // Delete a file
-  deleteFile(fileId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/files/${fileId}/`); // Correct backend endpoint for file deletion
-  }
-    
 
   // Correctly typed method to fetch files
   getFolderFiles(): Observable<File[]> {
-    return this.http.get<File[]>(`${this.apiUrl}/files/`);  // Ensure backend is filtering out deleted files
-  }
-  
-
-  // Restore a deleted file
-  restoreFile(fileId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/files/${fileId}/restore/`, {});
-  }
-
-  // Empty the deleted files bin
-  emptyBin(): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/files/deleted`);  // No trailing slash
+    return this.http.get<File[]>(`${this.apiUrl}/files/`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error fetching folder files:', error.message);
+        return of([]); // Return an empty array on error
+      })
+    );
   }
   
   // Get the URL for a specific file
@@ -71,33 +61,67 @@ export class FileService {
       })
     );
   }  
-       
 
-  goToBin(): void {
-    this.router.navigate(['/delete']); // Navigate to the delete page
-  }
+  // Fetch starred files
+  getStarredFiles(): Observable<any[]> {
+    const token = this.authService.getToken();
+    if (!token) {
+      console.error('No token found!');
+      return of([]); // Return an empty array if no token exists
+    }
 
-  getStarredFiles() {
-    return this.http.get<any[]>('http://127.0.0.1:8000/api/files/starred/', {
-      headers: { Authorization: `Bearer ${this.authService.getToken()}` },
-    });
-  }
-  
-  toggleStar(fileId: number, isStarred: boolean) {
-    return this.http.post(
-      `http://127.0.0.1:8000/api/files/toggle-star/${fileId}/`,
-      { isStarred },
-      {
-        headers: { Authorization: `Bearer ${this.authService.getToken()}` },
-      }
-    );
-  }  
-  permanentlyDeleteFile(fileId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/files/${fileId}/permanent-delete/`).pipe(
-      catchError((error) => {
-        console.error('Error during permanent delete:', error);
-        throw error;
+    return this.http.get<any[]>(`${this.apiUrl}/files/starred/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error fetching starred files:', error.message);
+        return of([]); // Return empty array in case of error
       })
     );
   }
-}
+  
+  // Toggle star status of a file
+  toggleStar(fileId: number, isStarred: boolean): Observable<any> {
+    const token = this.authService.getToken();
+    if (!token) {
+      console.error('No token found!');
+      return of({ error: 'No token found!' }); // Handle error gracefully
+    }
+
+    return this.http.post(
+      `${this.apiUrl}/files/toggle-star/${fileId}/`,
+      { isStarred },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error toggling star status:', error.message);
+        return of({ error: error.error?.error || 'Failed to toggle star' });
+      })
+    );
+  }
+
+  // Delete file
+  deleteFile(id: number): Observable<any> {
+    const token = this.authService.getToken();
+    if (!token) {
+      console.error('No token found!');
+      return of({ error: 'No token found!' }); // Handle error gracefully
+    }
+
+    return this.http.delete(`${this.apiUrl}/delete/${id}/`, {
+      headers: { Authorization: `Token ${token}` },
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error deleting file:', error.message);
+        return of({ error: 'Failed to delete file' });
+      })
+    );
+  }
+
+  // fetch delete file, for delete page
+  getDeletedFiles(): Observable<any> {
+    return this.http.get('/api/deleted-files'); // Replace with the actual backend API URL
+  }
+}  

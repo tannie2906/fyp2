@@ -1,131 +1,117 @@
 import { Component, OnInit } from '@angular/core';
 import { DeletedFilesService } from '../delete-files.service';
+import { catchError, Observable, of, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FolderService } from '../folder.service'; 
+import { AuthService } from '../auth.service';
+import { HttpHeaders } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-delete',
   templateUrl: './delete.component.html',
   styleUrls: ['./delete.component.css'],
 })
+
 export class DeleteComponent implements OnInit {
   deletedFiles: any[] = []; // Array to hold deleted files
-  selectedFiles: string[] = []; // IDs of selected files
-file: any;
+  userId!: string;
 
-  constructor(private deletedFilesService: DeletedFilesService) {}
+  constructor(
+    private folderService: FolderService, 
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.loadDeletedFiles();
+    this.fetchDeletedFiles();
+    this.getUserIdAndFetchDeletedFiles();
   }
 
-  private loadDeletedFiles(): void {
-    console.log('Fetching deleted files...');
-    this.deletedFilesService.getDeletedFiles().subscribe(
-      (data) => {
-        console.log('Deleted files fetched:', data);
-        this.deletedFiles = data;
+  // Fetch user ID from the AuthService and then fetch deleted files
+  getUserIdAndFetchDeletedFiles(): void {
+    this.authService.getProfile(this.authService.getToken() || '').subscribe(
+      (profile) => {
+        this.userId = profile.id;  // Ensure the correct field name is used for user ID
+        if (this.userId) {
+          this.fetchDeletedFiles();  // Only call if userId is valid
+        } else {
+          console.error('User ID is undefined!');
+        }
       },
       (error) => {
-        console.error('Error loading deleted files:', error);
-        alert('Failed to load deleted files.');
+        console.error('Error fetching user profile:', error);
       }
     );
   }
 
-  // Toggle selection of individual file
-  toggleSelection(fileId: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-
-    if (checked) {
-      this.selectedFiles.push(fileId);
-    } else {
-      this.selectedFiles = this.selectedFiles.filter((id) => id !== fileId);
-    }
-  }
-
-  // Master checkbox to select/unselect all
-  toggleSelectAll(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-
-    if (checked) {
-      this.selectedFiles = this.deletedFiles.map((file) => file.id);
-    } else {
-      this.selectedFiles = [];
-    }
-  }
-
-  // Restore selected files
-  restoreSelectedFiles(): void {
-    if (this.selectedFiles.length === 0) {
-      alert('No files selected for restoration.');
+  // Fetch deleted files from the API for the current logged-in user
+  fetchDeletedFiles(): void {
+    if (!this.userId) {
+      console.error('User ID is not set.');
       return;
     }
 
-    this.selectedFiles.forEach((fileId) => {
-      this.deletedFilesService.restoreDeletedFile(fileId).subscribe({
-        next: () => {
-          this.deletedFiles = this.deletedFiles.filter((file) => file.id !== fileId);
-          this.selectedFiles = this.selectedFiles.filter((id) => id !== fileId);
-        },
-        error: (error) => {
-          console.error(`Error restoring file ${fileId}:`, error);
-        },
-      });
-    });
-  }
+    // Create headers including the Authorization token
+    const headers = new HttpHeaders().set('Authorization', `Token ${this.authService.getToken() || ''}`);
 
-  // Restore a single file
-  restoreFile(file: any): void {
-    this.deletedFilesService.restoreDeletedFile(file.id).subscribe({
-      next: () => {
-        this.deletedFiles = this.deletedFiles.filter((f) => f.id !== file.id);
+    // Pass userId and headers to the folderService
+    this.folderService.getDeletedFiles(this.userId, headers).subscribe(
+      (files: any[]) => {
+        this.deletedFiles = files;  // Assign fetched files to the array
       },
-      error: (error) => {
-        console.error('Error restoring file:', error);
-      },
-    });
-  }
-
-  // Empty the entire bin
-  emptyBin(): void {
-    if (!confirm('Are you sure you want to empty the bin?')) return;
-
-    this.deletedFilesService.clearDeletedFiles().subscribe({
-      next: () => {
-        this.deletedFiles = [];
-        this.selectedFiles = [];
-      },
-      error: (error) => {
-        console.error('Error emptying bin:', error);
-      },
-    });
-  }
-
-  deleteFilePermanently(file: any): void {
-    const fileId = Number(file.id); // Ensure fileId is a number
-    this.deletedFilesService.deletePermanently(fileId).subscribe({
-      next: () => {
-        // Remove the file from the local list
-        this.deletedFiles = this.deletedFiles.filter((f) => f.id !== file.id);
-        alert('File permanently deleted.');
-      },
-      error: (error) => {
-        console.error('Error deleting file permanently:', error);
-        alert('Failed to delete the file.');
-      },
-    });
-  }
-  
-  
-
-  deleteFile(file: any): void {
-    const fileId = +file.id; // Convert string to number using + operator
-    this.deletedFilesService.deletePermanently(fileId).subscribe({
-      next: () => {
-        this.deletedFiles = this.deletedFiles.filter(f => f.id !== file.id);
-      },
-      error: (error) => {
-        console.error('Error deleting file:', error);
+      (error) => {
+        console.error('Error fetching deleted files:', error);
       }
-    });
+    );
   }
-}  
+
+  // Restore a file
+  restoreFile(fileId: number): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    this.folderService.restoreFile(fileId, headers).subscribe(
+      () => {
+        this.fetchDeletedFiles(); // Refresh the list after restoration
+      },
+      (error) => {
+        console.error('Error restoring file:', error);
+      }
+    );
+  }
+
+  // Permanently delete a file
+  permanentlyDeleteFile(fileId: number): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    this.folderService.permanentlyDeleteFile(fileId, headers).subscribe(
+      () => {
+        this.fetchDeletedFiles(); // Refresh the list after permanent deletion
+      },
+      (error) => {
+        console.error('Error permanently deleting file:', error);
+      }
+    );
+  }
+
+  // Empty the trash
+  emptyTrash(): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    this.folderService.emptyTrash(headers).subscribe(
+      () => {
+        this.fetchDeletedFiles(); // Refresh the list after emptying trash
+      },
+      (error) => {
+        console.error('Error emptying trash:', error);
+      }
+    );
+  }
+
+  // Helper function to retrieve CSRF token from cookies
+  private getCookie(name: string): string {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+    return '';
+  }
+}
+
+  
+

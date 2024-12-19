@@ -16,31 +16,36 @@ export class AuthService {
   private tokenKey = 'auth_token';
   private profileSubject = new BehaviorSubject<any>(null);
   public profile$ = this.profileSubject.asObservable();
+  private token: string | null = null; 
   
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<any> {
+  login(username: string, password: string) {
     return this.http.post<any>(`${this.apiUrl}/login/`, { username, password }).pipe(
       tap((response: any) => {
         if (response && response.token) {
           this.isLoggedIn = true;
-          localStorage.setItem('auth_token', response.token); // Store token
+          this.token = response.token;
+          // Only set the token in localStorage if it's not null
+          if (this.token) {
+            localStorage.setItem(this.tokenKey, this.token);
+          }
         }
       })
     );
   }
 
   isAuthenticated(): boolean {
-    return this.isLoggedIn || localStorage.getItem('auth_token') !== null;
+    return this.isLoggedIn || localStorage.getItem(this.tokenKey) !== null;
   }
 
   getToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem(this.tokenKey); // Returns string or null
   }
 
   logout(): void {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(this.tokenKey);
     this.isLoggedIn = false;
   }
 
