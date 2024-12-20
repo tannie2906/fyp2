@@ -187,12 +187,12 @@ export class FolderComponent implements OnInit {
 
   onRename(file: any): void {
     const newName = prompt('Enter a new name for the file:', file.filename);
-  
+
     if (newName && newName.trim() !== '' && newName !== file.filename) {
       this.fileService.renameFile(file.id, newName).subscribe({
         next: (response) => {
           console.log('Rename Successful Response:', response);
-          file.filename = newName; // Update local UI with new filename
+          file.filename = newName;
           alert('File renamed successfully!');
         },
         error: (error) => {
@@ -200,11 +200,8 @@ export class FolderComponent implements OnInit {
           alert(error.error?.error || 'Failed to rename the file. Please try again.');
         }
       });
-    } else if (newName === file.filename) {
-      alert('The new name is the same as the current name.');
     }
-  }
-  
+  }      
 
   onGetStartedClick(): void {
     this.router.navigate(['/upload']);  // Routes to the upload page (similar to the HomeComponent)

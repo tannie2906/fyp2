@@ -11,11 +11,10 @@ export class FolderService {
   constructor(private http: HttpClient) {}
 
   getDeletedFiles(userId: string, headers: HttpHeaders): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/deleted-files`, {
-      params: { userId: userId }, 
-      headers: headers,
-    });
-  }
+    const url = `http://127.0.0.1:8000/api/deleted-files/`; // No additional filters here
+    return this.http.get<any[]>(url, { headers });
+  }  
+
   // Restore a file by ID
   restoreFile(fileId: number, headers: HttpHeaders): Observable<any> {
     const url = `http://127.0.0.1:8000/api/restore-file/${fileId}/`; // Ensure URL matches the backend

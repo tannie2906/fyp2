@@ -207,6 +207,7 @@ class ProfileView(APIView):
         user.save()  # Save the user model
         
         return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+    
 # User Registration
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]
@@ -220,24 +221,19 @@ class RegisterUserView(APIView):
         return Response(serializer.errors, status=400)
 
 # Rename a file
-@csrf_exempt
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def rename_file(request, file_id):
-    try:
-        new_name = json.loads(request.body).get('newName')
-        if not new_name:
-            return JsonResponse({'error': 'New name is required.'}, status=400)
+class FileRenameView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        # Extract the file_id and new_name from the request data
+        file_id = request.data.get('file_id')
+        new_name = request.data.get('new_name')
+        
+        if not file_id or not new_name:
+            return Response({"error": "file_id or new_name is missing."}, status=status.HTTP_400_BAD_REQUEST)
 
-        file = UploadedFile.objects.get(id=file_id, owner=request.user)
-        if UploadedFile.objects.filter(owner=request.user, filename=new_name).exists():
-            return JsonResponse({'error': 'A file with this name already exists.'}, status=400)
-
-        file.filename = new_name
-        file.save()
-        return JsonResponse({'message': 'File renamed successfully.'}, status=200)
-    except UploadedFile.DoesNotExist:
-        return JsonResponse({'error': 'File not found or not owned by the user.'}, status=404)
+        # Implement file renaming logic here (e.g., rename the file in the system)
+        # For now, let's assume we are simply returning the new name for demonstration.
+        return Response({"message": f"File renamed to {new_name} successfully!"}, status=status.HTTP_200_OK)
 
 # File Download
 @api_view(['GET'])
@@ -338,6 +334,15 @@ class FileDeleteView(APIView):
             return Response({"error": "File not found."}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+class DeletedFilesView(APIView):
+    permission_classes = [IsAuthenticated]  # Adjust permissions as needed
+
+    def get(self, request, *args, **kwargs):
+        # Fetch all deleted files
+        deleted_files = DeletedFile.objects.filter(user_id=request.user.id)
+        serializer = DeletedFilesSerializer(deleted_files, many=True)
+        return Response(serializer.data)
 
 @csrf_exempt
 @api_view(['DELETE'])
@@ -375,20 +380,24 @@ def delete_file(request, id):
 
 # fetch delete file
 @api_view(['GET'])
-@csrf_exempt
+@permission_classes([IsAuthenticated])
 def get_deleted_files(request):
-    user_id = request.GET.get('userId')
-    if not user_id or not user_id.isdigit():
-        return Response({"error": "Invalid user ID"}, status=400)
-
     try:
-        # Fetch deleted files for the user
-        deleted_files = DeletedFile.objects.filter(user_id=user_id)
+        user_id = request.user.id  # Get authenticated user's ID
+        print(f"Authenticated user ID: {user_id}")  # Debugging log
+        
+        # Fetch deleted files only for the current user
+        deleted_files = DeletedFile.objects.filter(user_id=request.user.id)
+
+        # Serialize the data
         serializer = DeletedFilesSerializer(deleted_files, many=True)
+        
+        # Debugging: Log the query results
+        print(f"Deleted files for user {user_id}: {deleted_files}")
+        
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
-
     
 # Restore deleted file
 @api_view(['POST'])

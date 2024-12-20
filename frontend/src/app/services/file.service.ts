@@ -50,14 +50,11 @@ export class FileService {
   }  
 
   // Rename file
-  renameFile(fileId: number, newName: string): Observable<any> {
-    const url = `${this.apiUrl}/files/${fileId}/rename/`;
-    return this.http.put<any>(url, { newName }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Rename File Error:', error.message);
-        return of({ error: error.error?.error || 'Failed to rename file' });
-      })
-    );
+  renameFile(fileId: number, newName: string) {
+    const url = `http://127.0.0.1:8000/api/rename/`;  // This is your backend URL
+    const body = { file_id: fileId, new_name: newName };
+  
+    return this.http.post(url, body);
   }
 
 

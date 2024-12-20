@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UploadedFile
 from .models import File
-from .models import DeletedFile
+from .models import DeletedFile  
 from .models import Profile
 
 from rest_framework import serializers
@@ -46,7 +46,12 @@ class UploadedFileSerializer(serializers.ModelSerializer):
 class DeletedFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeletedFile
-        fields = '__all__'  # Or specify the fields you need explicitly
+        fields = '__all__'
+
+    def validate(self, data):
+        if data['user_id'] != self.context['request'].user.id:
+            raise serializers.ValidationError("You do not have permission to access this file.")
+        return data
 
 class ProfilePictureSerializer(serializers.Serializer):
     profile_picture = serializers.ImageField()

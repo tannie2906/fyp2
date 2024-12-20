@@ -48,24 +48,19 @@ export class DeleteComponent implements OnInit {
 
   // Fetch deleted files from the API for the current logged-in user
   fetchDeletedFiles(): void {
-    if (!this.userId) {
-      console.error('User ID is not set.');
-      return;
-    }
-
-    // Create headers including the Authorization token
     const headers = new HttpHeaders().set('Authorization', `Token ${this.authService.getToken() || ''}`);
-
-    // Pass userId and headers to the folderService
+    
     this.folderService.getDeletedFiles(this.userId, headers).subscribe(
       (files: any[]) => {
-        this.deletedFiles = files;  // Assign fetched files to the array
+        console.log('Fetched Deleted Files:', files); // Debug log
+        this.deletedFiles = files || []; // Handle empty response
       },
       (error) => {
         console.error('Error fetching deleted files:', error);
       }
     );
   }
+  
 
   // Restore a file
   restoreFile(fileId: number): void {
