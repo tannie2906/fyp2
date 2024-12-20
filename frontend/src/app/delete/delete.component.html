@@ -1,23 +1,54 @@
-<!-- List Deleted Files -->
-<table>
-  <thead>
-    <tr>
-      <th>File Name</th>
-      <th>Deleted At</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let file of deletedFiles">
-      <td>{{ file.file_name }}</td>
-      <td>{{ file.deleted_at | date:'short' }}</td>
-      <td>
-        <button (click)="restoreFile(file.id)">Restore</button>
-        <button (click)="permanentlyDeleteFile(file.id)">Permanently Delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="bin-page">
+  <h2 class="page-title">Deleted Files</h2>
 
-<!-- Empty Trash Button -->
-<button (click)="emptyTrash()">Empty Trash</button>
+  <!-- Action Buttons -->
+  <div class="actions">
+    <!-- Restore and Delete Selected Buttons -->
+    <button class="btn btn-success" (click)="restoreSelectedFiles()" [disabled]="!selectedFiles.length">
+      Restore Selected
+    </button>
+    <button class="btn btn-danger" (click)="deleteSelectedFiles()" [disabled]="!selectedFiles.length">
+      Delete Selected
+    </button>
+    <button class="btn btn-warning" (click)="emptyTrash()">Empty Trash</button>
+  </div>
+
+  <!-- Files Table -->
+  <div class="table-container">
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>
+            <!-- Master Checkbox to Select All -->
+            <input
+              type="checkbox"
+              (change)="toggleSelectAll($event)"
+              [checked]="allSelected"
+            />
+          </th>
+          <th>File Name</th>
+          <th>Deleted At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let file of deletedFiles">
+          <td>
+            <!-- Individual Checkbox for Each File -->
+            <input
+              type="checkbox"
+              [checked]="selectedFiles.includes(file.id)"
+              (change)="toggleSelection(file.id, $event)"
+            />
+          </td>
+          <td>{{ file.file_name }}</td>
+          <td>{{ file.deleted_at | date: 'short' }}</td>
+          <td class="action-buttons">
+            <button class="btn btn-primary" (click)="restoreFile(file.id)">Restore</button>
+            <button class="btn btn-danger" (click)="permanentlyDeleteFile(file.id)">Permanently Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

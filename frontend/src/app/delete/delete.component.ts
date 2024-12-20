@@ -16,6 +16,8 @@ import { HttpHeaders } from '@angular/common/http';
 export class DeleteComponent implements OnInit {
   deletedFiles: any[] = []; // Array to hold deleted files
   userId!: string;
+  selectedFiles: number[] = []; // IDs of selected files
+  allSelected = false;
 
   constructor(
     private folderService: FolderService, 
@@ -96,9 +98,41 @@ export class DeleteComponent implements OnInit {
     );
   }
 
+   // Restore selected files
+   restoreSelectedFiles(): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
+    this.selectedFiles.forEach((fileId) => {
+      this.folderService.restoreFile(fileId, headers).subscribe(
+        () => {
+          console.log(`File with ID ${fileId} restored successfully.`);
+          this.fetchDeletedFiles(); // Refresh the list after restoration
+        },
+        (error: HttpErrorResponse) => {
+          console.error(`Error restoring file with ID ${fileId}:`, error.message);
+        }
+      );
+    });
+  }
+
+  // Delete selected files permanently
+  deleteSelectedFiles(): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
+    this.selectedFiles.forEach((fileId) => {
+      this.folderService.permanentlyDeleteFile(fileId, headers).subscribe(
+        () => {
+          console.log(`File with ID ${fileId} permanently deleted.`);
+          this.fetchDeletedFiles(); // Refresh the list after deletion
+        },
+        (error) => {
+          console.error(`Error deleting file with ID ${fileId}:`, error.message);
+        }
+      );
+    });
+  }
+
   // Empty the trash
   emptyTrash(): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
     this.folderService.emptyTrash(headers).subscribe(
       () => {
         this.fetchDeletedFiles(); // Refresh the list after emptying trash
@@ -107,6 +141,36 @@ export class DeleteComponent implements OnInit {
         console.error('Error emptying trash:', error);
       }
     );
+  }
+
+  // Toggle selection of an individual file
+  toggleSelection(fileId: number, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      this.selectedFiles.push(fileId);
+    } else {
+      this.selectedFiles = this.selectedFiles.filter((id) => id !== fileId);
+    }
+    this.updateSelectAllState();
+  }
+
+  // Toggle selection of all files
+  toggleSelectAll(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.allSelected = isChecked;
+
+    if (isChecked) {
+      this.selectedFiles = this.deletedFiles.map((file) => file.id);
+    } else {
+      this.selectedFiles = [];
+    }
+  }
+
+  // Update the "Select All" state based on individual selections
+  updateSelectAllState(): void {
+    this.allSelected =
+      this.selectedFiles.length === this.deletedFiles.length &&
+      this.selectedFiles.length > 0;
   }
 
   // Helper function to retrieve CSRF token from cookies

@@ -37,7 +37,8 @@
   margin-bottom: 20px;
 }
 
-.file-table th, .file-table td {
+.file-table th,
+.file-table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
@@ -51,10 +52,6 @@
 
 .file-table tbody tr:hover {
   background-color: #f9f9f9;
-}
-
-.file-table input[type="checkbox"] {
-  margin-left: 5px;
 }
 
 /* Action Buttons */
@@ -108,25 +105,5 @@
 }
 
 .btn-warning:hover {
-  background-color: #fb8c00;
-}
-
-/* Empty Bin Button */
-.empty-bin {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.empty-bin button {
-  background-color: #ff9800;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.3s;
-}
-
-.empty-bin button:hover {
   background-color: #fb8c00;
 }
