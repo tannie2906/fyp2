@@ -108,6 +108,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
 }
 
 # Internationalization
@@ -181,3 +186,5 @@ class IgnoreBrokenPipeFilter(logging.Filter):
         return not ("Broken pipe" in record.getMessage())
 
 logging.getLogger("django.server").addFilter(IgnoreBrokenPipeFilter())
+
+DEBUG = True

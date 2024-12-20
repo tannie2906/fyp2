@@ -10,9 +10,13 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_GET
+from django.core.files.storage import default_storage
+
 from django.views import View
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
@@ -25,8 +29,8 @@ from django.utils.timezone import now
 from django.utils import timezone
 
 
-from .models import DeletedFile, UploadedFile, File, SharedFile
-from .serializers import DeletedFilesSerializer, UserSerializer, UploadedFileSerializer, UserRegistrationSerializer, FileSerializer
+from .models import DeletedFile, UploadedFile, File, SharedFile, Profile
+from .serializers import DeletedFilesSerializer, UserSerializer, UploadedFileSerializer, UserRegistrationSerializer, FileSerializer, ProfilePictureSerializer, ProfileSerializer
 from myapp.models import File, DeletedFile
 
 import json
@@ -175,19 +179,34 @@ class CustomAuthToken(APIView):
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        serializer = UserSerializer(request.user)
+    def get(self, request, *args, **kwargs):
+        # Retrieve the user's profile
+        profile = request.user.profile
+
+        # Serialize the user's profile data (including profile_picture)
+        serializer = ProfileSerializer(profile)
+
+        # Return the serialized profile data
         return Response(serializer.data)
 
-    def put(self, request):
+    def put(self, request, *args, **kwargs):
+        # Get the user's profile
+        profile = request.user.profile
         user = request.user
+        
+        # Update basic user fields
         user.first_name = request.data.get('first_name', user.first_name)
         user.last_name = request.data.get('last_name', user.last_name)
         user.email = request.data.get('email', user.email)
-        user.save()
-        return Response({"message": "Profile updated successfully"})
 
+        # Check if a profile picture is being uploaded
+        if 'profile_picture' in request.FILES:
+            profile.profile_picture = request.FILES['profile_picture']  # Save the uploaded picture
+            profile.save()
 
+        user.save()  # Save the user model
+        
+        return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
 # User Registration
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]
@@ -480,3 +499,88 @@ def serve_file(request, file_id):
         return FileResponse(open(file_path, 'rb'))  # Serve the file
     else:
         raise Http404("File not found.")  # Return 404 if the file doesn't exist
+    
+@csrf_exempt
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    try:
+        if request.method == 'PUT':
+            # Log incoming request
+            print("Incoming request data:", request.body)
+
+            # Parse request body
+            data = json.loads(request.body)
+
+            # Access the authenticated user
+            user = request.user
+
+            # Update fields (example: username, first_name, last_name)
+            if 'username' in data:
+                print(f"Updating username to: {data['username']}")
+                user.username = data['username']
+            if 'first_name' in data:
+                print(f"Updating first name to: {data['first_name']}")
+                user.first_name = data['first_name']
+            if 'last_name' in data:
+                print(f"Updating last name to: {data['last_name']}")
+                user.last_name = data['last_name']
+
+            # Save the updated user
+            user.save()
+            print("User saved successfully.")
+
+            # Return success response
+            return JsonResponse({
+                'message': 'Profile updated successfully',
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }, status=200)
+
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON format")
+        return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
+    except Exception as e:
+        print(f"Unhandled exception: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+    # Return 405 if method is not PUT
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_profile_picture(request):
+    if request.method == "POST":
+        logger.debug(f"FILES: {request.FILES}")
+        if 'profile_picture' in request.FILES:
+            file = request.FILES['profile_picture']
+            logger.debug(f"Received file: {file.name}")
+            # Further file handling logic
+            return JsonResponse({"message": "File uploaded successfully"}, status=200)
+        else:
+            logger.error("No file provided")
+            return JsonResponse({"error": "No file provided"}, status=400)
+        
+class UploadProfilePictureView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        print("Received request at UploadProfilePictureView")  # Debug message
+        print(f"Request FILES: {request.FILES}")
+        print(f"Request DATA: {request.data}")
+
+        if 'file' not in request.FILES:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile_picture = request.FILES['file']
+        print(f"File name: {profile_picture.name}")
+
+        # Get the user's profile (assuming the logged-in user has a profile model)
+        user_profile = request.user.profile  # Get the profile of the logged-in user
+        user_profile.profile_picture = profile_picture  # Save the uploaded picture
+        user_profile.save()  # Save to the database
+
+        return Response({"message": "Profile picture uploaded successfully"}, status=status.HTTP_200_OK)

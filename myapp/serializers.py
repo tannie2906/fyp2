@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import UploadedFile
 from .models import File
 from .models import DeletedFile
+from .models import Profile
 
 from rest_framework import serializers
 
@@ -46,3 +47,23 @@ class DeletedFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeletedFile
         fields = '__all__'  # Or specify the fields you need explicitly
+
+class ProfilePictureSerializer(serializers.Serializer):
+    profile_picture = serializers.ImageField()
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')  # Add username field from the user model
+    
+    class Meta:
+        model = Profile
+        fields = ['username', 'first_name', 'last_name', 'email', 'profile_picture']  # Include 'username' here
+
+    def to_representation(self, instance):
+        """Customize the representation if necessary"""
+        representation = super().to_representation(instance)
+        # Include user fields separately in the profile data
+        user = instance.user
+        representation['first_name'] = user.first_name
+        representation['last_name'] = user.last_name
+        representation['email'] = user.email
+        return representation

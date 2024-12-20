@@ -1,6 +1,6 @@
 // settings.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '/Users/intan/testproject/frontend/src/app/auth.service';
@@ -50,4 +50,25 @@ export class SettingsService {
   getSettings(): Observable<any> {
     return this.http.get(`${this.baseUrl}/settings/`);
   }
+
+  updateProfile(profileData: any): Observable<any> {
+    console.log('Payload sent to backend:', profileData); // Log payload
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    });
+    return this.http.put(`${this.baseUrl}/update-profile`, profileData, { headers });
+  }
+   
+
+  uploadProfilePicture(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log('Uploading file:', file); // Log file details
+  
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+    });
+    return this.http.post(`${this.baseUrl}/upload-profile-picture/`, formData, { headers });
+  }  
 }

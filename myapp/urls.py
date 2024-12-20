@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, FileViewSet
+from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, FileViewSet, UploadProfilePictureView
 from .views import FileViewSet
 from . import views
 from .views import FileView
@@ -22,7 +22,9 @@ urlpatterns = [
 
     #update setting
     path('settings/', views.get_settings, name='get_settings'),  # GET endpoint
-    path('update-username', views.update_username, name='update_username'),  # PUT endpoint
+    path('update-username', views.update_username, name='update_username'),
+    path('update-profile', views.update_profile, name='update-profile'),
+    path('upload-profile-picture/', UploadProfilePictureView.as_view(), name='upload-profile-picture'),
 
     path('files/', FileListView.as_view(), name='file-list'),
    
