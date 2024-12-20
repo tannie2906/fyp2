@@ -136,21 +136,18 @@ export class FolderComponent implements OnInit {
     // Send request with Authorization header
     this.http
       .get(fileUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        responseType: 'blob', // Expect a file response
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob', // Expect a binary file response
       })
       .subscribe({
         next: (blob) => {
-          // Create a link to download the file
-          const url = window.URL.createObjectURL(blob);
+          // Use the file's name from the file object
+          const downloadUrl = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
-          a.href = url;
-          a.download = file.filename; // Filename from the file object
-          document.body.appendChild(a);
+          a.href = downloadUrl;
+          a.download = file.filename || 'downloaded_file'; // Provide fallback filename
           a.click();
-          document.body.removeChild(a);
+          window.URL.revokeObjectURL(downloadUrl); // Clean up the object URL
         },
         error: (error) => {
           console.error('Error downloading file:', error);
@@ -158,6 +155,7 @@ export class FolderComponent implements OnInit {
         },
       });
   }
+  
   
   // sharing the file
   onShare(file: any): void {
@@ -229,16 +227,18 @@ export class FolderComponent implements OnInit {
   }
 
   // Fetch files using the service
-  getFolderFiles(): void {
-    this.fileService.getFolderFiles().subscribe({
-        next: (files: File[]) => {
-            this.folderFiles = files; // Update the local array
-        },
-        error: (error: HttpErrorResponse) => {
-            console.error('Error fetching files:', error.message);
-        },
+  getStarredFiles(): void {
+    this.fileService.getStarredFiles().subscribe({
+      next: (data) => {
+        console.log('Fetched Starred Files:', data);
+        this.starredFiles = data; // Update starredFiles with the fetched data
+      },
+      error: (error) => {
+        console.error('Error fetching starred files:', error);
+      },
     });
-}
+  }
+  
 
   // Navigate to Starred Files
   goToStarred(): void {
@@ -282,9 +282,10 @@ export class FolderComponent implements OnInit {
   toggleStarredView(): void {
     this.showStarredFiles = !this.showStarredFiles;
     if (this.showStarredFiles) {
-      this.fetchStarredFiles();
+      this.getStarredFiles(); // Updated to use getStarredFiles
     }
   }
+  
 
   loadFiles(): void {
     this.fileService.getFiles().subscribe(

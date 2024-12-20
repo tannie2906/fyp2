@@ -23,6 +23,7 @@ class File(models.Model):
     size = models.IntegerField()
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_starred = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Rename the file to the custom name while preserving the extension

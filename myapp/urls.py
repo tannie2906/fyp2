@@ -35,4 +35,7 @@ urlpatterns = [
     path('restore-file/<int:file_id>/', views.restore_file, name='restore-file'),
     path('permanently-delete/<int:id>/', views.permanently_delete, name='permanently_delete'),
     path('empty-trash/', views.empty_trash, name='empty_trash'),
+
+    path('files/starred/', views.starred_files, name='starred_files'),
+    path('files/toggle-star/<int:id>/', views.toggle_star, name='toggle_star'),
 ]

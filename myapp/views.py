@@ -15,6 +15,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_GET
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
+from django.http import HttpResponse, Http404
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -224,15 +225,18 @@ def rename_file(request, file_id):
 @permission_classes([IsAuthenticated])
 def download_file(request, file_id):
     try:
-        file = UploadedFile.objects.get(id=file_id, owner=request.user, is_deleted=False)
-        file_path = file.file.path
-        if not os.path.exists(file_path):
-            return JsonResponse({'error': 'File does not exist on disk.'}, status=500)
-        response = FileResponse(open(file_path, 'rb'), content_type='application/octet-stream')
-        response['Content-Disposition'] = f'attachment; filename="{file.filename}"'
+        file = File.objects.get(id=file_id)
+        file_path = file.file.path  # Absolute path to the file
+       # file_name = file.file_name  # Use the filename field from the database
+        file_name = file.file.name 
+    except File.DoesNotExist:
+        raise Http404("File does not exist")
+
+    if os.path.exists(file_path):
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
         return response
-    except UploadedFile.DoesNotExist:
-        return JsonResponse({'error': 'File not found or deleted.'}, status=404)
+    else:
+        raise Http404("File not found on the server")
 
 # ViewSet for files
 class FileViewSet(viewsets.ModelViewSet):
@@ -398,10 +402,49 @@ def permanently_delete(request, id):
     deleted_file.delete()
     return Response({"message": "File permanently deleted."}, status=200)
 
-
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def empty_trash(request):
-    DeletedFile.objects.filter(user=request.user).delete()
+    DeletedFile.objects.filter(user_id=request.user.id).delete()
     return Response({"message": "Trash emptied successfully."}, status=200)
 
+# star file
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def starred_files(request):
+    if request.method == 'GET':
+        # Fetch all starred files for the user
+        files = File.objects.filter(user_id=request.user.id, is_starred=True)
+        serializer = FileSerializer(files, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        # Toggle the starred status of a file
+        file_id = request.data.get('file_id')
+        if not file_id:
+            return Response({"error": "File ID is required."}, status=400)
+        
+        try:
+            file = File.objects.get(id=file_id, user=request.user)
+            file.is_starred = not file.is_starred  # Toggle the starred status
+            file.save()
+            return Response({
+                "message": f"File '{file.file_name}' starred status updated.",
+                "is_starred": file.is_starred
+            })
+        except File.DoesNotExist:
+            return Response({"error": "File not found or not owned by the user."}, status=404)
+
+@csrf_exempt        
+def toggle_star(request, id):
+    try:
+        # Retrieve the file by ID
+        file = File.objects.get(id=id)
+        
+        # Toggle the 'is_starred' status
+        file.is_starred = not file.is_starred
+        file.save()
+
+        return JsonResponse({'success': True, 'is_starred': file.is_starred})
+    except File.DoesNotExist:
+        return JsonResponse({'error': 'File not found'}, status=404)

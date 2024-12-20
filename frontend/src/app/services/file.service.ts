@@ -32,7 +32,6 @@ export class FileService {
         return of([]); // Return an empty array in case of error
       })
     );
-    
   }
 
   // Correctly typed method to fetch files
@@ -91,11 +90,14 @@ export class FileService {
       })
     );
   }
-  
 
   // fetch delete file, for delete page
   getDeletedFiles(): Observable<any> {
     return this.http.get('/api/deleted-files'); // Replace with the actual backend API URL
   }
 
+  // File download URL
+  getFileDownloadUrl(fileId: number): string {
+    return `http://127.0.0.1:8000/api/files/download/${fileId}/`;
+  }
 }  
