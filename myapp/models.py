@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.timezone import now
+from django.utils.text import slugify
 from django.db import models
 from django import forms
 import uuid
@@ -13,15 +15,25 @@ def custom_file_name(instance, filename):
 
 # handling upload file with custom name and storage
 class File(models.Model):
-    name = models.CharField(max_length=255)
+    id = models.AutoField(primary_key=True)
     file = models.FileField(upload_to='uploads/')
-    size = models.PositiveIntegerField(null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)  
-    is_deleted = models.BooleanField(default=False) 
+    user_id = models.IntegerField()
+    file_name = models.CharField(max_length=255)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    size = models.IntegerField()
+    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Rename the file to the custom name while preserving the extension
+        if self.file and self.file_name:
+            extension = os.path.splitext(self.file.name)[1]  # Get the file extension
+            custom_name = f"{slugify(self.file_name)}{extension}"  # Slugify for safety
+            self.file.name = custom_name
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.file.name
+        return self.file_name
 
 # sharing files with specific users.
 class SharedFile(models.Model):
@@ -35,7 +47,7 @@ class SharedFile(models.Model):
         return f"Shared {self.file.name} with {self.shared_with}"
     
 class UploadedFile(models.Model):
-    filename = models.CharField(max_length=100)
+    file_name = models.CharField(max_length=100)
     file = models.FileField(upload_to='uploads/')  # Directory where files are saved
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -43,7 +55,7 @@ class UploadedFile(models.Model):
     is_deleted = models.BooleanField(default=False)  # Soft delete flag  # New field to mark deleted files
 
     def __str__(self):
-        return self.filename
+        return self.file_name
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -67,10 +79,12 @@ class CustomUserCreationForm(forms.ModelForm):
         return email
             
 class DeletedFile(models.Model):
+    id = models.AutoField(primary_key=True)
+    file = models.FileField(upload_to='uploads/') 
     user_id = models.IntegerField()
-    file_name = models.CharField(max_length=255)  # Ensure this field exists
+    file_name = models.CharField(max_length=255) 
     deleted_at = models.DateTimeField(default=now)
-
+    size = models.IntegerField()
 
     def __str__(self):
         return self.file_name

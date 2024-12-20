@@ -17,9 +17,10 @@ export class FolderService {
     });
   }
   // Restore a file by ID
-  restoreFile(fileId: number, headers?: HttpHeaders): Observable<any> {
-    return this.http.post(`${this.apiUrl}/restore-file/${fileId}/`, {}, { headers });
-  }
+  restoreFile(fileId: number, headers: HttpHeaders): Observable<any> {
+    const url = `http://127.0.0.1:8000/api/restore-file/${fileId}/`; // Ensure URL matches the backend
+    return this.http.post(url, {}, { headers }); // Pass headers for CSRF or authentication
+}
 
   // Permanently delete a file by ID
   permanentlyDeleteFile(fileId: number, headers?: HttpHeaders): Observable<any> {

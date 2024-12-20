@@ -59,7 +59,7 @@
         <!-- Render All Files or Starred Files -->
         <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
           <td>
-            <a [href]="file.file" target="_blank">{{ file.name }}</a>
+            <a [href]="file.file" target="_blank">{{ file.file_name }}</a>
           </td>
           <td>{{ formatFileSize(file.size) }}</td>
           <td>Owner: {{ file.owner?.username }}</td>

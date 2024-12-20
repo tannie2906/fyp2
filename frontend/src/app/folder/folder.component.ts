@@ -66,20 +66,18 @@ export class FolderComponent implements OnInit {
   // Handle file deletion
   onDelete(file: any, event?: Event): void {
     if (event) {
-      event.preventDefault(); // Prevent the default link behavior
+      event.preventDefault(); // Prevent default link behavior
     }
+    
     if (confirm('Are you sure you want to delete this file?')) {
-      this.fileService.deleteFile(file.id).subscribe({
-        next: (response: any) => { // Ensure TypeScript knows the response structure
-          console.log('File deleted successfully:', response);
-          this.files = this.files.filter((f) => f.id !== file.id);
-          alert(response.message); // Show backend's success message
+      this.fileService.deleteFile(file.id, file.name).subscribe({
+        next: (response) => {
+            console.log('File deleted successfully', response);
         },
         error: (error) => {
-          console.error('Error deleting file:', error);
-          alert(error.error?.error || 'Failed to delete the file. Please try again.');
-        },
-      });
+            console.error('Error deleting file', error);
+        }
+    });
     }
   }
   

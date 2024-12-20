@@ -69,14 +69,19 @@ export class DeleteComponent implements OnInit {
   restoreFile(fileId: number): void {
     const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
     this.folderService.restoreFile(fileId, headers).subscribe(
-      () => {
-        this.fetchDeletedFiles(); // Refresh the list after restoration
-      },
-      (error) => {
-        console.error('Error restoring file:', error);
-      }
+        () => {
+            console.log('File restored successfully!');
+            this.fetchDeletedFiles(); // Refresh the list after restoration
+        },
+        (error: HttpErrorResponse) => {
+            if (error.status === 404) {
+                console.error('File not found. It may have been permanently deleted or does not exist.');
+            } else {
+                console.error('Error restoring file:', error.message);
+            }
+        }
     );
-  }
+  } 
 
   // Permanently delete a file
   permanentlyDeleteFile(fileId: number): void {

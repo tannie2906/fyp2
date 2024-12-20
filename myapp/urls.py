@@ -32,7 +32,7 @@ urlpatterns = [
 
     path('delete/<int:id>/', views.delete_file, name='delete_file'),
     path('deleted-files', get_deleted_files, name='deleted-files'),
-    path('restore/<int:id>/', views.restore_file, name='restore_file'),
+    path('restore-file/<int:file_id>/', views.restore_file, name='restore-file'),
     path('permanently-delete/<int:id>/', views.permanently_delete, name='permanently_delete'),
     path('empty-trash/', views.empty_trash, name='empty_trash'),
 ]

@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ['id', 'name', 'file', 'size', 'user', 'created_at']  
+        fields = ['id', 'file_name', 'file', 'size', 'user_id', 'created_at', 'is_deleted', 'deleted_at', 'created_at']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,7 +37,7 @@ class UploadedFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedFile
-        fields = ['id', 'filename', 'file', 'upload_date', 'size', 'owner']
+        fields = ['id', 'file_name', 'file', 'upload_date', 'size', 'owner']
 
     def get_size(self, obj):
         return obj.file.size  # Get the file size in bytes

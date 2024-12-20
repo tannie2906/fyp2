@@ -1,6 +1,7 @@
 export interface UserFile {
   id: number;
-  name: string;
+  file_name: string;
   size: number;
   type: string;
+  created_at: string;
 }
