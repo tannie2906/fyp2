@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, FileViewSet
 from .views import FileViewSet
 from . import views
+from .views import FileView
 from .views import download_file, rename_file, get_deleted_files
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -16,8 +17,6 @@ urlpatterns = [
     path('login/', CustomAuthToken.as_view(), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('register/', RegisterUserView.as_view(), name='register'),
-    path('files/<int:file_id>/rename/', rename_file, name='rename_file'),
-    path('files/download/<int:file_id>/', download_file, name='download_file'),
     path('token-auth/', TokenObtainPairView.as_view(), name='api_token_auth'),
     path('token-refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
@@ -38,4 +37,8 @@ urlpatterns = [
 
     path('files/starred/', views.starred_files, name='starred_files'),
     path('files/toggle-star/<int:id>/', views.toggle_star, name='toggle_star'),
+    path('files/<int:file_id>/rename/', rename_file, name='rename_file'),
+    path('files/download/<int:file_id>/', download_file, name='download_file'),
+
+    path('files/view/<int:file_id>/', FileView.as_view(), name='file-view'),
 ]

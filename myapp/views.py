@@ -13,6 +13,7 @@ from rest_framework.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.http import require_GET
+from django.views import View
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
 from django.http import HttpResponse, Http404
@@ -198,7 +199,6 @@ class RegisterUserView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({"message": "User registered successfully", "token": token.key}, status=201)
         return Response(serializer.errors, status=400)
-
 
 # Rename a file
 @csrf_exempt
@@ -448,3 +448,35 @@ def toggle_star(request, id):
         return JsonResponse({'success': True, 'is_starred': file.is_starred})
     except File.DoesNotExist:
         return JsonResponse({'error': 'File not found'}, status=404)
+
+class FileView(View):
+    def get(self, request, file_id):
+        try:
+            # Retrieve the file instance from the database
+            file = File.objects.get(id=file_id)
+            
+            # Check if the 'file_path' attribute is set and has a file
+            if not file.file_path or not file.file_path.name:
+                return HttpResponse("File not found", status=404)
+
+            # Get the file path, based on the file's location in the `uploads` directory
+            file_path = file.file_path.path  # This gets the absolute path of the file
+
+            # Check if the file exists at the given path
+            if os.path.exists(file_path):
+                # Return the file as an attachment for download
+                response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+                return response
+            else:
+                return HttpResponse("File not found", status=404)
+        except File.DoesNotExist:
+            return HttpResponse("File not found", status=404)
+        
+def serve_file(request, file_id):
+    file = File.objects.get(id=file_id)  # Retrieve the file object from the DB
+    file_path = os.path.join(settings.MEDIA_ROOT, file.file_path.name)  # Full path to the file
+
+    if os.path.exists(file_path):  # Check if the file exists on the filesystem
+        return FileResponse(open(file_path, 'rb'))  # Serve the file
+    else:
+        raise Http404("File not found.")  # Return 404 if the file doesn't exist

@@ -35,7 +35,6 @@
     <table class="file-table">
       <thead>
         <tr>
-          <!-- Clickable Headers with Sorting -->
           <th (click)="sortFiles('name')" style="cursor: pointer;">
             Name
             <span *ngIf="sortOrder['name'] === 'asc'">▲</span>
@@ -52,32 +51,33 @@
             <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
             <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
           </th>
-          <th>Actions</th> <!-- Column for more options -->
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Render All Files or Starred Files -->
         <tr *ngFor="let file of (showStarredFiles ? starredFiles : files)">
+          <!-- Modify this to use (click) instead of the direct anchor tag -->
           <td>
-            <a [href]="file.file" target="_blank">{{ file.file_name }}</a>
+            <a href="#" (click)="onOpenFile(file, $event)">
+              {{ file.file_name }}
+            </a>
           </td>
           <td>{{ formatFileSize(file.size) }}</td>
           <td>Owner: {{ file.owner?.username }}</td>
           <td>{{ file.created_at | date: 'medium' }}</td>
-
-          <!-- Star Button -->
           <td>
             <button (click)="toggleStar(file)" aria-label="Toggle star">
               <span [class]="file.isStarred ? 'starred-icon' : 'unstarred-icon'">★</span>
             </button>
           </td>
-          
-          <!-- Actions column -->
           <td class="actions">
-            <!-- More Options Button -->
             <div class="dropdown">
               <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
-              <div class="dropdown-menu" *ngIf="file.showDropdown">
+              <div
+                class="dropdown-menu"
+                [ngClass]="{ 'adjust-position': file.adjustDropdown }"
+                *ngIf="file.showDropdown"
+              >
                 <a href="#" (click)="onRename(file)">Rename</a>
                 <a href="#" (click)="onMove(file)">Move</a>
                 <a href="#" (click)="onShare(file)">Share</a>

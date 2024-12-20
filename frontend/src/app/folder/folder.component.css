@@ -96,6 +96,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
+  table-layout: fixed; /* Ensures the table spans fully */
 }
 
 .file-table thead {
@@ -106,6 +107,7 @@
 .file-table th, .file-table td {
   padding: 12px 20px;
   font-size: 14px;
+  word-wrap: break-word;
 }
 
 .file-table tr {
@@ -146,10 +148,11 @@
   font-size: 1.5rem;
   cursor: pointer;
   position: relative;
+  z-index: 5;
 }
 
-/* Dropdown Menu */
-.dropdown-menu {
+/* Dropdown Menu for Actions */
+.actions .dropdown-menu {
   display: none;
   position: absolute;
   right: 0;
@@ -159,7 +162,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 10;
   min-width: 150px;
-} 
+  overflow: visible;
+}
+
+.actions:hover .dropdown-menu {
+  display: block;
+}
 
 .dropdown-menu a {
   display: block;
@@ -169,23 +177,32 @@
   font-size: 0.9rem;
 }
 
-.dropdown-menu {
-  transform-origin: top right;
-}
-
 .dropdown-menu a:hover {
   background-color: #f4f4f4;
   color: #007aff;
 }
 
-/* Show dropdown on button click */
-.actions:hover .dropdown-menu {
-  display: block;
+/* Prevent Clipping for Dropdown */
+.file-table {
+  position: relative;
+  overflow: visible;
 }
 
-.actions .dropdown-menu {
-  bottom: 100%;
-  margin-bottom: 5px;
+.file-table .actions {
+  position: relative;
+  overflow: visible;
+}
+
+.file-table tbody {
+  position: relative;
+}
+
+.file-table tbody tr {
+  position: relative;
+}
+
+.file-table .actions .dropdown-menu {
+  transform-origin: top right;
 }
 
 /* Align Actions Column */
@@ -198,6 +215,7 @@
   position: relative;
 }
 
+/* Star Button Styles */
 .starred-icon {
   color: gold;
   font-size: 18px;

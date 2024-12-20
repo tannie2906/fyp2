@@ -200,11 +200,11 @@ export class FolderComponent implements OnInit {
           alert(error.error?.error || 'Failed to rename the file. Please try again.');
         }
       });
-         
     } else if (newName === file.filename) {
       alert('The new name is the same as the current name.');
     }
-  }  
+  }
+  
 
   onGetStartedClick(): void {
     this.router.navigate(['/upload']);  // Routes to the upload page (similar to the HomeComponent)
@@ -239,7 +239,6 @@ export class FolderComponent implements OnInit {
     });
   }
   
-
   // Navigate to Starred Files
   goToStarred(): void {
     this.showStarredFiles = true;
@@ -296,5 +295,23 @@ export class FolderComponent implements OnInit {
         console.error('Error loading files:', error);
       }
     );
+  }
+
+  //open the file when click
+  onOpenFile(file: File, event: Event): void {
+    event.preventDefault();  // Prevent default behavior (if it's a link)
+  
+    const token = this.authService.getToken(); // Retrieve the token from AuthService
+
+    if (!token) {
+      alert('You are not authenticated. Please log in.');
+      return;
+    }
+
+    // Generate the file URL based on file ID
+    const fileUrl = `http://127.0.0.1:8000/api/files/view/${file.id}/`;
+
+    // Open the file in a new tab
+    window.open(fileUrl, '_blank');
   }
 }

@@ -58,7 +58,8 @@ export class FileService {
         return of({ error: error.error?.error || 'Failed to rename file' });
       })
     );
-  }  
+  }
+
 
   getStarredFiles() {
     return this.http.get<any[]>('http://127.0.0.1:8000/api/files/starred/', {

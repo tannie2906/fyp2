@@ -24,6 +24,7 @@ class File(models.Model):
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_starred = models.BooleanField(default=False)
+    file_path = models.FileField(upload_to='uploads/')
 
     def save(self, *args, **kwargs):
         # Rename the file to the custom name while preserving the extension
