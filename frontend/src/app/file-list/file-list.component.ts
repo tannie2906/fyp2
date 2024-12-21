@@ -27,9 +27,10 @@ export class FileListComponent implements OnInit {
     );
   }
   
-  deleteFile(id: number, fileName: string) {
+  deleteFile(id: number): void {
     if (confirm('Are you sure you want to delete this file?')) {
-      this.fileService.deleteFile(id.toString(), fileName).subscribe({
+      // Assuming your service method only needs 'id'
+      this.fileService.deleteFile(id.toString()).subscribe({
         next: () => {
           this.files = this.files.filter((file) => file.id !== id);
           alert('File deleted successfully');
@@ -42,3 +43,4 @@ export class FileListComponent implements OnInit {
     }
   }
 }  
+  

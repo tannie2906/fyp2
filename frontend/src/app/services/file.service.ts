@@ -75,19 +75,21 @@ export class FileService {
   } 
 
   // delete method
-  deleteFile(fileId: string, fileName: string): Observable<any> {
-    const url = `http://127.0.0.1:8000/api/delete/${fileId}/`;
-    return this.http.delete(url, {
-      headers: {
-        Authorization: `Token ${this.authService.getToken()}`,
-      },
-      body: { name: fileName }, // Send the name of the file in the body
-    }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        return of(error.error);
-      })
-    );
-  }
+  // file.service.ts
+deleteFile(fileId: string): Observable<any> {
+  const url = `http://127.0.0.1:8000/api/delete/${fileId}/`;
+  return this.http.delete(url, {
+    headers: {
+      Authorization: `Token ${this.authService.getToken()}`,
+    },
+  }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      return of(error.error);
+    })
+  );
+}
+
+
 
   // fetch delete file, for delete page
   getDeletedFiles(): Observable<any> {

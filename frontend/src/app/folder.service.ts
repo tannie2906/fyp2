@@ -10,17 +10,19 @@ export class FolderService {
 
   constructor(private http: HttpClient) {}
 
+  //getDeletedFiles(userId: string, headers: HttpHeaders): Observable<any[]> {
+    //const url = `http://127.0.0.1:8000/api/deleted-files/`; // No additional filters here
+    //return this.http.get<any[]>(url, { headers });
+  //}  
   getDeletedFiles(userId: string, headers: HttpHeaders): Observable<any[]> {
-    const url = `http://127.0.0.1:8000/api/deleted-files/`; // No additional filters here
-    return this.http.get<any[]>(url, { headers });
-  }  
+    return this.http.get<any[]>(`${this.apiUrl}/deleted-files/`, { headers });
+  }
 
   // Restore a file by ID
-  restoreFile(fileId: number, headers: HttpHeaders): Observable<any> {
-    const url = `http://127.0.0.1:8000/api/restore-file/${fileId}/`; // Ensure URL matches the backend
-    return this.http.post(url, {}, { headers }); // Pass headers for CSRF or authentication
-}
-
+  restoreFiles(fileIds: number[], headers: HttpHeaders): Observable<any> {
+    return this.http.post(`${this.apiUrl}/restore-files/`, { file_ids: fileIds }, { headers });
+  }
+ 
   // Permanently delete a file by ID
   permanentlyDeleteFile(fileId: number, headers?: HttpHeaders): Observable<any> {
     return this.http.delete(`${this.apiUrl}/permanently-delete/${fileId}/`, { headers });

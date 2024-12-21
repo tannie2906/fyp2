@@ -3,8 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import FileUploadView, FileListView, CustomAuthToken, ProfileView, RegisterUserView, FileViewSet, UploadProfilePictureView,  DeletedFilesView
 from .views import FileViewSet
 from . import views
-from .views import FileView
-from .views import download_file, get_deleted_files, FileRenameView
+from .views import FileView, RestoreFileView, PermanentlyDeleteFilesView, DeletedFileDeleteView
+from .views import download_file, FileRenameView, EmptyTrashView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
@@ -13,7 +13,6 @@ router.register(r'files', FileViewSet, basename='file')
 urlpatterns = [
     path('api/', include(router.urls)),
     path('upload/', FileUploadView.as_view(), name='file-upload'),
-   # path('files/', FileListView.as_view(), name='file-list'),
     path('login/', CustomAuthToken.as_view(), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('register/', RegisterUserView.as_view(), name='register'),
@@ -31,17 +30,21 @@ urlpatterns = [
     path('files/share/', views.share_file, name='share_file'),
     path('files/shared/<str:share_link>/', views.shared_file_detail, name='shared_file_detail'),
 
-    path('delete/<int:id>/', views.delete_file, name='delete_file'),
-    path('deleted-files', get_deleted_files, name='deleted-files'),
-    path('restore-file/<int:file_id>/', views.restore_file, name='restore-file'),
-    path('permanently-delete/<int:id>/', views.permanently_delete, name='permanently_delete'),
-    path('empty-trash/', views.empty_trash, name='empty_trash'),
-    path('deleted-files/', DeletedFilesView.as_view(), name='deleted-files'),
+    #path('delete/<int:id>/', views.delete_file, name='delete_file'), #this one from folder page
+    #path('deleted-files', get_deleted_files, name='deleted-files'),
 
+    #folder page
+    path('files/view/<int:file_id>/', FileView.as_view(), name='file-view'),
     path('files/starred/', views.starred_files, name='starred_files'),
     path('files/toggle-star/<int:id>/', views.toggle_star, name='toggle_star'),
     path('rename/', FileRenameView.as_view(), name='file_rename'), 
     path('files/download/<int:file_id>/', download_file, name='download_file'),
+    path('delete/<int:id>/', DeletedFileDeleteView.as_view(), name='delete_file'),  # delete file from folder page
 
-    path('files/view/<int:file_id>/', FileView.as_view(), name='file-view'),
+    #delete page
+    path('restore-files/', RestoreFileView.as_view(), name='restore-files'),
+    path('permanently-delete/<int:id>/', PermanentlyDeleteFilesView.as_view(), name='permanently_delete'),
+    path('empty-trash/', EmptyTrashView.as_view(), name='empty_trash'),
+    path('deleted-files/', DeletedFilesView.as_view(), name='deleted-files'),
+
 ]

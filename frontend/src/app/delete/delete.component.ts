@@ -24,6 +24,14 @@ export class DeleteComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  // Helper function to retrieve CSRF token from cookies
+  private getCookie(name: string): string {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+    return '';
+  }
+
   ngOnInit(): void {
     this.fetchDeletedFiles();
     this.getUserIdAndFetchDeletedFiles();
@@ -61,69 +69,84 @@ export class DeleteComponent implements OnInit {
     );
   }
   
-
   // Restore a file
   restoreFile(fileId: number): void {
     const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
-    this.folderService.restoreFile(fileId, headers).subscribe(
-        () => {
-            console.log('File restored successfully!');
-            this.fetchDeletedFiles(); // Refresh the list after restoration
-        },
-        (error: HttpErrorResponse) => {
-            if (error.status === 404) {
-                console.error('File not found. It may have been permanently deleted or does not exist.');
-            } else {
-                console.error('Error restoring file:', error.message);
-            }
-        }
-    );
-  } 
-
-  // Permanently delete a file
-  permanentlyDeleteFile(fileId: number): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
-    this.folderService.permanentlyDeleteFile(fileId, headers).subscribe(
+  
+    // Wrap the single file ID in an array
+    this.folderService.restoreFiles([fileId], headers).subscribe(
       () => {
-        this.fetchDeletedFiles(); // Refresh the list after permanent deletion
+        console.log('File restored successfully!');
+        this.fetchDeletedFiles(); // Refresh the list after restoration
       },
-      (error) => {
-        console.error('Error permanently deleting file:', error);
+      (error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          console.error('File not found. It may have been permanently deleted or does not exist.');
+        } else {
+          console.error('Error restoring file:', error.message);
+        }
+      }
+    );
+  }
+  
+   // Restore selected files
+  restoreSelectedFiles(): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    const fileIds = this.selectedFiles; // Array of selected file IDs
+
+    if (!fileIds.length) {
+      console.warn('No files selected for restoration.');
+      return;
+    }
+
+    this.folderService.restoreFiles(fileIds, headers).subscribe(
+      (response) => {
+        console.log(`Restored ${fileIds.length} files successfully:`, response.message);
+        this.fetchDeletedFiles(); // Refresh the deleted files list
+        this.selectedFiles = []; // Clear the selection after successful restoration
+        this.allSelected = false; // Reset the master checkbox
+      },
+      (error: HttpErrorResponse) => {
+        console.error('Error restoring selected files:', error.message);
       }
     );
   }
 
-   // Restore selected files
-   restoreSelectedFiles(): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
-    this.selectedFiles.forEach((fileId) => {
-      this.folderService.restoreFile(fileId, headers).subscribe(
-        () => {
-          console.log(`File with ID ${fileId} restored successfully.`);
-          this.fetchDeletedFiles(); // Refresh the list after restoration
-        },
-        (error: HttpErrorResponse) => {
-          console.error(`Error restoring file with ID ${fileId}:`, error.message);
-        }
-      );
-    });
+  // Permanently delete a file
+  permanentlyDeleteFile(fileId: number): void {
+    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+  
+    // Use the correct method name (permanentlyDeleteFile)
+    this.folderService.permanentlyDeleteFile(fileId, headers).subscribe(
+      () => {
+        this.fetchDeletedFiles(); // Refresh the list after permanent deletion
+      },
+      (error: HttpErrorResponse) => { // Explicitly type the error parameter
+        console.error('Error permanently deleting file:', error.message);
+      }
+    );
   }
 
-  // Delete selected files permanently
-  deleteSelectedFiles(): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
+// Delete selected files permanently
+deleteSelectedFiles(): void {
+  const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken'));
+
+  if (this.selectedFiles.length > 0) {
+    // Iterate over selected files
     this.selectedFiles.forEach((fileId) => {
       this.folderService.permanentlyDeleteFile(fileId, headers).subscribe(
         () => {
-          console.log(`File with ID ${fileId} permanently deleted.`);
-          this.fetchDeletedFiles(); // Refresh the list after deletion
+          this.fetchDeletedFiles(); // Refresh the list after permanent deletion
         },
-        (error) => {
-          console.error(`Error deleting file with ID ${fileId}:`, error.message);
+        (error: HttpErrorResponse) => { // Explicitly type the error parameter
+          console.error(`Error permanently deleting file with ID ${fileId}:`, error.message);
         }
       );
     });
+  } else {
+    console.warn('No files selected for deletion.');
   }
+}
 
   // Empty the trash
   emptyTrash(): void {
@@ -148,32 +171,22 @@ export class DeleteComponent implements OnInit {
     }
     this.updateSelectAllState();
   }
-
-  // Toggle selection of all files
+  
   toggleSelectAll(event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.allSelected = isChecked;
-
+  
     if (isChecked) {
       this.selectedFiles = this.deletedFiles.map((file) => file.id);
     } else {
       this.selectedFiles = [];
     }
   }
-
-  // Update the "Select All" state based on individual selections
+  
   updateSelectAllState(): void {
     this.allSelected =
       this.selectedFiles.length === this.deletedFiles.length &&
       this.selectedFiles.length > 0;
-  }
-
-  // Helper function to retrieve CSRF token from cookies
-  private getCookie(name: string): string {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
-    return '';
   }
 }
 

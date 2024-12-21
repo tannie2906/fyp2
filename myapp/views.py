@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import DestroyAPIView
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -314,26 +315,26 @@ def get(self, request, *args, **kwargs):
     serializer = FileSerializer(files, many=True)
     return Response(serializer.data)
 
-#delete function
-class FileDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
+#delete function this one same as DeletedFilesView
+#class FileDeleteView(APIView):
+ #   permission_classes = [IsAuthenticated]
 
-    def delete(self, request, pk):
-        try:
-            file_instance = File.objects.get(pk=pk, user_id=request.user.id)
+  #  def delete(self, request, pk):
+   #     try:
+    #        file_instance = File.objects.get(pk=pk, user_id=request.user.id)
+#
+ #           # Check for valid file path
+  #          if not file_instance.file or file_instance.file == "0":
+   #             return Response({"error": "File record is corrupted."}, status=400)
+#
+ #           file_name = file_instance.file_name
+  #          file_instance.delete()
 
-            # Check for valid file path
-            if not file_instance.file or file_instance.file == "0":
-                return Response({"error": "File record is corrupted."}, status=400)
-
-            file_name = file_instance.file_name
-            file_instance.delete()
-
-            return Response({"message": f"File '{file_name}' deleted successfully!"}, status=200)
-        except File.DoesNotExist:
-            return Response({"error": "File not found."}, status=404)
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+   #         return Response({"message": f"File '{file_name}' deleted successfully!"}, status=200)
+    #    except File.DoesNotExist:
+     #       return Response({"error": "File not found."}, status=404)
+      #  except Exception as e:
+       #     return Response({"error": str(e)}, status=500)
         
 class DeletedFilesView(APIView):
     permission_classes = [IsAuthenticated]  # Adjust permissions as needed
@@ -344,97 +345,159 @@ class DeletedFilesView(APIView):
         serializer = DeletedFilesSerializer(deleted_files, many=True)
         return Response(serializer.data)
 
-@csrf_exempt
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_file(request, id):
-    try:
-        # Retrieve the file to be deleted
-        file = File.objects.get(id=id, user_id=request.user.id)
+class DeletedFileDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
 
-        # Ensure file exists and can be deleted
-        if not file.file or file.file == "0":
-            return JsonResponse({"error": "File record is corrupted."}, status=400)
+    def delete(self, request, id, *args, **kwargs):
+        try:
+            # Retrieve the file to be deleted
+            file = File.objects.get(id=id, user_id=request.user.id)
 
-        # Move the file to the DeletedFile model
-        deleted_file = DeletedFile.objects.create(
-            file=file.file,
-            file_name=file.file_name,
-            size=file.size,
-            user_id=request.user.id,
-            deleted_at=timezone.now()  # Store the deletion timestamp
-        )
+            # Ensure file exists and can be deleted
+            if not file.file or file.file == "0":
+                return Response({"error": "File record is corrupted."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Now delete the file from the File model
-        file.delete()
+            # Move the file to the DeletedFile model
+            deleted_file = DeletedFile.objects.create(
+                file=file.file,
+                file_name=file.file_name,
+                size=file.size,
+                user_id=request.user.id,
+                deleted_at=timezone.now()  # Store the deletion timestamp
+            )
 
-        return JsonResponse({'message': f'File {file.file_name} deleted successfully and moved to deleted files.'}, status=200)
+            # Delete the file from the File model
+            file.delete()
 
-    except File.DoesNotExist:
-        return JsonResponse({'error': 'File not found.'}, status=404)
+            return Response({'message': f'File {file.file_name} deleted successfully and moved to deleted files.'}, status=status.HTTP_200_OK)
 
-    except Exception as e:
-        logger.error(f"Error while deleting file with ID {id}: {str(e)}")
-        return JsonResponse({'error': 'An error occurred while deleting the file.'}, status=500)
+        except File.DoesNotExist:
+            return Response({'error': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({'error': 'An error occurred while deleting the file.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#@csrf_exempt
+#@api_view(['DELETE'])
+#@permission_classes([IsAuthenticated])
+#def delete_file(request, id):
+ #   try:
+  #      # Retrieve the file to be deleted
+   #     file = File.objects.get(id=id, user_id=request.user.id)
+
+#        # Ensure file exists and can be deleted
+ #       if not file.file or file.file == "0":
+  #          return JsonResponse({"error": "File record is corrupted."}, status=400)
+#     # Move the file to the DeletedFile model
+ #       deleted_file = DeletedFile.objects.create(
+  #          file=file.file,
+   #         file_name=file.file_name,
+    #        size=file.size,
+     #       user_id=request.user.id,
+      #      deleted_at=timezone.now()  # Store the deletion timestamp
+       # )
+
+        #Now delete the file from the File model
+        #file.delete()
+
+       # return JsonResponse({'message': f'File {file.file_name} deleted successfully and moved to deleted files.'}, status=200)
+
+    #except File.DoesNotExist:
+     #   return JsonResponse({'error': 'File not found.'}, status=404)
+
+#    except Exception as e:
+ #       logger.error(f"Error while deleting file with ID {id}: {str(e)}")
+  #      return JsonResponse({'error': 'An error occurred while deleting the file.'}, status=500)
 
 
 # fetch delete file
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_deleted_files(request):
-    try:
-        user_id = request.user.id  # Get authenticated user's ID
-        print(f"Authenticated user ID: {user_id}")  # Debugging log
+#@api_view(['GET'])
+#@permission_classes([IsAuthenticated])
+#def get_deleted_files(request):
+ #   try:
+  #      user_id = request.user.id  # Get authenticated user's ID
+   #     print(f"Authenticated user ID: {user_id}")  # Debugging log
         
         # Fetch deleted files only for the current user
-        deleted_files = DeletedFile.objects.filter(user_id=request.user.id)
+    #    deleted_files = DeletedFile.objects.filter(user_id=request.user.id)
 
         # Serialize the data
-        serializer = DeletedFilesSerializer(deleted_files, many=True)
+     #   serializer = DeletedFilesSerializer(deleted_files, many=True)
         
         # Debugging: Log the query results
-        print(f"Deleted files for user {user_id}: {deleted_files}")
+      #  print(f"Deleted files for user {user_id}: {deleted_files}")
         
-        return Response(serializer.data, status=200)
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
+       # return Response(serializer.data, status=200)
+    #except Exception as e:
+     #   return Response({"error": str(e)}, status=500)
     
-# Restore deleted file
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def restore_file(request, file_id):
-    try:
-        deleted_file = get_object_or_404(DeletedFile, id=file_id)
+# Restore deleted files
+class RestoreFileView(APIView):
+    permission_classes = [IsAuthenticated]
 
-        # Create a restored file entry
-        restored_file = File.objects.create(
-            file=deleted_file.file,
-            file_name=deleted_file.file_name,
-            size=deleted_file.size,
-            user_id=deleted_file.user_id,
-            is_deleted=False,  # Mark the file as active
-            deleted_at=None  # Clear the deletion timestamp
-        )
-        
-        # Delete the entry from DeletedFile
-        deleted_file.delete()
-        
-        return Response({'status': 'File restored successfully'}, status=200)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
+    def post(self, request):
+        file_ids = request.data.get('file_ids', [])
+        if not file_ids:
+            return Response({"error": "No file IDs provided."}, status=400)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def permanently_delete(request, id):
-    deleted_file = get_object_or_404(DeletedFile, id=id)
-    deleted_file.delete()
-    return Response({"message": "File permanently deleted."}, status=200)
+        # Fetch the files that match the provided IDs and belong to the authenticated user
+        deleted_files = DeletedFile.objects.filter(id__in=file_ids, user_id=request.user.id)
+        if not deleted_files.exists():
+            return Response({"error": "No valid files found to restore."}, status=404)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def empty_trash(request):
-    DeletedFile.objects.filter(user_id=request.user.id).delete()
-    return Response({"message": "Trash emptied successfully."}, status=200)
+        restored_files = []
+        try:
+            for deleted_file in deleted_files:
+                # Create a new active file record
+                restored_file = File.objects.create(
+                    file=deleted_file.file,
+                    file_name=deleted_file.file_name,
+                    size=deleted_file.size,
+                    user_id=deleted_file.user_id,
+                    is_deleted=False,
+                    deleted_at=None  # Clear deletion timestamp
+                )
+                restored_files.append(restored_file)
+                # Remove the entry from DeletedFile
+                deleted_file.delete()
+
+            return Response({"message": f"{len(restored_files)} files restored successfully."}, status=200)
+        except Exception as e:
+            return Response({"error": f"An error occurred while restoring files: {str(e)}"}, status=500)
+
+
+#@api_view(['DELETE'])
+#@permission_classes([IsAuthenticated])
+#def permanently_delete(request, id):
+ #   deleted_file = get_object_or_404(DeletedFile, id=id)
+  #  deleted_file.delete()
+   # return Response({"message": "File permanently deleted."}, status=200)
+
+#permenently delete
+class PermanentlyDeleteFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        file_id = kwargs.get('id')  # Get 'id' from the URL
+        if not file_id:
+            return Response({"error": "File ID is required."}, status=400)
+
+        deleted_files = DeletedFile.objects.filter(id=file_id, user_id=request.user.id)
+        if not deleted_files.exists():
+            return Response({"error": "No valid file found to delete."}, status=404)
+
+        deleted_files.delete()
+        return Response({"message": "File permanently deleted."}, status=200)
+
+
+#empty bin
+class EmptyTrashView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        # Delete all the files in the trash for the authenticated user
+        DeletedFile.objects.filter(user_id=request.user.id).delete()
+        return Response({"message": "Trash emptied successfully."}, status=status.HTTP_200_OK)
 
 # star file
 @api_view(['GET', 'POST'])

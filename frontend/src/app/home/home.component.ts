@@ -24,26 +24,17 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if the user is authenticated
     if (this.authService.isAuthenticated()) {
       this.isAuthenticated = true;
-  
-      // Fetch files from the server initially
-      this.fetchFiles();
-  
-      // Subscribe to the file updates from FileService
-      this.fileService.getFiles().subscribe((files) => {
-        this.userFiles = files;
-      });
     }
   }
   
 
-  fetchFiles(): void {
-    this.http.get<UserFile[]>('/api/files').subscribe((files) => {
-      this.userFiles = files;
-    });
-  }
+  //fetchFiles(): void {
+    //this.http.get<UserFile[]>('/api/files').subscribe((files) => {
+      //this.userFiles = files;
+    //});
+  //}
 
   onGetStartedClick(): void {
     if (this.isAuthenticated) {
@@ -68,7 +59,7 @@ export class HomeComponent implements OnInit {
       formData.append('file', file);
 
       this.http.post('/api/upload', formData).subscribe(() => {
-        this.fetchFiles(); // Refresh file list after upload
+        console.log('File uploaded successfully');
       });
     }
   }

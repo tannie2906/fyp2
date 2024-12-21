@@ -68,16 +68,16 @@ export class FolderComponent implements OnInit {
     if (event) {
       event.preventDefault(); // Prevent default link behavior
     }
-    
+
     if (confirm('Are you sure you want to delete this file?')) {
-      this.fileService.deleteFile(file.id, file.name).subscribe({
+      this.fileService.deleteFile(file.id).subscribe({
         next: (response) => {
-            console.log('File deleted successfully', response);
+          console.log('File deleted successfully', response);
         },
         error: (error) => {
-            console.error('Error deleting file', error);
+          console.error('Error deleting file', error);
         }
-    });
+      });
     }
   }
   
