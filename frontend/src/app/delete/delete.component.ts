@@ -74,13 +74,14 @@ export class DeleteComponent implements OnInit {
   
   // Restore a file
   restoreFile(fileId: number): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+    const headers = new HttpHeaders()
+      .set('Authorization', `Token ${this.authService.getToken() || ''}`)
+      .set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
   
-    // Wrap the single file ID in an array
     this.folderService.restoreFiles([fileId], headers).subscribe(
       () => {
         console.log('File restored successfully!');
-        this.fetchDeletedFiles(); // Refresh list
+        this.fetchDeletedFiles(); // Refresh the list after restoring
       },
       (error: HttpErrorResponse) => {
         console.error('Error restoring file:', error.message);
@@ -88,16 +89,20 @@ export class DeleteComponent implements OnInit {
     );    
   }
   
+  
    // Restore selected files
-  restoreSelectedFiles(): void {
-    const headers = new HttpHeaders().set('X-CSRFToken', this.getCookie('csrftoken')); // Include CSRF token
+   restoreSelectedFiles(): void {
+    const headers = new HttpHeaders()
+      .set('Authorization', `Token ${this.authService.getToken() || ''}`)
+      .set('X-CSRFToken', this.getCookie('csrftoken'));
+  
     const fileIds = this.selectedFiles; // Array of selected file IDs
-
+  
     if (!fileIds.length) {
       console.warn('No files selected for restoration.');
       return;
     }
-
+  
     this.folderService.restoreFiles(fileIds, headers).subscribe(
       (response) => {
         console.log(`Restored ${fileIds.length} files successfully:`, response.message);
@@ -109,6 +114,7 @@ export class DeleteComponent implements OnInit {
       }
     );    
   }
+  
 
   // Permanently delete a file
   permanentlyDeleteFile(fileId: number): void {

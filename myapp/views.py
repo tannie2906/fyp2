@@ -522,25 +522,28 @@ class RestoreFileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # Get the list of file IDs
         file_ids = request.data.get('file_ids', [])
         if not file_ids:
             return Response({"error": "No file IDs provided."}, status=400)
 
         restored_files = []
+
         for file_id in file_ids:
             try:
-                # Get the deleted file
+                # Fetch the deleted file entry
                 deleted_file = DeletedFile.objects.get(id=file_id, user_id=request.user.id)
 
-                # Paths for trash and restore
-                trash_path = os.path.join(settings.MEDIA_ROOT, 'trash', os.path.basename(deleted_file.file.name))
-                restore_path = os.path.join(settings.MEDIA_ROOT, deleted_file.file.name)
+                # Adjust paths to match the directory structure
+                trash_path = os.path.join(settings.MEDIA_ROOT, 'uploads', 'trash', os.path.basename(deleted_file.file))
+                restore_path = os.path.join(settings.MEDIA_ROOT, 'uploads', os.path.basename(deleted_file.file))
 
-                # Check if the file exists in trash
+                # Check if file exists in the trash directory
                 if os.path.exists(trash_path):
-                    shutil.move(trash_path, restore_path)  # Move file from trash to restore location
+                    # Move the file back to the original location
+                    shutil.move(trash_path, restore_path)
 
-                    # Create a new entry in File model
+                    # Restore the file in the database
                     restored_file = File.objects.create(
                         file=deleted_file.file,
                         file_name=deleted_file.file_name,
@@ -548,7 +551,8 @@ class RestoreFileView(APIView):
                         user_id=deleted_file.user_id,
                         is_deleted=False
                     )
-                    # Remove the file from DeletedFile
+
+                    # Delete the entry from DeletedFile
                     deleted_file.delete()
                     restored_files.append(restored_file)
                 else:
@@ -558,11 +562,13 @@ class RestoreFileView(APIView):
                 return Response({"error": "File not found in database."}, status=404)
 
             except Exception as e:
-                # Capture other errors
-                return Response({"error": f"Restore failed: {str(e)}"}, status=500)
+                # Capture and log any other errors
+                return Response({"error": f"Restore failed with error: {str(e)}"}, status=500)
 
+        # Return success message
         return Response({"message": f"{len(restored_files)} files restored successfully."}, status=200)
 
+    
 #@api_view(['DELETE'])
 #@permission_classes([IsAuthenticated])
 #def permanently_delete(request, id):

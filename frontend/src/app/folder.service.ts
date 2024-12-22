@@ -34,10 +34,12 @@ export class FolderService {
 
   // Restore a file by ID
   restoreFiles(fileIds: number[], headers?: HttpHeaders): Observable<any> {
-    const url = `${this.apiUrl}/restore-files/`; // Ensure endpoint consistency
-    console.log('Restore API URL:', url); // Debugging URL
+    const url = `${this.apiUrl}/restore-files/`; // Consistent endpoint URL
+    console.log('Restore API URL:', url); // Log URL for debugging
+    console.log('Headers:', headers); // Debugging headers
     return this.http.post(url, { file_ids: fileIds }, { headers });
-  } 
+}
+
   
   // Permanently delete a file by ID
   permanentlyDeleteFile(fileId: number, headers?: HttpHeaders): Observable<any> {
