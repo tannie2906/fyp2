@@ -57,7 +57,6 @@ export class FileService {
     return this.http.post(url, body);
   }
 
-
   getStarredFiles() {
     return this.http.get<any[]>('http://127.0.0.1:8000/api/files/starred/', {
       headers: { Authorization: `Bearer ${this.authService.getToken()}` },
@@ -75,29 +74,44 @@ export class FileService {
   } 
 
   // delete method
-  // file.service.ts
-deleteFile(fileId: string): Observable<any> {
-  const url = `http://127.0.0.1:8000/api/delete/${fileId}/`;
-  return this.http.delete(url, {
-    headers: {
-      Authorization: `Token ${this.authService.getToken()}`,
-    },
-  }).pipe(
-    catchError((error: HttpErrorResponse) => {
-      return of(error.error);
-    })
-  );
-}
-
-
-
-  // fetch delete file, for delete page
+  deleteFile(fileId: string): Observable<any> {
+    const url = `${this.apiUrl}/deleted-files/`; // POST instead of DELETE
+    return this.http.post(url, { file_id: fileId }, {  // Send file_id in the body
+      headers: {
+        Authorization: `Token ${this.authService.getToken()}`,
+      },
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return of(error.error);
+      })
+    );
+  }  
+  
   getDeletedFiles(): Observable<any> {
-    return this.http.get('/api/deleted-files'); // Replace with the actual backend API URL
+    const url = `${this.apiUrl}/deleted-files/`; // Matches backend
+    return this.http.get(url, {
+      headers: {
+        Authorization: `Token ${this.authService.getToken()}`,
+      },
+    });
   }
+  
 
   // File download URL
   getFileDownloadUrl(fileId: number): string {
-    return `http://127.0.0.1:8000/api/files/download/${fileId}/`;
+    return `${this.apiUrl}/files/download/${fileId}/`;
+  }
+  
+  // Ensure download uses the correct filename
+  downloadFile(fileId: number, token: string) {
+    const url = this.getFileDownloadUrl(fileId);
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    return this.http.get(url, {
+      headers: headers,
+      responseType: 'blob',
+    });
   }
 }  

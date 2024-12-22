@@ -56,18 +56,21 @@ export class DeleteComponent implements OnInit {
 
   // Fetch deleted files from the API for the current logged-in user
   fetchDeletedFiles(): void {
-    const headers = new HttpHeaders().set('Authorization', `Token ${this.authService.getToken() || ''}`);
-    
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      `Token ${this.authService.getToken() || ''}`
+    );
+  
     this.folderService.getDeletedFiles(this.userId, headers).subscribe(
       (files: any[]) => {
-        console.log('Fetched Deleted Files:', files); // Debug log
-        this.deletedFiles = files || []; // Handle empty response
+        console.log('Fetched Deleted Files:', files);
+        this.deletedFiles = files || []; // Update deleted files list
       },
       (error) => {
         console.error('Error fetching deleted files:', error);
       }
     );
-  }
+  }  
   
   // Restore a file
   restoreFile(fileId: number): void {
@@ -77,16 +80,12 @@ export class DeleteComponent implements OnInit {
     this.folderService.restoreFiles([fileId], headers).subscribe(
       () => {
         console.log('File restored successfully!');
-        this.fetchDeletedFiles(); // Refresh the list after restoration
+        this.fetchDeletedFiles(); // Refresh list
       },
       (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          console.error('File not found. It may have been permanently deleted or does not exist.');
-        } else {
-          console.error('Error restoring file:', error.message);
-        }
+        console.error('Error restoring file:', error.message);
       }
-    );
+    );    
   }
   
    // Restore selected files
@@ -102,14 +101,13 @@ export class DeleteComponent implements OnInit {
     this.folderService.restoreFiles(fileIds, headers).subscribe(
       (response) => {
         console.log(`Restored ${fileIds.length} files successfully:`, response.message);
-        this.fetchDeletedFiles(); // Refresh the deleted files list
-        this.selectedFiles = []; // Clear the selection after successful restoration
-        this.allSelected = false; // Reset the master checkbox
+        this.fetchDeletedFiles(); // Refresh list
+        this.selectedFiles = []; // Clear selection
       },
       (error: HttpErrorResponse) => {
         console.error('Error restoring selected files:', error.message);
       }
-    );
+    );    
   }
 
   // Permanently delete a file

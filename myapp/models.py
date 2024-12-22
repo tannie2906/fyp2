@@ -27,7 +27,6 @@ class File(models.Model):
     file_path = models.FileField(upload_to='uploads/')
 
     def save(self, *args, **kwargs):
-        # Rename the file to the custom name while preserving the extension
         if self.file and self.file_name:
             extension = os.path.splitext(self.file.name)[1]  # Get the file extension
             custom_name = f"{slugify(self.file_name)}{extension}"  # Slugify for safety
@@ -83,7 +82,9 @@ class CustomUserCreationForm(forms.ModelForm):
             
 class DeletedFile(models.Model):
     id = models.AutoField(primary_key=True)
-    file = models.FileField(upload_to='uploads/') 
+    #file = models.FileField(upload_to='uploads/') 
+    #file = models.FileField(upload_to='trash/')
+    file = models.CharField(max_length=500)
     user_id = models.IntegerField()
     file_name = models.CharField(max_length=255) 
     deleted_at = models.DateTimeField(default=now)

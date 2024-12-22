@@ -4,6 +4,7 @@ import { AuthService } from '../auth.service';
 import { FileService, File } from '../services/file.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UserFile } from '../models/user-file.model'; 
 
 @Component({
   selector: 'app-folder',
@@ -66,20 +67,25 @@ export class FolderComponent implements OnInit {
   // Handle file deletion
   onDelete(file: any, event?: Event): void {
     if (event) {
-      event.preventDefault(); // Prevent default link behavior
+      event.preventDefault();
     }
-
+  
     if (confirm('Are you sure you want to delete this file?')) {
       this.fileService.deleteFile(file.id).subscribe({
-        next: (response) => {
-          console.log('File deleted successfully', response);
+        next: () => {
+          console.log('File deleted successfully');
+  
+          // Refresh both active and deleted files
+          this.fetchFiles();           // Refresh active files
+          //this.folderService.fetchDeletedFiles(); // Update deleted files list
         },
         error: (error) => {
           console.error('Error deleting file', error);
-        }
+        },
       });
     }
   }
+  
   
   // Sort files by column
   sortFiles(column: string): void {
@@ -122,40 +128,33 @@ export class FolderComponent implements OnInit {
   }
 
   // File download functionality
-  onDownload(file: File, event: Event): void {
+  onDownload(file: UserFile, event: Event): void {
     event.preventDefault();
-    const token = this.authService.getToken(); // Retrieve the token from AuthService
   
+    const token = this.authService.getToken();
     if (!token) {
       alert('You are not authenticated. Please log in.');
       return;
     }
   
-    const fileUrl = `http://127.0.0.1:8000/api/files/download/${file.id}/`;
+    console.log('Downloading file:', file.file_name); // Debug log
   
-    // Send request with Authorization header
-    this.http
-      .get(fileUrl, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob', // Expect a binary file response
-      })
-      .subscribe({
-        next: (blob) => {
-          // Use the file's name from the file object
-          const downloadUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = downloadUrl;
-          a.download = file.filename || 'downloaded_file'; // Provide fallback filename
-          a.click();
-          window.URL.revokeObjectURL(downloadUrl); // Clean up the object URL
-        },
-        error: (error) => {
-          console.error('Error downloading file:', error);
-          alert('Failed to download the file. Please try again.');
-        },
-      });
-  }
-  
+    this.fileService.downloadFile(file.id, token).subscribe({
+      next: (blob) => {
+        console.log('File downloaded successfully:', blob);
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = file.file_name || 'downloaded_file'; // Use correct filename
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (error) => {
+        console.error('Error downloading file:', error);
+        alert('Failed to download the file. Please try again.');
+      },
+    });
+  }  
   
   // sharing the file
   onShare(file: any): void {
