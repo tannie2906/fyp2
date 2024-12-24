@@ -1,19 +1,81 @@
-<div class="search-container">
-    <h2>Search Results for "{{ query }}"</h2>
-    <ul *ngIf="searchResults.length > 0">
-      <li *ngFor="let file of searchResults">
-        <strong>{{ file.file_name }}</strong> ({{ file.size }} bytes)
-      </li>
-    </ul>
+<div class="folder-page">
+    <!-- Header Section -->
+    <section class="hero">
+      <h1 class="hero-title">Search Files</h1>
+      <p class="hero-description">
+        Browse your search results with ease and efficiency.
+      </p>
+    </section>
   
-    <!-- No results found -->
-    <p *ngIf="searchResults.length === 0">No results found.</p>
+    <!-- Search Results Header -->
+    <div class="files-header">
+      <h2>Search Results for "{{ query }}"</h2>
+    </div>
+  
+    <!-- Files Section -->
+    <section class="file-section">
+      <table class="file-table" *ngIf="searchResults.length > 0">
+        <thead>
+          <tr>
+            <th (click)="sortFiles('name')" style="cursor: pointer;">
+              Name
+              <span *ngIf="sortOrder['name'] === 'asc'">▲</span>
+              <span *ngIf="sortOrder['name'] === 'desc'">▼</span>
+            </th>
+            <th (click)="sortFiles('size')" style="cursor: pointer;">
+              Size
+              <span *ngIf="sortOrder['size'] === 'asc'">▲</span>
+              <span *ngIf="sortOrder['size'] === 'desc'">▼</span>
+            </th>
+            <th>Who can access</th>
+            <th (click)="sortFiles('modified')" style="cursor: pointer;">
+              Modified
+              <span *ngIf="sortOrder['modified'] === 'asc'">▲</span>
+              <span *ngIf="sortOrder['modified'] === 'desc'">▼</span>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of searchResults">
+            <td>
+              <a href="#" (click)="onOpenFile(file, $event)">
+                {{ file.file_name }}
+              </a>
+            </td>
+            <td>{{ formatFileSize(file.size) }}</td>
+            <td>Owner: {{ file.owner?.username }}</td>
+            <td>{{ file.created_at | date: 'medium' }}</td>
+            <td class="actions">
+              <!-- Actions Dropdown -->
+              <div class="dropdown">
+                <button class="more-button" (click)="toggleDropdown(file)">⋮</button>
+                <div
+                  class="dropdown-menu"
+                  [ngClass]="{ 'adjust-position': file.adjustDropdown }"
+                  *ngIf="file.showDropdown"
+                >
+                  <a href="#" (click)="onRename(file)">Rename</a>
+                  <a href="#" (click)="onMove(file)">Move</a>
+                  <a href="#" (click)="onShare(file)">Share</a>
+                  <a href="#" (click)="onDownload(file, $event)">Download</a>
+                  <a href="#" (click)="onDelete(file, $event)">Delete</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <!-- No results -->
+      <p *ngIf="searchResults.length === 0">No results found.</p>
+    </section>
   
     <!-- Pagination Controls -->
     <div *ngIf="totalPages > 1" class="pagination">
-        <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    </div>
   </div>
-  
   
