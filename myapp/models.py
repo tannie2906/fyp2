@@ -25,6 +25,8 @@ class File(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_starred = models.BooleanField(default=False)
     file_path = models.FileField(upload_to='uploads/')
+    #user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
     def save(self, *args, **kwargs):
         if self.file and self.file_name:
@@ -82,7 +84,7 @@ class CustomUserCreationForm(forms.ModelForm):
             
 class DeletedFile(models.Model):
     id = models.AutoField(primary_key=True)
-    #file = models.FileField(upload_to='uploads/') 
+   # file = models.FileField(upload_to='uploads/') 
     #file = models.FileField(upload_to='trash/')
     file = models.CharField(max_length=500)
     user_id = models.IntegerField()

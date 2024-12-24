@@ -2,6 +2,9 @@ export interface UserFile {
   id: number;
   file_name: string;
   size: number;
-  type: string;
+  user_id: number;
   created_at: string;
+  is_deleted: boolean;
+  deleted_at?: string;
+  file_path: string;
 }

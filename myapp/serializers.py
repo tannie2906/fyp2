@@ -15,7 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ['id', 'file_name', 'file', 'size', 'user_id', 'created_at', 'is_deleted', 'deleted_at', 'created_at']
+        fields = ['id', 'file_name', 'file', 'size', 'user_id', 'created_at', 'is_deleted', 'deleted_at', 'file_path']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:

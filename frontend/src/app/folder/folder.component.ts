@@ -65,27 +65,26 @@ export class FolderComponent implements OnInit {
   }
 
   // Handle file deletion
-  onDelete(file: any, event?: Event): void {
+  onDelete(file: File, event?: Event): void {
     if (event) {
-      event.preventDefault();
+        event.preventDefault();
     }
-  
+
+    const isDeleted = file.is_deleted;
+
     if (confirm('Are you sure you want to delete this file?')) {
-      this.fileService.deleteFile(file.id).subscribe({
-        next: () => {
-          console.log('File deleted successfully');
-  
-          // Refresh both active and deleted files
-          this.fetchFiles();           // Refresh active files
-          //this.folderService.fetchDeletedFiles(); // Update deleted files list
-        },
-        error: (error) => {
-          console.error('Error deleting file', error);
-        },
-      });
+        this.fileService.deleteFile(file.id, isDeleted).subscribe({
+            next: () => {
+                alert('File deleted successfully.');
+                this.fetchFiles(); // Refresh file list after deletion
+            },
+            error: (error) => {
+                alert('Failed to delete file: ' + (error.error.message || 'Unknown error.'));
+                console.error('Error deleting file:', error);
+            },
+        });
     }
-  }
-  
+}    
   
   // Sort files by column
   sortFiles(column: string): void {

@@ -17,7 +17,8 @@ import { FileService } from './services/file.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from './token.interceptor';
 import { DeleteComponent } from './delete/delete.component';
-import { FolderService } from './folder.service'; 
+import { FolderService } from './folder.service';
+import { SearchComponent } from './search/search.component'; 
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { FolderService } from './folder.service';
     UploadComponent,
     FolderComponent,
     FileListComponent,
-    DeleteComponent
+    DeleteComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule,

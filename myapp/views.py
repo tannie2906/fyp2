@@ -11,6 +11,8 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import DestroyAPIView
+from rest_framework import generics, filters
+from rest_framework.pagination import PageNumberPagination
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -29,6 +31,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now 
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 from .models import DeletedFile, UploadedFile, File, SharedFile, Profile
@@ -124,7 +127,7 @@ class FileUploadView(APIView):
         try:
             uploaded_file = request.FILES.get('file')
             file_name = request.data.get('name', '').strip()  # Get custom name from request
-            user_id = request.user.id  # Assign current user's ID
+            user_id = request.user.id  # Get the current authenticated user's ID
 
             if not uploaded_file:
                 return Response({"error": "No file uploaded."}, status=400)
@@ -132,18 +135,37 @@ class FileUploadView(APIView):
             if not file_name:
                 return Response({"error": "File name is required."}, status=400)
 
-            # Create the file instance with the provided custom name
+            # Ensure 'uploads/' prefix for file path
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)  # Create directory if it doesn't exist
+
+            # Define the file path in 'uploads/' directory
+            safe_file_name = slugify(file_name) + os.path.splitext(uploaded_file.name)[1]
+            file_path = os.path.join(upload_dir, safe_file_name)
+
+            # Save the file manually
+            with open(file_path, 'wb+') as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+
+            # Create file instance with correct path
             file_instance = File.objects.create(
-                file=uploaded_file,
+                file=f"uploads/{safe_file_name}",  # Set relative path starting with 'uploads/'
                 file_name=file_name,
                 size=uploaded_file.size,
-                user_id=user_id,
+                user_id=user_id,  # Use fixed line here
             )
-            return Response({"message": "File uploaded successfully!", "file_id": file_instance.id}, status=201)
+
+            # Return success response
+            return Response({
+                "message": "File uploaded successfully!",
+                "file_id": file_instance.id,
+                "file_name": file_instance.file_name
+            }, status=201)
 
         except Exception as e:
             print("Error during upload:", str(e))
-            return Response({"error": "An unexpected error occurred."}, status=500)
+            return Response({"error": str(e)}, status=500)
 
 class FileViewSet(viewsets.ModelViewSet):
     serializer_class = FileSerializer
@@ -151,7 +173,6 @@ class FileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return File.objects.filter(user=self.request.user, is_deleted=False)
-
 
 # List user-uploaded files
 class FileListView(APIView):
@@ -175,7 +196,6 @@ class CustomAuthToken(APIView):
             token, _ = Token.objects.get_or_create(user=user)
             return Response({"token": token.key})
         return Response({"error": "Invalid credentials"}, status=400)
-
 
 # Profile View
 class ProfileView(APIView):
@@ -276,23 +296,6 @@ class DownloadFileAPIView(APIView):
             print(f"Error occurred: {str(e)}")
             return Response({"error": f"Server error: {str(e)}"}, status=500)
 
-#@api_view(['GET'])
-#@permission_classes([IsAuthenticated])
-#def download_file(request, file_id):
- #   try:
-  #      file = File.objects.get(id=file_id)
-   #     file_path = file.file.path  # Absolute path to the file
-       # file_name = file.file_name  # Use the filename field from the database
-    #    file_name = file.file.name 
-    #except File.DoesNotExist:
-     #   raise Http404("File does not exist")
-
-    #if os.path.exists(file_path):
-     #   response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
-      #  return response
-    #else:
-     #   raise Http404("File not found on the server")
-
 # ViewSet for files
 class FileViewSet(viewsets.ModelViewSet):
     serializer_class = FileSerializer
@@ -355,26 +358,58 @@ def get(self, request, *args, **kwargs):
     return Response(serializer.data)
 
 #delete function this one same as DeletedFilesView
-#class FileDeleteView(APIView):
- #   permission_classes = [IsAuthenticated]
+class FileDeleteView(APIView):
+    def delete(self, request, id, *args, **kwargs):
+        try:
+            # Log the incoming request
+            logger.info(f"File ID {id} requested for deletion by user {request.user.id}")
 
-  #  def delete(self, request, pk):
-   #     try:
-    #        file_instance = File.objects.get(pk=pk, user_id=request.user.id)
-#
- #           # Check for valid file path
-  #          if not file_instance.file or file_instance.file == "0":
-   #             return Response({"error": "File record is corrupted."}, status=400)
-#
- #           file_name = file_instance.file_name
-  #          file_instance.delete()
+            # Fetch the file
+            file = File.objects.get(id=id, user_id=request.user.id)
 
-   #         return Response({"message": f"File '{file_name}' deleted successfully!"}, status=200)
-    #    except File.DoesNotExist:
-     #       return Response({"error": "File not found."}, status=404)
-      #  except Exception as e:
-       #     return Response({"error": str(e)}, status=500)
-        
+            # Log database file details
+            logger.info(f"Database file path: {file.file}") 
+
+            # Compute correct file path in the uploads directory
+            original_path = file.file.path  # Path in 'uploads/' folder
+            trash_dir = os.path.join(settings.MEDIA_ROOT, 'trash')  # Trash directory
+            os.makedirs(trash_dir, exist_ok=True)  # Ensure trash exists
+
+            # Move file to trash folder
+            trash_path = os.path.join(trash_dir, os.path.basename(original_path))  # Full path in trash
+            if os.path.exists(original_path):
+                shutil.move(original_path, trash_path)  # Move file physically
+                logger.info(f"File moved to trash: {trash_path}")
+            else:
+                logger.warning(f"File {original_path} not found in filesystem.")  # Log missing path
+
+            # Perform soft delete (mark file as deleted in the main table)
+            file.is_deleted = True
+            file.save()
+
+            # Save the deleted file record with the new path in the trash folder
+            DeletedFile.objects.create(
+                file=f"trash/{os.path.basename(file.file.name)}",  # Store relative path in DeletedFile
+                user_id=request.user.id,
+                file_name=file.file_name,
+                size=file.size
+            )
+
+            # Return success response
+            return Response({"message": "File deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist:
+            logger.error(f"File ID {id} not found for user {request.user.id}")
+            return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except PermissionError as e:
+            logger.error(f"Permission error for file ID {id}: {e}")
+            return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+
+        except Exception as e:
+            logger.error(f"Unexpected error for file ID {id}: {e}")
+            return Response({"error": f"Internal Server Error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
 class DeletedFilesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -409,11 +444,13 @@ class DeletedFilesView(APIView):
 
             # Save to DeletedFile model
             deleted_file = DeletedFile.objects.create(
+               # id=file.id,  # Use the same ID
                 file=f"uploads/trash/{os.path.basename(file.file.name)}",  # Relative path
                 file_name=file.file_name,
                 size=file.size,
                 user_id=request.user.id,
                 deleted_at=timezone.now()
+        
             )
 
             # Remove from active files
@@ -430,38 +467,27 @@ class DeletedFilesView(APIView):
                 shutil.move(trash_path, original_path)
             return Response({"error": str(e)}, status=500)
 
-
 class DeletedFileDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, id, *args, **kwargs):
+    def delete(self, request, id):
         try:
-            # Retrieve the file to be deleted
-            file = File.objects.get(id=id, user_id=request.user.id)
+            deleted_file = DeletedFile.objects.get(id=id, user_id=request.user.id)
 
-            # Ensure file exists and can be deleted
-            if not file.file or file.file == "0":
-                return Response({"error": "File record is corrupted."}, status=status.HTTP_400_BAD_REQUEST)
+            # Construct file path
+            file_path = os.path.join(settings.MEDIA_ROOT, deleted_file.file)
 
-            # Move the file to the DeletedFile model
-            deleted_file = DeletedFile.objects.create(
-                file=file.file,
-                file_name=file.file_name,
-                size=file.size,
-                user_id=request.user.id,
-                deleted_at=timezone.now()  # Store the deletion timestamp
-            )
+            # Remove file physically
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
-            # Delete the file from the File model
-            file.delete()
+            deleted_file.delete()
+            return Response({"message": "File permanently deleted."}, status=200)
 
-            return Response({'message': f'File {file.file_name} deleted successfully and moved to deleted files.'}, status=status.HTTP_200_OK)
-
-        except File.DoesNotExist:
-            return Response({'error': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        except DeletedFile.DoesNotExist:
+            return Response({"error": "File not found."}, status=404)
         except Exception as e:
-            return Response({'error': 'An error occurred while deleting the file.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=500)
 
 #@csrf_exempt
 #@api_view(['DELETE'])
@@ -495,7 +521,6 @@ class DeletedFileDeleteView(APIView):
  #       logger.error(f"Error while deleting file with ID {id}: {str(e)}")
   #      return JsonResponse({'error': 'An error occurred while deleting the file.'}, status=500)
 
-
 # fetch delete file
 #@api_view(['GET'])
 #@permission_classes([IsAuthenticated])
@@ -517,57 +542,79 @@ class DeletedFileDeleteView(APIView):
     #except Exception as e:
      #   return Response({"error": str(e)}, status=500)
     
-# Restore deleted files //baru tukar
+# Restore deleted files
 class RestoreFileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Get the list of file IDs
-        file_ids = request.data.get('file_ids', [])
-        if not file_ids:
-            return Response({"error": "No file IDs provided."}, status=400)
+        try:
+            # 1. Get file IDs
+            file_ids = request.data.get('file_ids', [])
+            if not file_ids:
+                return Response({"error": "File IDs are required."}, status=400)
 
-        restored_files = []
+            restored_files = []
+            failed_files = []
 
-        for file_id in file_ids:
-            try:
-                # Fetch the deleted file entry
-                deleted_file = DeletedFile.objects.get(id=file_id, user_id=request.user.id)
+            # 2. Process each file
+            for file_id in file_ids:
+                try:
+                    # 3. Retrieve deleted file
+                    deleted_file = DeletedFile.objects.get(id=file_id, user_id=request.user.id)
 
-                # Adjust paths to match the directory structure
-                trash_path = os.path.join(settings.MEDIA_ROOT, 'uploads', 'trash', os.path.basename(deleted_file.file))
-                restore_path = os.path.join(settings.MEDIA_ROOT, 'uploads', os.path.basename(deleted_file.file))
+                    # 4. Paths
+                    trash_path = os.path.join(settings.MEDIA_ROOT, 'uploads', 'trash', os.path.basename(File.file.name))
 
-                # Check if file exists in the trash directory
-                if os.path.exists(trash_path):
-                    # Move the file back to the original location
+                    # Extract original file name
+                    filename = os.path.basename(deleted_file.file)
+
+                    # Ensure no double 'uploads/' prefix
+                    if deleted_file.file.startswith("uploads/"):
+                        restore_path = os.path.join(settings.MEDIA_ROOT, deleted_file.file)
+                        db_path = deleted_file.file  # Preserve original DB path
+                    else:
+                        restore_path = os.path.join(settings.MEDIA_ROOT, 'uploads', filename)
+                        db_path = f"uploads/{filename}"  # Always prepend uploads/
+
+                    # Debug logs
+                    print(f"Restoring file: {trash_path} -> {restore_path}")
+                    print(f"Database path: {db_path}")
+
+                    # 5. Ensure directory exists
+                    os.makedirs(os.path.dirname(restore_path), exist_ok=True)
+
+                    # 6. Move file
                     shutil.move(trash_path, restore_path)
 
-                    # Restore the file in the database
+                    # 7. Save to File table with correct path
                     restored_file = File.objects.create(
-                        file=deleted_file.file,
+                        id=deleted_file.id,
+                        file=db_path,  # Use dynamic db_path
                         file_name=deleted_file.file_name,
                         size=deleted_file.size,
-                        user_id=deleted_file.user_id,
-                        is_deleted=False
+                        user_id=request.user.id,
+                        is_deleted=False,
+                        created_at=timezone.now()
                     )
 
-                    # Delete the entry from DeletedFile
+                    # 8. Remove from deleted table
                     deleted_file.delete()
-                    restored_files.append(restored_file)
-                else:
-                    return Response({"error": f"File {deleted_file.file_name} not found in trash."}, status=404)
+                    restored_files.append(file_id)
 
-            except DeletedFile.DoesNotExist:
-                return Response({"error": "File not found in database."}, status=404)
+                except DeletedFile.DoesNotExist:
+                    failed_files.append({"file_id": file_id, "error": "File not found."})
+                except Exception as e:
+                    failed_files.append({"file_id": file_id, "error": str(e)})
 
-            except Exception as e:
-                # Capture and log any other errors
-                return Response({"error": f"Restore failed with error: {str(e)}"}, status=500)
+            # 9. Response
+            return Response({
+                "message": "Restore process completed.",
+                "restored": restored_files,
+                "failed": failed_files
+            }, status=200)
 
-        # Return success message
-        return Response({"message": f"{len(restored_files)} files restored successfully."}, status=200)
-
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
     
 #@api_view(['DELETE'])
 #@permission_classes([IsAuthenticated])
@@ -591,7 +638,6 @@ class PermanentlyDeleteFilesView(APIView):
 
         deleted_files.delete()
         return Response({"message": "File permanently deleted."}, status=200)
-
 
 #empty bin
 class EmptyTrashView(APIView):
@@ -759,3 +805,15 @@ class UploadProfilePictureView(APIView):
         user_profile.save()  # Save to the database
 
         return Response({"message": "Profile picture uploaded successfully"}, status=status.HTTP_200_OK)
+
+#search function
+class FileSearchView(generics.ListAPIView):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['file_name', 'file_path']
+
+class FileSearchPagination(PageNumberPagination):
+    page_size = 10  # Number of results per page
+    page_size_query_param = 'page_size'
+    max_page_size = 50

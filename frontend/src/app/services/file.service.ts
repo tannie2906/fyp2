@@ -1,17 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders  } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { UserFile } from '../models/user-file.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../auth.service'; 
 
 export interface File {
   id: number;
+  user_id: number;
   filename: string; 
+  file_name: string;
   size: number;
   type?: string; // Optional if not provided
   upload_date: string;
   path: string;
+  created_at: string;
+  is_deleted?: boolean;
+  deleted_at?: string;
+  file_path: string;
 }
 
 @Injectable({
@@ -24,6 +30,15 @@ export class FileService {
   
   constructor(private http: HttpClient, private authService: AuthService) {}
 
+  // Utility: Get authorization headers
+  private getHeaders() {
+    return {
+      headers: {
+        Authorization: `Token ${this.authService.getToken()}`,
+      },
+    };
+  }
+
   // Fetch all user files
   getFiles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/files/`).pipe(
@@ -34,19 +49,17 @@ export class FileService {
     );
   }
 
-  // Correctly typed method to fetch files
+  // Fetch all files
   getFolderFiles(): Observable<File[]> {
-    return this.http.get<File[]>(`${this.apiUrl}/files/`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error fetching folder files:', error.message);
-        return of([]); // Return an empty array on error
-      })
+    return this.http.get<File[]>(`${this.apiUrl}/files/`, this.getHeaders()).pipe(
+      catchError(this.handleError('getFolderFiles', []))
     );
   }
   
-  // Get the URL for a specific file
+  
+  // Get URL for a specific file
   getFileUrl(fileName: string): Observable<{ fileUrl: string }> {
-    return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`); // Corrected apiUrl
+    return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`, this.getHeaders());
   }  
 
   // Rename file
@@ -73,28 +86,27 @@ export class FileService {
     );
   } 
 
-  // delete method
-  deleteFile(fileId: string): Observable<any> {
-    const url = `${this.apiUrl}/deleted-files/`; // POST instead of DELETE
-    return this.http.post(url, { file_id: fileId }, {  // Send file_id in the body
-      headers: {
-        Authorization: `Token ${this.authService.getToken()}`,
-      },
-    }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        return of(error.error);
-      })
+  // delete method 
+  deleteFile(fileId: number, isDeleted: boolean = false): Observable<any> {
+    const endpoint = isDeleted ? 'delete' : 'files/delete';  // 'files/delete' is the correct endpoint
+    const url = `${this.apiUrl}/${endpoint}/${fileId}/`;
+
+    return this.http.delete(url, this.getHeaders()).pipe(
+        tap(() => console.log(`File ${isDeleted ? 'permanently' : 'temporarily'} deleted: ID ${fileId}`)),
+        catchError(this.handleError('deleteFile'))
     );
-  }  
-  
-  getDeletedFiles(): Observable<any> {
-    const url = `${this.apiUrl}/deleted-files/`; // Matches backend
-    return this.http.get(url, {
-      headers: {
-        Authorization: `Token ${this.authService.getToken()}`,
-      },
-    });
   }
+
+
+  
+  // Fetch deleted files
+  // Fetch deleted files
+  getDeletedFiles(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/deleted-files/`, this.getHeaders()).pipe(
+      catchError(this.handleError('getDeletedFiles', []))
+    );
+  }
+
   
 
   // File download URL
@@ -113,5 +125,12 @@ export class FileService {
       headers: headers,
       responseType: 'blob',
     });
+  }
+  // Error handling utility
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T); // Return default result on error
+    };
   }
 }  

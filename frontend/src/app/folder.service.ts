@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { catchError, Observable, of } from 'rxjs';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -19,28 +19,36 @@ export class FolderService {
     return this.http.get<any[]>(`${this.apiUrl}/deleted-files/`, { headers });
   }
   
-  deleteFile(fileId: string): Observable<any> {
-    const url = `${this.apiUrl}/deleted-files/`; // POST instead of DELETE
-    return this.http.post(
-      url,
-      { file_id: fileId },
-      {
-        headers: {
-          Authorization: `Token ${this.authService.getToken()}`,
-        },
-      }
-    );
-  }
-
-  // Restore a file by ID
-  restoreFiles(fileIds: number[], headers?: HttpHeaders): Observable<any> {
-    const url = `${this.apiUrl}/restore-files/`; // Consistent endpoint URL
-    console.log('Restore API URL:', url); // Log URL for debugging
-    console.log('Headers:', headers); // Debugging headers
-    return this.http.post(url, { file_ids: fileIds }, { headers });
+  // Delete method updated to use DELETE
+deleteFile(fileId: string): Observable<any> {
+  const url = `${this.apiUrl}/delete/${fileId}/`; // Correct endpoint
+  return this.http.delete(url, {
+    headers: {
+      Authorization: `Token ${this.authService.getToken()}`,
+    },
+  });
 }
 
-  
+  // Restore files service method
+restoreFiles(fileIds: number[], headers?: HttpHeaders): Observable<any> {
+  const url = `${this.apiUrl}/restore-files/`; // Endpoint for restore
+  console.log('Restore API URL:', url); // Debugging
+
+  // Ensure headers are included
+  const httpHeaders = headers || new HttpHeaders().set(
+    'Authorization',
+    `Token ${this.authService.getToken()}`
+  );
+
+  // POST request with file IDs
+  return this.http.post(url, { file_ids: fileIds }, { headers: httpHeaders }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('Restore error:', error);
+      return of({ error: error.message });
+    })
+  );
+}
+
   // Permanently delete a file by ID
   permanentlyDeleteFile(fileId: number, headers?: HttpHeaders): Observable<any> {
     return this.http.delete(`${this.apiUrl}/permanently-delete/${fileId}/`, { headers });
@@ -56,5 +64,4 @@ export class FolderService {
     if (match) return match[2];
     return '';
   }
-  
 }

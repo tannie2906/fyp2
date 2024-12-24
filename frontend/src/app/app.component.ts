@@ -1,7 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';  // Add this import
+import { Router } from '@angular/router';  
 import { AuthService } from './auth.service';
+import { ApiService } from './services/api.service';
+import { HttpClient } from '@angular/common/http';
+import { UserFile } from './models/user-file.model';
 
+export interface File {
+  id: number;
+  user_id: number;
+  filename: string; 
+  file_name: string;
+  size: number;
+  type?: string; // Optional if not provided
+  upload_date: string;
+  path: string;
+  created_at: string;
+  is_deleted?: boolean;
+  deleted_at?: string;
+  file_path: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -13,10 +30,16 @@ export class AppComponent implements OnInit {
   title = 'frontend';
   profilePictureUrl: string = '';
   dropdownVisible: boolean = false;
+  searchResults: File[] = [];
+  query: string = '';
+  totalPages: number = 0;
+  currentPage: number = 1;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService,
+    private http: HttpClient
   ) {}
 
   goToLogin() {
@@ -76,13 +99,49 @@ export class AppComponent implements OnInit {
   }
 
   //search bar
-  onSearch(event: Event): void {
-    const input = (event.target as HTMLInputElement).value;
-    console.log('Search input:', input);
+  onSearch(query: string): void {
+    const encodedQuery = encodeURIComponent(query); // Encode query parameter
+    this.http.get<any>(`/api/apisearch/?search=${encodedQuery}`).subscribe(
+      (response: any) => { // Change 'File[]' to 'any'
+        console.log(response);
+        this.searchResults = response;
+      },
+      (error: any) => {
+        console.error('Search API error:', error);
+      }
+    );
   }
-  
+
   onSearchClick(): void {
-    console.log('Search button clicked');
-    // Trigger a search function or filter the file/folder list
+    if (this.query.trim()) {
+      this.getSearchResults(this.query, 1); // Start with page 1
+    }
+  }
+  // Get results for specific page
+  getSearchResults(query: string, page: number): void {
+    this.apiService.getSearchResults(query, page).subscribe(
+      (response: any) => {
+        this.searchResults = response.results; // Results for the current page
+        this.totalPages = Math.ceil(response.count / 10); // Total pages
+        this.currentPage = page; // Track the current page
+      },
+      (error: any) => {
+        console.error('Search API error:', error);
+      }
+    );
+  }
+
+  // Go to the next page
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.getSearchResults(this.query, this.currentPage + 1);
+    }
+  }
+
+  // Go to the previous page
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.getSearchResults(this.query, this.currentPage - 1);
+    }
   }
 }
