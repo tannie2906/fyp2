@@ -1,1 +1,19 @@
-<p>search works!</p>
+<div class="search-container">
+    <h2>Search Results for "{{ query }}"</h2>
+    <ul *ngIf="searchResults.length > 0">
+      <li *ngFor="let file of searchResults">
+        <strong>{{ file.file_name }}</strong> ({{ file.size }} bytes)
+      </li>
+    </ul>
+  
+    <!-- No results found -->
+    <p *ngIf="searchResults.length === 0">No results found.</p>
+  
+    <!-- Pagination Controls -->
+    <div *ngIf="totalPages > 1" class="pagination">
+        <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+  
+  

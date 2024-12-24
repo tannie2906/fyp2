@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -27,15 +28,16 @@ export class ApiService {
     return '';
   }
 
-  searchFiles(query: string): Observable<File[]> {
+  searchFiles(query: string, page: number = 1): Observable<any> {
     const encodedQuery = encodeURIComponent(query);
-    return this.http.get<File[]>(`${this.apiUrl}?search=${encodedQuery}`);
-  }  
+    const url = `${environment.apiUrl}/apisearch/?search=${encodedQuery}&page=${page}`; // Matches /api/apisearch/
+    return this.http.get<any>(url);
+  }   
 
   // Fetch paginated search results
   getSearchResults(query: string, page: number = 1): Observable<any> {
     const encodedQuery = encodeURIComponent(query);
-    const url = `${this.apiUrl}/apisearch/?search=${encodedQuery}&page=${page}`; // Use the correct endpoint
-    return this.http.get(url); // Return the API response as Observable
-  }
+    const url = `${environment.apiUrl}/apisearch/?search=${encodedQuery}&page=${page}`; // Ensure prefix `/api`
+    return this.http.get(url);
+  }  
 }  

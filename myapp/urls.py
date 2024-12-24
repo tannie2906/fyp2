@@ -51,6 +51,5 @@ urlpatterns = [
     path('deleted-files/', DeletedFilesView.as_view(), name='deleted-files'),
 
     #app component
-    path('apisearch/', FileSearchView.as_view(), name='apisearch')
-
+    path('apisearch/', FileSearchView.as_view(), name='apisearch'),
 ]

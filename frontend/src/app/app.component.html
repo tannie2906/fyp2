@@ -6,28 +6,12 @@
     <!-- Search Bar -->
     <div class="search-container">
       <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Search files or folders..." 
-        (input)="onSearch(query)" />
-      <button class="search-button" (click)="onSearchClick()">🔍</button>
-    </div>
-
-    <div *ngIf="searchResults.length > 0">
-      <h3>Search Results:</h3>
-      <ul>
-        <li *ngFor="let file of searchResults">
-          <strong>{{ file.file_name }}</strong> ({{ file.size }} bytes)
-        </li>
-      </ul>
-    
-      <!-- Pagination Controls -->
-      <div class="pagination">
-        <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
-      </div>
-    </div>
+        [(ngModel)]="query"
+        type="text"
+        class="search-input"
+        placeholder="Search files or folders..." />
+      <button class="search-button" (click)="search()">🔍</button>
+    </div>    
 
     <!-- Profile Picture as Login Button -->
     <div class="profile-picture-container">

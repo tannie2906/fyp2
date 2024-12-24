@@ -806,14 +806,27 @@ class UploadProfilePictureView(APIView):
 
         return Response({"message": "Profile picture uploaded successfully"}, status=status.HTTP_200_OK)
 
-#search function
-class FileSearchView(generics.ListAPIView):
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['file_name', 'file_path']
 
+# Define pagination first
 class FileSearchPagination(PageNumberPagination):
     page_size = 10  # Number of results per page
     page_size_query_param = 'page_size'
     max_page_size = 50
+
+#search function
+class FileSearchView(generics.ListAPIView):
+    serializer_class = FileSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['file_name', 'file_path']
+    pagination_class = FileSearchPagination
+
+    def get_queryset(self):
+        query = self.request.query_params.get('search', '')
+        print(f"Received Search Query: {query}")  # Debugging log
+        if query:
+            # Filter and order by created_at descending
+            return File.objects.filter(
+                file_name__icontains=query,
+                is_deleted=False
+            ).order_by('-created_at')  # Explicit ordering by latest created_at
+        return File.objects.none()

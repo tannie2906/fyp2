@@ -4,6 +4,7 @@ import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { UserFile } from '../models/user-file.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../auth.service'; 
+import { environment } from 'src/environments/environment';
 
 export interface File {
   id: number;
@@ -56,7 +57,6 @@ export class FileService {
     );
   }
   
-  
   // Get URL for a specific file
   getFileUrl(fileName: string): Observable<{ fileUrl: string }> {
     return this.http.get<{ fileUrl: string }>(`${this.apiUrl}/files/${fileName}`, this.getHeaders());
@@ -97,17 +97,12 @@ export class FileService {
     );
   }
 
-
-  
-  // Fetch deleted files
   // Fetch deleted files
   getDeletedFiles(): Observable<any> {
     return this.http.get(`${this.apiUrl}/deleted-files/`, this.getHeaders()).pipe(
       catchError(this.handleError('getDeletedFiles', []))
     );
   }
-
-  
 
   // File download URL
   getFileDownloadUrl(fileId: number): string {
@@ -126,6 +121,14 @@ export class FileService {
       responseType: 'blob',
     });
   }
+
+  // Example method to search files
+  searchFiles(searchTerm: string, page: number) {
+    const searchUrl = `${environment.apiUrl}/apisearch/?search=${searchTerm}&page=${page}`;
+
+    return this.http.get(searchUrl);
+  }
+
   // Error handling utility
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {

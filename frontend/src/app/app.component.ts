@@ -25,6 +25,7 @@ export interface File {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
+
 export class AppComponent implements OnInit {
   isAuthenticated: boolean = false;
   title = 'frontend';
@@ -41,6 +42,7 @@ export class AppComponent implements OnInit {
     private apiService: ApiService,
     private http: HttpClient
   ) {}
+
 
   goToLogin() {
     this.router.navigate(['/login']);  // Navigate to the login page
@@ -99,49 +101,9 @@ export class AppComponent implements OnInit {
   }
 
   //search bar
-  onSearch(query: string): void {
-    const encodedQuery = encodeURIComponent(query); // Encode query parameter
-    this.http.get<any>(`/api/apisearch/?search=${encodedQuery}`).subscribe(
-      (response: any) => { // Change 'File[]' to 'any'
-        console.log(response);
-        this.searchResults = response;
-      },
-      (error: any) => {
-        console.error('Search API error:', error);
-      }
-    );
-  }
-
-  onSearchClick(): void {
+  search(): void {
     if (this.query.trim()) {
-      this.getSearchResults(this.query, 1); // Start with page 1
+      this.router.navigate(['/search'], { queryParams: { q: this.query, page: 1 } });
     }
-  }
-  // Get results for specific page
-  getSearchResults(query: string, page: number): void {
-    this.apiService.getSearchResults(query, page).subscribe(
-      (response: any) => {
-        this.searchResults = response.results; // Results for the current page
-        this.totalPages = Math.ceil(response.count / 10); // Total pages
-        this.currentPage = page; // Track the current page
-      },
-      (error: any) => {
-        console.error('Search API error:', error);
-      }
-    );
-  }
-
-  // Go to the next page
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.getSearchResults(this.query, this.currentPage + 1);
-    }
-  }
-
-  // Go to the previous page
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.getSearchResults(this.query, this.currentPage - 1);
-    }
-  }
-}
+  }  
+}  

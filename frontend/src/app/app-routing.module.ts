@@ -10,6 +10,8 @@ import { RegisterComponent } from './register/register.component';
 import { FolderComponent } from './folder/folder.component';
 import { DeleteComponent } from './delete/delete.component';
 import { AuthGuard } from './auth.guard';
+import { SearchComponent } from './search/search.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' }, // Redirect to home page
@@ -20,6 +22,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'upload', component: UploadComponent, canActivate: [AuthGuard] },
   { path: 'folder', component: FolderComponent, canActivate: [AuthGuard] },
+  { path: 'search', component: SearchComponent },
   { path: 'delete', component: DeleteComponent, canActivate: [AuthGuard] }, // Add this route
   // { path: '', redirectTo: '/login', pathMatch: 'full' },  // Redirect to login by default
 ];
